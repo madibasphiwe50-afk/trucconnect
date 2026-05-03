@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>TruckConnect — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{-webkit-text-size-adjust:100%;}
+body{background:#f0f4f8;color:#0a1628;font-family:'Sora',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
+input,select,button{font-family:'Sora',sans-serif;}
+input::placeholder{color:#aab;}
+:root{--navy:#0a1628;--navy2:#162040;--blue:#1d4ed8;--blue-light:#dbeafe;--bg:#f0f4f8;--card:#fff;--border:#e2e8f0;--text:#0a1628;--muted:#64748b;--green:#16a34a;--red:#dc2626;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes popIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+
+.screen{display:none;min-height:100vh;flex-direction:column;background:var(--bg);}
+.screen.active{display:flex;animation:fadeIn .2s ease;}
+
+/* LOGIN */
+#s-login{background:var(--navy);justify-content:center;align-items:center;min-height:100vh;}
+.login-box{width:100%;max-width:380px;padding:24px;}
+.login-logo{text-align:center;margin-bottom:40px;}
+.login-logo-icon{font-size:48px;margin-bottom:12px;}
+.login-logo-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-.5px;}
+.login-logo-sub{font-size:12px;color:rgba(255,255,255,.35);margin-top:4px;text-transform:uppercase;letter-spacing:1px;}
+.login-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:28px 24px;}
+.lfi{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:13px 16px;color:#fff;font-size:14px;outline:none;transition:border-color .2s;margin-top:7px;}
+.lfi:focus{border-color:rgba(255,255,255,.3);}
+.lfi::placeholder{color:rgba(255,255,255,.25);}
+.lfg{margin-bottom:14px;}
+.lfl{font-size:11px;font-weight:600;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;}
+.login-btn{width:100%;background:#fff;color:var(--navy);border:none;border-radius:12px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;transition:all .2s;}
+.login-btn:disabled{opacity:.6;cursor:not-allowed;}
+.login-err{color:#f87171;font-size:12px;margin-top:8px;font-weight:500;display:none;}
+
+/* TOPBAR */
+.admin-topbar{background:var(--navy);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:200;}
+.admin-logo{font-size:15px;font-weight:800;color:#fff;}
+.admin-logo span{color:rgba(255,255,255,.35);}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.live-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:#4ade80;}
+.live-dot{width:6px;height:6px;background:#4ade80;border-radius:50%;animation:blink 1.5s ease infinite;}
+.admin-signout{background:none;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 12px;color:rgba(255,255,255,.6);font-size:11px;font-weight:600;cursor:pointer;}
+
+/* BOTTOM NAV - mobile first */
+.btm-nav{display:flex;background:var(--navy);border-top:1px solid rgba(255,255,255,.08);position:sticky;bottom:0;z-index:100;}
+.btm-btn{flex:1;background:none;border:none;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:rgba(255,255,255,.4);}
+.btm-btn.active{color:#fff;}
+.btm-btn-icon{font-size:18px;}
+.btm-btn-lbl{font-size:9px;font-weight:600;letter-spacing:.2px;}
+
+/* MAIN CONTENT */
+.admin-main{flex:1;overflow-y:auto;padding:16px;}
+.admin-tab{display:none;}
+.admin-tab.active{display:block;animation:fadeIn .2s ease;}
+.page-title{font-size:20px;font-weight:800;color:var(--text);margin-bottom:4px;letter-spacing:-.3px;}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:20px;}
+
+/* REVENUE CARD */
+.revenue-card{background:var(--navy);border-radius:16px;padding:20px;margin-bottom:16px;color:#fff;}
+.rev-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.rev-num{font-size:34px;font-weight:800;letter-spacing:-.5px;}
+.rev-sub{font-size:12px;color:rgba(255,255,255,.4);margin-top:4px;}
+.rev-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08);}
+.rev-cell-num{font-size:16px;font-weight:800;color:#fff;text-align:center;}
+.rev-cell-lbl{font-size:9px;color:rgba(255,255,255,.35);margin-top:2px;text-transform:uppercase;letter-spacing:.5px;text-align:center;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.stat-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:16px;}
+.stat-card-navy{background:var(--navy);border-color:var(--navy);}
+.sc-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.sc-label-w{color:rgba(255,255,255,.4)!important;}
+.sc-num{font-size:26px;font-weight:800;color:var(--text);}
+.sc-num-w{color:#fff!important;}
+.sc-change{font-size:11px;color:var(--green);margin-top:3px;font-weight:600;}
+
+/* SECTION CARD */
+.section-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:14px;}
+.sc-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1.5px solid var(--border);}
+.sc-head-title{font-size:14px;font-weight:800;color:var(--text);}
+.sc-head-badge{font-size:11px;font-weight:700;background:var(--blue-light);color:var(--blue);padding:3px 10px;border-radius:20px;}
+
+/* LIST ITEMS */
+.list-item{padding:14px 16px;border-bottom:1px solid var(--border);}
+.list-item:last-child{border-bottom:none;}
+.li-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.li-av{width:36px;height:36px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--blue);flex-shrink:0;}
+.li-av-dark{background:var(--navy);color:#fff;}
+.li-name{font-size:14px;font-weight:700;color:var(--text);}
+.li-meta{font-size:11px;color:var(--muted);margin-top:1px;}
+.li-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.li-right-row{display:flex;align-items:center;justify-content:space-between;margin-top:6px;}
+
+/* PILLS */
+.pill{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;}
+.pill-pending{background:#fef9c3;color:#92400e;border:1px solid #fde68a;}
+.pill-approved{background:#dcfce7;color:#166534;border:1px solid #bbf7d0;}
+.pill-rejected{background:#fee2e2;color:#991b1b;border:1px solid #fecaca;}
+.pill-avail{background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe;}
+.pill-accepted{background:#dcfce7;color:#166534;border:1px solid #bbf7d0;}
+.pill-in_progress{background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd;}
+.pill-completed{background:#f0fdf4;color:#15803d;border:1px solid #86efac;}
+.pill-cancelled{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;}
+.pill-active{background:#dcfce7;color:#166534;border:1px solid #bbf7d0;}
+
+/* ACTION BUTTONS */
+.act-btn{border:none;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;}
+.act-approve{background:#dcfce7;color:#166534;}
+.act-reject{background:#fee2e2;color:#991b1b;}
+.act-view{background:var(--blue-light);color:var(--blue);}
+
+/* SEARCH */
+.search-wrap{position:relative;margin-bottom:14px;}
+.search-input{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:11px 14px 11px 38px;color:var(--text);font-size:14px;outline:none;}
+.search-input:focus{border-color:#94a3b8;}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;pointer-events:none;}
+
+/* FILTER TABS */
+.filter-tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;}
+.filter-tab{padding:7px 14px;border:1.5px solid var(--border);border-radius:20px;background:var(--card);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.filter-tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+
+/* SETTINGS */
+.settings-section{background:var(--card);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:14px;}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);font-size:13px;flex-wrap:wrap;gap:8px;}
+.settings-row:last-child{border-bottom:none;}
+.settings-key{font-weight:600;color:var(--text);}
+.settings-val{color:var(--muted);word-break:break-all;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(10,22,40,.6);z-index:500;display:none;align-items:flex-end;padding:0;}
+.modal-box{background:var(--card);border-radius:20px 20px 0 0;padding:24px;width:100%;max-height:85vh;overflow-y:auto;animation:popIn .25s ease;}
+.modal-title{font-size:17px;font-weight:800;color:var(--text);margin-bottom:4px;}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:18px;}
+.modal-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;flex-wrap:wrap;gap:6px;}
+.modal-row:last-child{border-bottom:none;}
+.modal-key{color:var(--muted);}
+.modal-val{font-weight:700;color:var(--text);text-align:right;word-break:break-all;}
+.modal-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+.modal-btn{flex:1;border:none;border-radius:11px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;min-width:80px;}
+.modal-approve{background:#dcfce7;color:#166534;}
+.modal-reject{background:#fee2e2;color:#991b1b;}
+.modal-close-btn{background:#f8fafc;color:var(--muted);border:1.5px solid var(--border);}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#0a1628;color:#fff;font-size:13px;font-weight:600;padding:11px 20px;border-radius:20px;z-index:8000;white-space:nowrap;opacity:0;transition:opacity .3s;pointer-events:none;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, updateDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey:"AIzaSyD0dRuRqbsJr0-Kv29xcpQGjW-1DiYPNLo",
+  authDomain:"truck-connect-c0c67.firebaseapp.com",
+  projectId:"truck-connect-c0c67",
+  storageBucket:"truck-connect-c0c67.firebasestorage.app",
+  messagingSenderId:"313065662016",
+  appId:"1:313065662016:web:a43aecfce5d7db205d61a5"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+window._FB = {auth,db,signInWithEmailAndPassword,signOut,onAuthStateChanged,collection,updateDoc,doc,onSnapshot};
+</script>
+
+<div class="toast" id="toast"></div>
+<div class="modal-overlay" id="modal-overlay"><div class="modal-box" id="modal-box"></div></div>
+
+<!-- LOGIN -->
+<div id="s-login" class="screen active">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">🚛</div>
+      <div class="login-logo-title">TruckConnect</div>
+      <div class="login-logo-sub">Admin Dashboard</div>
+    </div>
+    <div class="login-card">
+      <div style="font-size:17px;font-weight:700;color:#fff;margin-bottom:4px;">Admin Sign In</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:20px;">Restricted access — authorised personnel only.</div>
+      <div class="lfg"><label class="lfl">Email</label><input class="lfi" id="login-email" type="email" placeholder="admin@truckconnect.co.za"/></div>
+      <div class="lfg"><label class="lfl">Password</label><input class="lfi" id="login-pass" type="password" placeholder="Your password"/></div>
+      <div class="login-err" id="login-err"></div>
+      <button class="login-btn" id="login-btn">Sign In →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="s-admin" class="screen">
+  <div class="admin-topbar">
+    <div class="admin-logo">Truck<span>Connect</span> · Admin</div>
+    <div class="topbar-right">
+      <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+      <button class="admin-signout" id="admin-signout-btn">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="admin-main">
+    <!-- DASHBOARD -->
+    <div class="admin-tab active" id="tab-dashboard">
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub" id="dash-date">—</div>
+      <div class="revenue-card">
+        <div class="rev-label">TOTAL REVENUE THIS MONTH</div>
+        <div class="rev-num" id="dash-revenue">R0</div>
+        <div class="rev-sub">Subscriptions + booking commissions</div>
+        <div class="rev-grid">
+          <div><div class="rev-cell-num" id="dash-sub-rev">R0</div><div class="rev-cell-lbl">Subscriptions</div></div>
+          <div><div class="rev-cell-num" id="dash-comm-rev">R0</div><div class="rev-cell-lbl">Commission</div></div>
+          <div><div class="rev-cell-num" id="dash-bookings-count">0</div><div class="rev-cell-lbl">Bookings</div></div>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="sc-label">Total Drivers</div><div class="sc-num" id="stat-drivers">0</div><div class="sc-change" id="stat-pending-lbl">0 pending</div></div>
+        <div class="stat-card"><div class="sc-label">Customers</div><div class="sc-num" id="stat-customers">0</div><div class="sc-change">Registered</div></div>
+        <div class="stat-card stat-card-navy"><div class="sc-label sc-label-w">Bookings</div><div class="sc-num sc-num-w" id="stat-bookings">0</div><div class="sc-change">Live loads</div></div>
+        <div class="stat-card"><div class="sc-label">Approved</div><div class="sc-num" id="stat-approved">0</div><div class="sc-change">Active drivers</div></div>
+      </div>
+      <div class="section-card">
+        <div class="sc-head"><div class="sc-head-title">⏳ Pending Approvals</div><div class="sc-head-badge" id="pending-count-badge">0</div></div>
+        <div id="pending-list"><div style="padding:28px;text-align:center;color:var(--muted);font-size:13px;">No pending applications.</div></div>
+      </div>
+      <div class="section-card">
+        <div class="sc-head"><div class="sc-head-title">📦 Recent Bookings</div></div>
+        <div id="recent-bookings-list"><div style="padding:28px;text-align:center;color:var(--muted);font-size:13px;">No bookings yet.</div></div>
+      </div>
+    </div>
+
+    <!-- DRIVERS -->
+    <div class="admin-tab" id="tab-drivers">
+      <div class="page-title">Drivers</div>
+      <div class="page-sub">Manage driver applications and accounts.</div>
+      <div class="search-wrap"><span class="search-icon">🔍</span><input class="search-input" id="driver-search" placeholder="Search name or email..."/></div>
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="filterDrivers(this,'all')">All</button>
+        <button class="filter-tab" onclick="filterDrivers(this,'pending')">⏳ Pending</button>
+        <button class="filter-tab" onclick="filterDrivers(this,'approved')">✅ Approved</button>
+        <button class="filter-tab" onclick="filterDrivers(this,'rejected')">❌ Rejected</button>
+      </div>
+      <div class="section-card"><div id="drivers-list"><div style="padding:28px;text-align:center;color:var(--muted);font-size:13px;">Loading...</div></div></div>
+    </div>
+
+    <!-- CUSTOMERS -->
+    <div class="admin-tab" id="tab-customers">
+      <div class="page-title">Customers</div>
+      <div class="page-sub">All registered customer accounts.</div>
+      <div class="search-wrap"><span class="search-icon">🔍</span><input class="search-input" id="customer-search" placeholder="Search name or email..."/></div>
+      <div class="section-card"><div id="customers-list"><div style="padding:28px;text-align:center;color:var(--muted);font-size:13px;">Loading...</div></div></div>
+    </div>
+
+    <!-- BOOKINGS -->
+    <div class="admin-tab" id="tab-bookings">
+      <div class="page-title">Bookings</div>
+      <div class="page-sub">All loads posted on the platform.</div>
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="filterBookings(this,'all')">All</button>
+        <button class="filter-tab" onclick="filterBookings(this,'avail')">🟡 Available</button>
+        <button class="filter-tab" onclick="filterBookings(this,'accepted')">🟢 Accepted</button>
+        <button class="filter-tab" onclick="filterBookings(this,'in_progress')">🚛 In Progress</button>
+        <button class="filter-tab" onclick="filterBookings(this,'completed')">✅ Completed</button>
+      </div>
+      <div class="section-card"><div id="bookings-list"><div style="padding:28px;text-align:center;color:var(--muted);font-size:13px;">Loading...</div></div></div>
+    </div>
+
+    <!-- REVENUE -->
+    <div class="admin-tab" id="tab-revenue">
+      <div class="page-title">Revenue</div>
+      <div class="page-sub">Subscription and commission breakdown.</div>
+      <div class="revenue-card">
+        <div class="rev-label">TOTAL REVENUE</div>
+        <div class="rev-num" id="rev-total">R0</div>
+        <div class="rev-sub">Lifetime platform earnings</div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="sc-label">Mover Plans</div><div class="sc-num" id="rev-basic-count">0</div><div class="sc-change" id="rev-basic-rev">R0/mo</div></div>
+        <div class="stat-card"><div class="sc-label">Standard Plans</div><div class="sc-num" id="rev-std-count">0</div><div class="sc-change" id="rev-std-rev">R0/mo</div></div>
+      </div>
+      <div class="section-card">
+        <div class="sc-head"><div class="sc-head-title">Breakdown</div></div>
+        <div class="settings-row"><span class="settings-key">Mover Plans (R699/mo)</span><span class="settings-val" id="rev-basic-detail">—</span></div>
+        <div class="settings-row"><span class="settings-key">Standard Plans (R899/mo)</span><span class="settings-val" id="rev-std-detail">—</span></div>
+        <div class="settings-row"><span class="settings-key">Booking Commission (20%)</span><span class="settings-val" id="rev-comm-detail">—</span></div>
+        <div class="settings-row" style="border-top:2px solid var(--border);"><span class="settings-key" style="font-weight:800;font-size:14px;">Grand Total</span><span class="settings-val" style="font-weight:800;color:var(--navy);font-size:14px;" id="rev-grand-total">R0</span></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="admin-tab" id="tab-settings">
+      <div class="page-title">Settings</div>
+      <div class="page-sub">Platform configuration and links.</div>
+      <div class="settings-section">
+        <div class="sc-head"><div class="sc-head-title">Subscription Pricing</div></div>
+        <div class="settings-row"><span class="settings-key">Mover Plan</span><span class="settings-val">R699/month · Keep 100% of earnings</span></div>
+        <div class="settings-row"><span class="settings-key">Standard Plan</span><span class="settings-val">R899/month · Keep 100% of earnings</span></div>
+        <div class="settings-row"><span class="settings-key">Commission Rate</span><span class="settings-val">20% per trip</span></div>
+      </div>
+      <div class="settings-section">
+        <div class="sc-head"><div class="sc-head-title">Admin Account</div></div>
+        <div class="settings-row"><span class="settings-key">Role</span><span class="settings-val">Super Admin</span></div>
+        <div class="settings-row"><span class="settings-key">Firebase Project</span><span class="settings-val">truck-connect-c0c67</span></div>
+        <div class="settings-row"><span class="settings-key">Auth</span><span class="settings-val">Firebase Authentication (secure)</span></div>
+      </div>
+      <div class="settings-section">
+        <div class="sc-head"><div class="sc-head-title">Platform Apps</div></div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600;">CUSTOMER APP</div>
+          <a href="https://madibasphiwe50-afk.github.io/trucconnect/index-25-1-1-1-1-1.html" target="_blank" style="display:flex;align-items:center;justify-content:space-between;background:var(--blue-light);color:var(--blue);border-radius:12px;padding:14px 16px;font-size:14px;font-weight:700;text-decoration:none;-webkit-tap-highlight-color:rgba(0,0,0,.05);">
+            <span>📦 Open Customer App</span><span>→</span>
+          </a>
+        </div>
+        <div style="padding:12px 16px;">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600;">DRIVER APP</div>
+          <a href="https://madibasphiwe50-afk.github.io/trucconnect/driver-6-0-0.html" target="_blank" style="display:flex;align-items:center;justify-content:space-between;background:#f0fdf4;color:#166534;border-radius:12px;padding:14px 16px;font-size:14px;font-weight:700;text-decoration:none;-webkit-tap-highlight-color:rgba(0,0,0,.05);">
+            <span>🚛 Open Driver App</span><span>→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="btm-nav">
+    <button class="btm-btn active" onclick="showTab('dashboard',this)"><div class="btm-btn-icon">📊</div><div class="btm-btn-lbl">Dashboard</div></button>
+    <button class="btm-btn" onclick="showTab('drivers',this)"><div class="btm-btn-icon">🚛</div><div class="btm-btn-lbl">Drivers</div></button>
+    <button class="btm-btn" onclick="showTab('customers',this)"><div class="btm-btn-icon">👥</div><div class="btm-btn-lbl">Customers</div></button>
+    <button class="btm-btn" onclick="showTab('bookings',this)"><div class="btm-btn-icon">📦</div><div class="btm-btn-lbl">Bookings</div></button>
+    <button class="btm-btn" onclick="showTab('revenue',this)"><div class="btm-btn-icon">💰</div><div class="btm-btn-lbl">Revenue</div></button>
+    <button class="btm-btn" onclick="showTab('settings',this)"><div class="btm-btn-icon">⚙️</div><div class="btm-btn-lbl">Settings</div></button>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var allDrivers=[],allCustomers=[],allBookings=[];
+var driverFilter='all',bookingFilter='all';
+var listenersStarted=false;
+
+function $(id){return document.getElementById(id);}
+function txt(id,t){var el=$(id);if(el)el.textContent=String(t);}
+function on(id,ev,fn){var el=$(id);if(el)el.addEventListener(ev,fn);}
+function goTo(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});var s=$(id);if(s)s.classList.add('active');}
+function toast(msg,dur){var t=$('toast');if(!t)return;t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},dur||2800);}
+// Safe text - prevents XSS by never using innerHTML with user data
+function safeText(str){return str?String(str).replace(/[<>&"']/g,''):'—';}
+
+window.showTab=function(tab,btn){
+  document.querySelectorAll('.admin-tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.btm-btn').forEach(function(b){b.classList.remove('active');});
+  var t=$('tab-'+tab);if(t)t.classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(tab==='revenue')renderRevenue();
+  if(tab==='drivers')renderDrivers();
+  if(tab==='customers')renderCustomers();
+  if(tab==='bookings')renderBookings();
+};
+
+function pillHtml(status){
+  var map={
+    pending:'pill-pending',approved:'pill-approved',rejected:'pill-rejected',
+    avail:'pill-avail',accepted:'pill-accepted',
+    in_progress:'pill-in_progress',completed:'pill-completed',
+    cancelled:'pill-cancelled',active:'pill-active'
+  };
+  var labels={
+    avail:'FINDING DRIVER',accepted:'ACCEPTED',
+    in_progress:'IN TRANSIT',completed:'COMPLETED',
+    cancelled:'CANCELLED',pending:'PENDING',
+    approved:'APPROVED',rejected:'REJECTED',active:'ACTIVE'
+  };
+  return'<span class="pill '+(map[status]||'pill-pending')+'">'+(labels[status]||String(status||'—').toUpperCase())+'</span>';
+}
+
+// ── MISSING FUNCTIONS (fix: defined in HTML onclick but were never in JS) ──
+
+window.filterDrivers=function(btn,filter){
+  driverFilter=filter;
+  document.querySelectorAll('#tab-drivers .filter-tab').forEach(function(b){b.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  renderDrivers();
+};
+
+window.filterBookings=function(btn,filter){
+  bookingFilter=filter;
+  document.querySelectorAll('#tab-bookings .filter-tab').forEach(function(b){b.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  renderBookings();
+};
+
+window.closeModal=function(){
+  $('modal-overlay').style.display='none';
+  var box=$('modal-box');if(box)box.innerHTML='';
+};
+
+function startListeners(){
+  if(listenersStarted)return;listenersStarted=true;
+  var FB=window._FB;if(!FB)return;
+  FB.onSnapshot(FB.collection(FB.db,'drivers'),function(snap){
+    allDrivers=[];snap.forEach(function(d){allDrivers.push(d.data());});
+    updateDashboard();renderDrivers();
+  },function(e){toast('Drivers error: '+e.message);});
+  FB.onSnapshot(FB.collection(FB.db,'customers'),function(snap){
+    allCustomers=[];snap.forEach(function(d){allCustomers.push(d.data());});
+    updateDashboard();renderCustomers();
+  },function(e){toast('Customers error: '+e.message);});
+  FB.onSnapshot(FB.collection(FB.db,'bookings'),function(snap){
+    allBookings=[];snap.forEach(function(d){allBookings.push(d.data());});
+    updateDashboard();renderBookings();renderRecentBookings();
+  },function(e){toast('Bookings error: '+e.message);});
+}
+
+function updateDashboard(){
+  var pending=allDrivers.filter(function(d){return d.status==='pending';});
+  var approved=allDrivers.filter(function(d){return d.status==='approved';});
+  var basicCount=allDrivers.filter(function(d){return d.subscription==='basic';}).length;
+  var stdCount=allDrivers.filter(function(d){return d.subscription==='standard';}).length;
+  var subRev=(basicCount*699)+(stdCount*899);
+  var commRev=allBookings.reduce(function(s,b){return s+(b.priceNum||0)*0.2;},0);
+  var total=subRev+commRev;
+  txt('stat-drivers',allDrivers.length);
+  txt('stat-customers',allCustomers.length);
+  txt('stat-bookings',allBookings.length);
+  txt('stat-approved',approved.length);
+  txt('stat-pending-lbl',pending.length+' pending approval');
+  txt('pending-count-badge',pending.length);
+  txt('dash-revenue','R'+Math.round(total).toLocaleString());
+  txt('dash-sub-rev','R'+subRev.toLocaleString());
+  txt('dash-comm-rev','R'+Math.round(commRev).toLocaleString());
+  txt('dash-bookings-count',allBookings.length);
+  txt('dash-date',new Date().toLocaleDateString('en-ZA',{weekday:'long',year:'numeric',month:'long',day:'numeric'}));
+  renderPendingList(pending);
+}
+
+function renderPendingList(pending){
+  var wrap=$('pending-list');if(!wrap)return;
+  if(!pending.length){wrap.innerHTML='<div style="padding:28px;text-align:center;color:var(--muted);font-size:13px;">No pending applications.</div>';return;}
+  wrap.innerHTML='';
+  pending.forEach(function(d){
+    var item=document.createElement('div');item.className='list-item';
+    var top=document.createElement('div');top.className='li-top';
+    var av=document.createElement('div');av.className='li-av li-av-dark';av.textContent=d.name?d.name[0].toUpperCase():'D';
+    var info=document.createElement('div');
+    var name=document.createElement('div');name.className='li-name';name.textContent=safeText(d.name);
+    var meta=document.createElement('div');meta.className='li-meta';meta.textContent=safeText(d.email)+' · '+safeText(d.truckType||d.truck||'—');
+    info.appendChild(name);info.appendChild(meta);top.appendChild(av);top.appendChild(info);
+    var acts=document.createElement('div');acts.className='li-actions';
+    var appBtn=document.createElement('button');appBtn.className='act-btn act-approve';appBtn.textContent='✓ Approve';
+    appBtn.onclick=function(){approveDriver(d.uid);};
+    var rejBtn=document.createElement('button');rejBtn.className='act-btn act-reject';rejBtn.textContent='✕ Reject';
+    rejBtn.onclick=function(){rejectDriver(d.uid);};
+    acts.appendChild(appBtn);acts.appendChild(rejBtn);
+    item.appendChild(top);item.appendChild(acts);
+    wrap.appendChild(item);
+  });
+}
+
+function renderRecentBookings(){
+  var wrap=$('recent-bookings-list');if(!wrap)return;
+  // Sort by created timestamp descending, take 5 most recent
+  var sorted=allBookings.slice().sort(function(a,b){return (b.created||'')>(a.created||'')?1:-1;});
+  var recent=sorted.slice(0,5);
+  if(!recent.length){wrap.innerHTML='<div style="padding:28px;text-align:center;color:var(--muted);font-size:13px;">No bookings yet.</div>';return;}
+  wrap.innerHTML='';
+  recent.forEach(function(b){
+    var item=document.createElement('div');item.className='list-item';
+    var top=document.createElement('div');top.className='li-top';
+    var av=document.createElement('div');av.className='li-av';av.textContent='📦';
+    var info=document.createElement('div');
+    var name=document.createElement('div');name.className='li-name';name.textContent=safeText(b.from)+' → '+safeText(b.to);
+    var meta=document.createElement('div');meta.className='li-meta';meta.textContent='#'+safeText(b.id)+' · '+safeText(b.truck)+(b.driverName?' · 🚛 '+safeText(b.driverName):'');
+    info.appendChild(name);info.appendChild(meta);top.appendChild(av);top.appendChild(info);
+    var rightRow=document.createElement('div');rightRow.className='li-right-row';
+    var price=document.createElement('span');price.style.cssText='font-weight:700;color:var(--green);font-size:13px;';price.textContent=safeText(b.price);
+    rightRow.appendChild(price);rightRow.innerHTML+=pillHtml(b.ds||'avail');
+    item.appendChild(top);item.appendChild(rightRow);wrap.appendChild(item);
+  });
+}
+
+function renderDrivers(){
+  var wrap=$('drivers-list');if(!wrap)return;
+  var search=($('driver-search')||{}).value||'';
+  var filtered=allDrivers.filter(function(d){
+    var mf=driverFilter==='all'||d.status===driverFilter;
+    var ms=!search||safeText(d.name).toLowerCase().includes(search.toLowerCase())||safeText(d.email).toLowerCase().includes(search.toLowerCase());
+    return mf&&ms;
+  });
+  if(!filtered.length){wrap.innerHTML='<div style="padding:28px;text-align:center;color:var(--muted);font-size:13px;">No drivers found.</div>';return;}
+  wrap.innerHTML='';
+  filtered.forEach(function(d){
+    var item=document.createElement('div');item.className='list-item';
+    var top=document.createElement('div');top.className='li-top';
+    var av=document.createElement('div');av.className='li-av li-av-dark';av.textContent=d.name?d.name[0].toUpperCase():'D';
+    var info=document.createElement('div');
+    var name=document.createElement('div');name.className='li-name';name.textContent=safeText(d.name);
+    var meta=document.createElement('div');meta.className='li-meta';meta.textContent=safeText(d.email)+' · '+safeText(d.truckType||d.truck||'—')+' · '+(d.subscription||'no plan');
+    info.appendChild(name);info.appendChild(meta);top.appendChild(av);top.appendChild(info);
+    var rightRow=document.createElement('div');rightRow.className='li-right-row';
+    rightRow.innerHTML=pillHtml(d.status||'pending');
+    var acts=document.createElement('div');acts.className='li-actions';
+    if(d.status==='pending'){
+      var ab=document.createElement('button');ab.className='act-btn act-approve';ab.textContent='✓ Approve';ab.onclick=function(){approveDriver(d.uid);};
+      var rb=document.createElement('button');rb.className='act-btn act-reject';rb.textContent='✕ Reject';rb.onclick=function(){rejectDriver(d.uid);};
+      acts.appendChild(ab);acts.appendChild(rb);
+    } else {
+      var vb=document.createElement('button');vb.className='act-btn act-view';vb.textContent='View';vb.onclick=function(){viewDriver(d.uid);};
+      acts.appendChild(vb);
+    }
+    item.appendChild(top);item.appendChild(rightRow);item.appendChild(acts);wrap.appendChild(item);
+  });
+}
+
+function renderCustomers(){
+  var wrap=$('customers-list');if(!wrap)return;
+  var search=($('customer-search')||{}).value||'';
+  var filtered=allCustomers.filter(function(c){
+    return !search||safeText(c.name).toLowerCase().includes(search.toLowerCase())||safeText(c.email).toLowerCase().includes(search.toLowerCase());
+  });
+  if(!filtered.length){wrap.innerHTML='<div style="padding:28px;text-align:center;color:var(--muted);font-size:13px;">No customers found.</div>';return;}
+  wrap.innerHTML='';
+  filtered.forEach(function(c){
+    var item=document.createElement('div');item.className='list-item';
+    var top=document.createElement('div');top.className='li-top';
+    var av=document.createElement('div');av.className='li-av';av.textContent=c.name?c.name[0].toUpperCase():'C';
+    var info=document.createElement('div');
+    var name=document.createElement('div');name.className='li-name';name.textContent=safeText(c.name);
+    var meta=document.createElement('div');meta.className='li-meta';meta.textContent=safeText(c.email)+' · Joined '+safeText(c.joined);
+    info.appendChild(name);info.appendChild(meta);top.appendChild(av);top.appendChild(info);
+    var rightRow=document.createElement('div');rightRow.className='li-right-row';
+    var bk=document.createElement('span');bk.style.cssText='font-size:12px;color:var(--muted);';bk.textContent=(c.bookings||0)+' bookings';
+    rightRow.appendChild(bk);rightRow.innerHTML+=pillHtml(c.status||'active');
+    item.appendChild(top);item.appendChild(rightRow);wrap.appendChild(item);
+  });
+}
+
+function renderBookings(){
+  var wrap=$('bookings-list');if(!wrap)return;
+  var filtered=allBookings.filter(function(b){return bookingFilter==='all'||b.ds===bookingFilter;});
+  if(!filtered.length){wrap.innerHTML='<div style="padding:28px;text-align:center;color:var(--muted);font-size:13px;">No bookings found.</div>';return;}
+  wrap.innerHTML='';
+  filtered.slice().reverse().forEach(function(b){
+    var item=document.createElement('div');item.className='list-item';
+    var top=document.createElement('div');top.className='li-top';
+    var av=document.createElement('div');av.className='li-av';av.textContent='📦';
+    var info=document.createElement('div');
+    var name=document.createElement('div');name.className='li-name';name.textContent=safeText(b.from)+' → '+safeText(b.to);
+    var meta=document.createElement('div');meta.className='li-meta';meta.textContent='#'+safeText(b.id)+' · '+safeText(b.truck)+(b.driverName?' · Driver: '+safeText(b.driverName):'');
+    info.appendChild(name);info.appendChild(meta);top.appendChild(av);top.appendChild(info);
+    var rightRow=document.createElement('div');rightRow.className='li-right-row';
+    var price=document.createElement('span');price.style.cssText='font-weight:700;color:var(--navy);font-size:13px;';price.textContent=safeText(b.price);
+    rightRow.appendChild(price);rightRow.innerHTML+=pillHtml(b.ds||'avail');
+    item.appendChild(top);item.appendChild(rightRow);wrap.appendChild(item);
+  });
+}
+
+function renderRevenue(){
+  var basicCount=allDrivers.filter(function(d){return d.subscription==='basic';}).length;
+  var stdCount=allDrivers.filter(function(d){return d.subscription==='standard';}).length;
+  var subRev=(basicCount*699)+(stdCount*899);
+  var commRev=allBookings.reduce(function(s,b){return s+(b.priceNum||0)*0.2;},0);
+  var total=subRev+commRev;
+  txt('rev-total','R'+Math.round(total).toLocaleString());
+  txt('rev-basic-count',basicCount);txt('rev-basic-rev','R'+(basicCount*699).toLocaleString()+'/mo');
+  txt('rev-std-count',stdCount);txt('rev-std-rev','R'+(stdCount*899).toLocaleString()+'/mo');
+  txt('rev-basic-detail',basicCount+' drivers · R'+(basicCount*699).toLocaleString());
+  txt('rev-std-detail',stdCount+' drivers · R'+(stdCount*899).toLocaleString());
+  txt('rev-comm-detail','R'+Math.round(commRev).toLocaleString());
+  txt('rev-grand-total','R'+Math.round(total).toLocaleString());
+}
+
+function approveDriver(uid){
+  var FB=window._FB;if(!FB)return;
+  FB.updateDoc(FB.doc(FB.db,'drivers',uid),{status:'approved'})
+  .then(function(){toast('Driver approved ✅');})
+  .catch(function(e){toast('Error: '+e.message);});
+}
+function rejectDriver(uid){
+  var FB=window._FB;if(!FB)return;
+  FB.updateDoc(FB.doc(FB.db,'drivers',uid),{status:'rejected'})
+  .then(function(){toast('Driver rejected.');})
+  .catch(function(e){toast('Error: '+e.message);});
+}
+
+// ── DECRYPTION: AES-GCM via Web Crypto API ──
+// Matches the salt and key derivation used in customer/driver apps.
+var _ENC_SALT='TruckConnect-ZA-2024-v1';
+async function _deriveKey(uid){
+  var enc=new TextEncoder();
+  var km=await window.crypto.subtle.importKey('raw',enc.encode(uid+_ENC_SALT),{name:'PBKDF2'},false,['deriveKey']);
+  return window.crypto.subtle.deriveKey({name:'PBKDF2',salt:enc.encode(_ENC_SALT),iterations:100000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+async function decryptField(uid,ciphertext){
+  if(!ciphertext||!ciphertext.includes(':'))return ciphertext;
+  try{
+    var parts=ciphertext.split(':');
+    if(parts.length!==2)return ciphertext;
+    var fromB64=function(s){var bin=atob(s);var arr=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);return arr;};
+    var iv=fromB64(parts[0]);var cb=fromB64(parts[1]);
+    var key=await _deriveKey(uid);
+    var plain=await window.crypto.subtle.decrypt({name:'AES-GCM',iv:iv},key,cb);
+    return new TextDecoder().decode(plain);
+  }catch(e){return '[decryption failed]';}
+}
+async function decryptDriverFields(uid,d){
+  if(!d._encrypted)return d;
+  var fields=['idNumber','accountNumber','branchCode','accountHolder','accountType','bank'];
+  var result=Object.assign({},d);
+  for(var i=0;i<fields.length;i++){var f=fields[i];if(result[f])result[f]=await decryptField(uid,result[f]);}
+  return result;
+}
+async function decryptCustomerFields(uid,c){
+  if(!c._encrypted)return c;
+  var result=Object.assign({},c);
+  if(result.idNumber)result.idNumber=await decryptField(uid,result.idNumber);
+  return result;
+}
+
+function _renderDriverModal(uid, d) {
+  var box=$('modal-box');
+  box.innerHTML='';
+  var title=document.createElement('div');title.className='modal-title';title.textContent=safeText(d.name);
+  var sub=document.createElement('div');sub.className='modal-sub';sub.textContent='Driver Profile';
+  box.appendChild(title);box.appendChild(sub);
+  var rows=[
+    ['Email',d.email],['Phone',d.phone],
+    ['SA ID',d.idNumber||'--'],
+    ['Truck',d.truck],['Type / Capacity',d.truckType],
+    ['Plate',d.plate],['Province',d.province],
+    ['Bank',d.bank||'--'],
+    ['Account Holder',d.accountHolder||'--'],
+    ['Account Number',d.accountNumber||'--'],
+    ['Account Type',d.accountType||'--'],
+    ['Branch Code',d.branchCode||'--'],
+    ['Subscription',d.subscription||'None'],
+    ['Status',d.status],['Applied',d.applied]
+  ];
+  rows.forEach(function(r){
+    var row=document.createElement('div');row.className='modal-row';
+    var k=document.createElement('span');k.className='modal-key';k.textContent=r[0];
+    var v=document.createElement('span');v.className='modal-val';v.textContent=safeText(r[1]);
+    row.appendChild(k);row.appendChild(v);box.appendChild(row);
+  });
+  var acts=document.createElement('div');acts.className='modal-actions';
+  var closeBtn=document.createElement('button');closeBtn.className='modal-btn modal-close-btn';closeBtn.textContent='Close';closeBtn.onclick=closeModal;
+  acts.appendChild(closeBtn);
+  if(d.status==='pending'){
+    var ab=document.createElement('button');ab.className='modal-btn modal-approve';ab.textContent='Approve';ab.onclick=function(){approveDriver(uid);closeModal();};
+    var rb=document.createElement('button');rb.className='modal-btn modal-reject';rb.textContent='Reject';rb.onclick=function(){rejectDriver(uid);closeModal();};
+    acts.appendChild(ab);acts.appendChild(rb);
+  }
+  box.appendChild(acts);
+  $('modal-overlay').style.display='flex';
+}
+
+function viewDriver(uid){
+  var d=allDrivers.find(function(x){return x.uid===uid;});if(!d)return;
+  var box=$('modal-box');
+  box.innerHTML='<div style="padding:40px;text-align:center;color:#666;font-size:13px;">Decrypting sensitive fields...</div>';
+  $('modal-overlay').style.display='flex';
+  decryptDriverFields(uid, d).then(function(dec){
+    _renderDriverModal(uid, dec);
+  }).catch(function(){
+    _renderDriverModal(uid, d);
+  });
+}
+
+// ── LOGIN BUTTON — attached immediately on DOM ready, no async wait needed ──
+document.addEventListener('DOMContentLoaded',function(){
+  var loginBtn=document.getElementById('login-btn');
+  var signoutBtn=document.getElementById('admin-signout-btn');
+
+  if(loginBtn){
+    loginBtn.addEventListener('click',function(){
+      var FB=window._FB;
+      if(!FB){alert('App not ready. Please refresh.');return;}
+      var e=(document.getElementById('login-email')||{}).value.trim();
+      var p=(document.getElementById('login-pass')||{}).value;
+      var errEl=document.getElementById('login-err');
+      if(errEl)errEl.style.display='none';
+      if(!e||!e.includes('@')){if(errEl){errEl.textContent='Enter a valid email.';errEl.style.display='block';}return;}
+      if(!p){if(errEl){errEl.textContent='Enter your password.';errEl.style.display='block';}return;}
+      loginBtn.disabled=true;loginBtn.textContent='Signing In...';
+      FB.signInWithEmailAndPassword(FB.auth,e,p)
+      .then(function(){
+        loginBtn.disabled=false;loginBtn.textContent='Sign In →';
+      })
+      .catch(function(err){
+        loginBtn.disabled=false;loginBtn.textContent='Sign In →';
+        var msg='Sign in failed. Check your credentials.';
+        if(err.code==='auth/wrong-password'||err.code==='auth/invalid-credential')msg='Incorrect email or password.';
+        else if(err.code==='auth/user-not-found')msg='No account found with this email.';
+        else if(err.code==='auth/too-many-requests')msg='Too many attempts. Try again later.';
+        if(errEl){errEl.textContent=msg;errEl.style.display='block';}
+      });
+    });
+  }
+
+  if(signoutBtn){
+    signoutBtn.addEventListener('click',function(){
+      var FB=window._FB;
+      if(FB)FB.signOut(FB.auth).then(function(){goTo('s-login');});
+    });
+  }
+
+  // Wire search inputs — were missing event listeners
+  var dSearch=document.getElementById('driver-search');
+  if(dSearch)dSearch.addEventListener('input',function(){renderDrivers();});
+  var cSearch=document.getElementById('customer-search');
+  if(cSearch)cSearch.addEventListener('input',function(){renderCustomers();});
+
+  // Close modal when clicking the dark overlay background
+  var overlay=document.getElementById('modal-overlay');
+  if(overlay)overlay.addEventListener('click',function(e){if(e.target===overlay)window.closeModal();});
+});
+
+// ── AUTH STATE — wait for Firebase then watch login state ──
+// Firestore listeners only start AFTER user confirmed signed in.
+// This prevents the "Not found" toast that fired before auth was ready.
+var _authCheck=setInterval(function(){
+  if(window._FB){
+    clearInterval(_authCheck);
+    window._FB.onAuthStateChanged(window._FB.auth,function(user){
+      if(user){
+        goTo('s-admin');
+        startListeners();
+      } else {
+        goTo('s-login');
+        listenersStarted=false;
+        allDrivers=[];allCustomers=[];allBookings=[];
+      }
+    });
+  }
+},150);
+
+})();
+</script>
+</body>
+</html>
