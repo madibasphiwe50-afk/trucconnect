@@ -1,0 +1,3311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>TruckConnect Driver</title>
+<meta name="description" content="TruckConnect Driver app — accept jobs, navigate routes and manage your deliveries across South Africa."/>
+<meta name="theme-color" content="#0a1628"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="TC Driver"/>
+<link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIlRydWNrQ29ubmVjdCBEcml2ZXIiLAogICJzaG9ydF9uYW1lIjogIlRDIERyaXZlciIsCiAgImRlc2NyaXB0aW9uIjogIlRydWNrQ29ubmVjdCBEcml2ZXIgYXBwIOKAlCBhY2NlcHQgam9icywgbmF2aWdhdGUgcm91dGVzIGFuZCBtYW5hZ2UgeW91ciBkZWxpdmVyaWVzIGFjcm9zcyBTb3V0aCBBZnJpY2EuIiwKICAic3RhcnRfdXJsIjogIi8iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzBhMTYyOCIsCiAgInRoZW1lX2NvbG9yIjogIiMwYTE2MjgiLAogICJsYW5nIjogImVuLVpBIiwKICAic2NvcGUiOiAiLyIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImljb24tMTkyLnBuZyIsCiAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIiwKICAgICAgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIgogICAgfSwKICAgIHsKICAgICAgInNyYyI6ICJpY29uLTUxMi5wbmciLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIsCiAgICAgICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSIKICAgIH0KICBdLAogICJzY3JlZW5zaG90cyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJpY29uLTUxMi5wbmciLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIsCiAgICAgICJmb3JtX2ZhY3RvciI6ICJuYXJyb3ciCiAgICB9CiAgXSwKICAiY2F0ZWdvcmllcyI6IFsibG9naXN0aWNzIiwgInRyYXZlbCIsICJ1dGlsaXRpZXMiXQp9Cg=="/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@3.6.2/dist/maplibre-gl.css"/>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC1ebgSfFe8jSmpwCYkaIqg8i0S0rDRQog&libraries=visualization" async defer></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{-webkit-text-size-adjust:100%;}
+body{background:#f0f0f0;color:#111;font-family:'Sora',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
+input,select,button,textarea{font-family:'Sora',sans-serif;}
+input::placeholder,textarea::placeholder{color:#bbb;}
+:root{--bg:#f0f0f0;--card:#fff;--border:#e0e0e0;--text:#111;--muted:#888;--dark:#1c1c1e;--green:#16a34a;--red:#dc2626;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes pulseRing{0%{transform:scale(.8);opacity:.6}100%{transform:scale(2.2);opacity:0}}
+.screen{display:none;min-height:100vh;flex-direction:column;background:var(--bg);}
+.screen.active{display:flex;animation:fadeIn .2s ease;}
+
+/* LANDING */
+#s-landing{background:#1c1c1e;overflow:hidden;position:relative;}
+#s-landing::before{content:'';position:absolute;top:-120px;right:-80px;width:400px;height:400px;background:radial-gradient(circle,rgba(255,255,255,.04) 0%,transparent 70%);pointer-events:none;}
+.land-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:60px 28px 50px;}
+.land-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);font-size:10px;font-weight:700;letter-spacing:2px;padding:5px 14px;border-radius:20px;margin-bottom:36px;text-transform:uppercase;}
+.land-dot{width:6px;height:6px;background:#4ade80;border-radius:50%;animation:blink 2s ease infinite;flex-shrink:0;}
+.land-icon{font-size:72px;margin-bottom:20px;line-height:1;}
+.land-title{font-size:38px;font-weight:800;color:#fff;text-align:center;line-height:1.1;letter-spacing:-1px;margin-bottom:12px;}
+.land-title em{font-style:normal;color:#9ca3af;}
+.land-sub{font-size:14px;color:rgba(255,255,255,.36);text-align:center;line-height:1.8;margin-bottom:48px;max-width:290px;font-weight:300;}
+.land-actions{width:100%;max-width:360px;display:flex;flex-direction:column;gap:12px;}
+.btn-land-p{width:100%;background:#fff;color:#111;border:none;border-radius:14px;padding:17px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-land-p:active{transform:scale(.97);}
+.btn-land-s{width:100%;background:rgba(255,255,255,.07);color:rgba(255,255,255,.65);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-land-s:active{transform:scale(.97);}
+.land-stats{display:flex;gap:32px;margin-top:44px;padding-top:32px;border-top:1px solid rgba(255,255,255,.07);}
+.lstat-n{font-size:22px;font-weight:800;color:#fff;text-align:center;}
+.lstat-l{font-size:9px;color:rgba(255,255,255,.28);margin-top:3px;letter-spacing:1px;text-transform:uppercase;text-align:center;}
+
+/* COMMON */
+.topnav{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:#fff;border-bottom:1.5px solid var(--border);position:sticky;top:0;z-index:100;}
+.nav-logo{font-size:17px;font-weight:800;color:var(--text);}
+.nav-logo span{color:var(--muted);}
+.back-btn{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px;min-width:36px;line-height:1;}
+.nav-badge{font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;background:#f0f0f0;color:var(--muted);border:1px solid var(--border);}
+.screen-body{padding:20px;flex:1;overflow-y:auto;}
+.section-title{font-size:22px;font-weight:800;color:var(--text);margin-bottom:6px;letter-spacing:-.3px;}
+.section-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.65;}
+
+/* FORMS */
+.fg{margin-bottom:14px;}
+.fl{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:7px;text-transform:uppercase;letter-spacing:.5px;}
+.fi,.fs{width:100%;background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;color:var(--text);font-size:14px;outline:none;appearance:none;-webkit-appearance:none;transition:border-color .2s;font-family:'Sora',sans-serif;}
+.fi:focus,.fs:focus{border-color:#555;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.err-msg{color:var(--red);font-size:12px;margin-top:5px;font-weight:500;display:none;}
+
+/* BUTTONS */
+.btn{width:100%;border:none;border-radius:13px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;display:block;transition:all .2s;font-family:'Sora',sans-serif;}
+.btn-dark{background:var(--dark);color:#fff;}
+.btn-dark:active{opacity:.85;}
+.btn-dark:disabled{background:#ccc;cursor:not-allowed;}
+.btn-outline{background:transparent;color:var(--muted);border:1.5px solid var(--border);margin-top:10px;}
+.btn-green{background:var(--green);color:#fff;}
+
+/* TABS */
+.auth-tabs{display:flex;gap:4px;background:#f0f0f0;border:1.5px solid var(--border);border-radius:13px;padding:4px;margin-bottom:24px;}
+.auth-tab{flex:1;padding:11px;border:none;border-radius:9px;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Sora',sans-serif;}
+.auth-tab.active{background:#fff;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+
+/* STEP BAR */
+.step-bar{display:flex;align-items:center;margin-bottom:28px;}
+.step-node{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;position:relative;}
+.step-node:not(:last-child)::after{content:'';position:absolute;top:13px;left:50%;width:100%;height:1.5px;background:var(--border);z-index:0;}
+.step-node.done:not(:last-child)::after{background:var(--dark);}
+.step-circle{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--muted);position:relative;z-index:1;transition:all .3s;}
+.step-circle.active{border-color:var(--dark);background:var(--dark);color:#fff;}
+.step-circle.done{border-color:var(--dark);background:#f0f0f0;color:var(--dark);}
+.step-lbl{font-size:9px;color:var(--muted);text-align:center;font-weight:500;}
+.step-lbl.active{color:var(--text);font-weight:700;}
+.step-lbl.done{color:var(--dark);}
+
+/* SUBSCRIPTION */
+.sub-tabs{display:flex;gap:8px;margin-bottom:20px;}
+.sub-tab{flex:1;padding:13px;border:2px solid var(--border);border-radius:13px;background:#fff;color:var(--muted);font-size:14px;font-weight:700;cursor:pointer;text-align:center;transition:all .2s;font-family:'Sora',sans-serif;}
+.sub-tab.active{border-color:var(--dark);background:var(--dark);color:#fff;}
+.sub-plan-card{background:#fff;border:1.5px solid var(--border);border-radius:18px;padding:22px;margin-bottom:16px;}
+.sub-price-box{background:#f8f8f8;border:1.5px solid var(--border);border-radius:14px;padding:18px;margin:14px 0;}
+.sub-cap-badge{display:inline-block;background:#dcfce7;color:#166534;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;margin-top:8px;border:1px solid #bbf7d0;}
+.sub-popular{display:inline-flex;align-items:center;gap:4px;background:#fef9c3;color:#92400e;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;margin-left:8px;border:1px solid #fde68a;}
+.sub-example{background:#f8f8f8;border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;margin:12px 0;font-size:13px;color:var(--muted);line-height:1.5;}
+.sub-feature{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:13px;color:var(--text);border-bottom:1px solid #f5f5f5;}
+.sub-feature:last-child{border-bottom:none;}
+.sub-check{color:var(--green);font-weight:700;flex-shrink:0;font-size:15px;}
+.safer-city-box{background:#fff8f8;border:1.5px solid #fecaca;border-radius:14px;padding:16px;margin-top:14px;}
+.safer-city-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--red);margin-bottom:8px;}
+.safer-city-text{font-size:12px;color:#666;line-height:1.6;}
+
+/* UPLOAD */
+.upload-box{background:#fff;border:2px dashed var(--border);border-radius:14px;padding:24px;text-align:center;cursor:pointer;position:relative;margin-bottom:14px;}
+.upload-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+
+/* DRIVER HOME */
+#s-driver-home{position:relative;overflow:hidden;}
+#driver-map{position:absolute;inset:0;z-index:1;}
+.driver-topbar{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-bottom:1.5px solid var(--border);}
+.driver-logo{font-size:16px;font-weight:800;color:var(--text);}
+.d-status-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;background:#f0f0f0;color:var(--muted);border:1px solid var(--border);}
+.d-menu-btn{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);}
+.map-fab{position:absolute;z-index:10;background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:10px 12px;font-size:18px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.1);}
+.driver-bottom{position:absolute;bottom:0;left:0;right:0;z-index:10;background:#fff;border-radius:24px 24px 0 0;border-top:1.5px solid var(--border);padding:20px 16px 32px;}
+.online-btn{width:100%;border:none;border-radius:13px;padding:17px;font-size:15px;font-weight:700;cursor:pointer;transition:all .3s;background:#f0f0f0;color:var(--muted);font-family:'Sora',sans-serif;margin-bottom:16px;}
+.online-btn.on{background:var(--dark);color:#fff;}
+.earn-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.earn-cell{background:#f8f8f8;border:1.5px solid var(--border);border-radius:12px;padding:12px;text-align:center;}
+.earn-num{font-size:16px;font-weight:800;color:var(--text);}
+.earn-lbl{font-size:9px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.5px;}
+
+/* JOB POPUP */
+.job-popup{position:absolute;bottom:0;left:0;right:0;z-index:20;background:#fff;border-radius:22px 22px 0 0;border-top:1.5px solid var(--border);padding:20px 18px 32px;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);}
+.jp-route{font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px;}
+.jp-meta{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.jp-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
+.jp-cell{background:#f8f8f8;border:1.5px solid var(--border);border-radius:11px;padding:11px;text-align:center;}
+.jp-cell-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.jp-cell-val{font-size:14px;font-weight:800;color:var(--text);}
+.jp-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.jp-accept{background:var(--dark);color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;}
+.jp-decline{background:#f0f0f0;color:var(--muted);border:1.5px solid var(--border);border-radius:12px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;}
+
+/* SIDEMENU */
+.sidemenu{position:absolute;top:0;left:-290px;width:280px;height:100%;background:#fff;z-index:50;transition:left .3s ease;border-right:1.5px solid var(--border);}
+.sidemenu-head{padding:28px 20px 20px;border-bottom:1.5px solid var(--border);}
+.sidemenu-av{width:48px;height:48px;border-radius:50%;background:var(--dark);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;margin-bottom:12px;}
+.sidemenu-name{font-size:16px;font-weight:700;color:var(--text);}
+.sidemenu-email{font-size:12px;color:var(--muted);margin-top:2px;}
+.sidemenu-sub-badge{display:inline-block;background:#f0f0f0;color:var(--muted);font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;margin-top:6px;border:1px solid var(--border);}
+.sidemenu-nav{padding:12px 10px;}
+.sidemenu-btn{width:100%;text-align:left;background:none;border:none;padding:14px 12px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;border-radius:10px;font-family:'Sora',sans-serif;transition:background .15s;display:flex;align-items:center;gap:10px;}
+.sidemenu-btn:hover{background:#f8f8f8;}
+.sidemenu-btn-danger{color:var(--red)!important;}
+.menu-overlay-bg{position:absolute;inset:0;background:rgba(0,0,0,.3);z-index:40;display:none;}
+
+/* SHEETS */
+.sheet-overlay{position:absolute;inset:0;z-index:30;background:#f0f0f0;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);overflow-y:auto;}
+.sheet-header{display:flex;align-items:center;gap:12px;padding:16px 20px;background:#fff;border-bottom:1.5px solid var(--border);position:sticky;top:0;}
+.sheet-back{background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;}
+.sheet-hdr-title{font-size:17px;font-weight:800;color:var(--text);}
+
+/* EARNINGS */
+.earn-stat-big{background:#fff;border:1.5px solid var(--border);border-radius:16px;padding:20px;text-align:center;margin-bottom:14px;}
+.earn-big-num{font-size:38px;font-weight:800;color:var(--text);}
+.earn-big-lbl{font-size:12px;color:var(--muted);margin-top:4px;}
+.earn-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.earn-mini{background:#fff;border:1.5px solid var(--border);border-radius:13px;padding:16px;text-align:center;}
+.earn-mini-num{font-size:20px;font-weight:800;color:var(--text);}
+.earn-mini-lbl{font-size:10px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.5px;}
+.payout-card{background:var(--dark);border-radius:16px;padding:20px;color:#fff;margin-bottom:14px;}
+
+/* JOB CARDS */
+.job-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;}
+.job-card-route{font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px;}
+.job-card-id{font-size:11px;color:var(--muted);margin-bottom:10px;}
+.job-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.job-card-cell{background:#f8f8f8;border-radius:10px;padding:10px;}
+.job-card-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+.job-card-val{font-size:13px;font-weight:700;color:var(--text);}
+.nav-start-btn{width:100%;background:var(--dark);color:#fff;border:none;border-radius:11px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;}
+
+/* SUCCESS */
+.success-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;text-align:center;}
+.success-ring{width:88px;height:88px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 24px;animation:popIn .5s cubic-bezier(.34,1.56,.64,1);background:#f0f0f0;border:2px solid var(--border);}
+.suc-title{font-size:26px;font-weight:800;margin-bottom:10px;color:var(--text);letter-spacing:-.3px;}
+.suc-sub{font-size:14px;color:var(--muted);line-height:1.75;max-width:300px;margin:0 auto 32px;}
+.vlist{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:18px 20px;text-align:left;width:100%;max-width:360px;margin:0 auto 28px;}
+.vrow{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.vrow:last-child{border-bottom:none;}
+.vic{font-size:16px;flex-shrink:0;margin-top:2px;}
+.vt{color:var(--muted);}
+.vt strong{color:var(--text);display:block;font-size:12px;margin-bottom:2px;font-weight:700;}
+
+/* PENDING */
+.pending-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;text-align:center;}
+.pending-card{background:#fff;border:1.5px solid var(--border);border-radius:16px;padding:20px;width:100%;max-width:360px;text-align:left;margin-bottom:20px;}
+.pending-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.pending-row:last-child{border-bottom:none;}
+
+/* NAV OVERLAY */
+#ov-navigation{display:none;position:fixed;inset:0;z-index:3000;flex-direction:column;background:#e8e8e8;overflow:visible;}
+#nav-map-tiles{position:absolute;inset:0;z-index:100;}
+/* TOP instruction bar */
+.nav-instruction-bar{position:absolute;top:0;left:0;right:0;z-index:400;background:#000;padding:16px 16px 14px;display:flex;align-items:center;gap:12px;}
+.nav-turn-box{width:54px;height:54px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:32px;}
+.nav-dist-label{font-size:26px;font-weight:900;color:#fff;line-height:1;}
+.nav-street-label{font-size:16px;font-weight:700;color:#60aaff;margin-top:2px;}
+/* RIGHT side buttons */
+.nav-side-btns{position:absolute;right:12px;top:90px;z-index:401;display:flex;flex-direction:column;gap:10px;}
+.nav-side-btn{width:46px;height:46px;background:#fff;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+/* BOTTOM bar */
+.nav-bottom-bar{position:absolute;bottom:0;left:0;right:0;z-index:400;background:#fff;padding:14px 16px 28px;box-shadow:0 -2px 12px rgba(0,0,0,.1);}
+.nav-bottom-row{display:flex;align-items:center;justify-content:space-between;}
+.nav-speed-circle{width:60px;height:60px;border-radius:50%;background:#1a1a1a;border:3px solid #444;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.nav-speed-num{font-size:22px;font-weight:900;color:#fff;line-height:1;}
+.nav-speed-unit{font-size:8px;color:rgba(255,255,255,.55);font-weight:700;letter-spacing:.5px;}
+.nav-center-info{text-align:center;flex:1;}
+.nav-clock{font-size:24px;font-weight:900;color:#1a1a1a;line-height:1;}
+.nav-eta-sub{font-size:13px;color:#666;margin-top:3px;font-weight:600;}
+.nav-exit-btn{width:44px;height:44px;background:#f0f0f0;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;flex-shrink:0;}
+/* MUSIC PANEL */
+.nav-music-panel{position:fixed;bottom:0;left:0;right:0;z-index:4000;background:#1a1a1a;border-radius:20px 20px 0 0;transform:translateY(100%);transition:transform .35s ease;padding-bottom:env(safe-area-inset-bottom);}
+.nav-music-panel.open{transform:translateY(0);box-shadow:0 -4px 30px rgba(0,0,0,0.5);}
+.nav-music-header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 8px;}
+.nav-music-title{font-size:13px;font-weight:700;color:#fff;}
+.nav-music-collapse{width:36px;height:36px;background:#333;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:#fff;}
+.nav-music-apps{display:flex;gap:28px;padding:12px 18px 24px;}
+.nav-music-app{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;background:none;border:none;}
+.nav-music-icon{width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.nav-music-lbl{font-size:12px;font-weight:600;color:#fff;}
+
+/* GOOGLE BTN */
+.btn-google{width:100%;background:#fff;color:#1c1c1e;border:1.5px solid var(--border);border-radius:13px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:10px;font-family:'Sora',sans-serif;transition:all .2s;}
+.btn-google:active{opacity:.85;}
+.btn-google svg{flex-shrink:0;}
+/* SECURITY BADGE */
+.sec-badge{display:flex;align-items:center;gap:6px;background:#f0f0f0;border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;font-size:11px;color:var(--muted);font-weight:600;margin-bottom:14px;}
+/* PASSWORD STRENGTH */
+.pw-strength-bar{height:4px;border-radius:2px;margin-top:6px;background:#e0e0e0;overflow:hidden;}
+.pw-strength-fill{height:100%;border-radius:2px;transition:width .3s,background .3s;}
+.pw-strength-label{font-size:10px;font-weight:600;margin-top:3px;}
+/* ID TYPE TOGGLE */
+.id-type-toggle{display:flex;gap:8px;margin-bottom:4px;}
+.id-type-btn{flex:1;padding:11px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;background:#f0f0f0;color:var(--muted);transition:all .2s;}
+.id-type-btn.active-id{background:var(--dark);color:#fff;border-color:var(--dark);}
+/* ID STATUS */
+.id-status{font-size:11px;margin-top:4px;display:none;}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1c1c1e;color:#fff;font-size:13px;font-weight:600;padding:12px 20px;border-radius:20px;z-index:8000;white-space:nowrap;opacity:0;transition:opacity .3s;pointer-events:none;}
+.toast.show{opacity:1;}
+
+/* ── SOS BUTTON ── */
+.sos-fab{position:absolute;bottom:330px;right:14px;z-index:15;width:52px;height:52px;background:#dc2626;border:none;border-radius:50%;font-size:20px;cursor:pointer;box-shadow:0 4px 20px rgba(220,38,38,.55);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;letter-spacing:-.5px;font-family:'Sora',sans-serif;}
+.sos-fab::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid rgba(220,38,38,.4);animation:pulseRing 1.8s ease infinite;}
+
+/* ── FEATURE MODALS (shared base) ── */
+.feat-overlay{position:absolute;inset:0;z-index:55;background:rgba(0,0,0,.55);display:none;align-items:flex-end;backdrop-filter:blur(2px);}
+.feat-overlay.open{display:flex;}
+.feat-box{background:#fff;border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-height:88vh;overflow-y:auto;}
+.feat-handle{width:36px;height:4px;background:#e0e0e0;border-radius:2px;margin:0 auto 20px;}
+.feat-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px;letter-spacing:-.2px;}
+.feat-sub{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;}
+.feat-close{position:absolute;top:18px;right:18px;background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;}
+
+/* ── SOS PANEL ── */
+.sos-opt{display:flex;align-items:center;gap:14px;padding:16px;background:#fff8f8;border:1.5px solid #fecaca;border-radius:14px;margin-bottom:10px;cursor:pointer;width:100%;text-align:left;}
+.sos-opt-icon{font-size:26px;flex-shrink:0;}
+.sos-opt-label{font-size:14px;font-weight:700;color:#991b1b;}
+.sos-opt-desc{font-size:11px;color:#dc2626;margin-top:2px;}
+.sos-opt-safe{background:#f0fdf4;border-color:#bbf7d0;}
+.sos-opt-safe .sos-opt-label{color:#166534;}
+.sos-opt-safe .sos-opt-desc{color:#16a34a;}
+.sos-opt-blue{background:#eff6ff;border-color:#bfdbfe;}
+.sos-opt-blue .sos-opt-label{color:#1e40af;}
+.sos-opt-blue .sos-opt-desc{color:#3b82f6;}
+
+/* ── STAR RATING ── */
+.star-row{display:flex;gap:6px;justify-content:center;margin:16px 0 8px;}
+.star-btn{font-size:40px;background:none;border:none;cursor:pointer;filter:grayscale(1);opacity:.3;transition:all .15s;line-height:1;}
+.star-btn.lit{filter:grayscale(0);opacity:1;}
+.star-btn:active{transform:scale(.88);}
+.rating-label{text-align:center;font-size:13px;font-weight:700;color:var(--muted);min-height:20px;margin-bottom:14px;}
+.rat-tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.rat-tag{padding:8px 14px;border-radius:20px;border:1.5px solid var(--border);background:#f8f8f8;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s;}
+.rat-tag.active{background:var(--dark);color:#fff;border-color:var(--dark);}
+
+/* ── PROOF OF DELIVERY ── */
+.pod-preview{width:100%;height:180px;border-radius:14px;object-fit:cover;border:2px solid var(--border);display:none;margin-bottom:12px;}
+.pod-upload-box{background:#f8f8f8;border:2px dashed var(--border);border-radius:14px;padding:28px;text-align:center;margin-bottom:14px;position:relative;cursor:pointer;}
+.pod-upload-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+
+/* ── BLOCK CUSTOMER ── */
+.block-reason-btn{width:100%;text-align:left;background:#f8f8f8;border:1.5px solid var(--border);border-radius:12px;padding:13px 16px;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;margin-bottom:8px;font-family:'Sora',sans-serif;transition:all .15s;display:flex;align-items:center;gap:10px;}
+.block-reason-btn.sel{background:#fee2e2;border-color:#fca5a5;color:#991b1b;}
+
+/* ── EARNINGS HISTORY ── */
+.earn-period-tabs{display:flex;background:#f0f0f0;border:1.5px solid var(--border);border-radius:11px;padding:3px;margin-bottom:16px;}
+.earn-period-tab{flex:1;padding:9px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;background:transparent;color:var(--muted);transition:all .2s;}
+.earn-period-tab.active{background:#fff;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.earn-chart-wrap{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;}
+.earn-chart-title{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;}
+
+/* ── PROFILE SHEET ── */
+.profile-avatar-wrap{display:flex;flex-direction:column;align-items:center;padding:24px 0 20px;background:#fff;border-bottom:1.5px solid var(--border);margin-bottom:16px;}
+.profile-avatar-big{width:80px;height:80px;border-radius:50%;background:var(--dark);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;color:#fff;margin-bottom:10px;position:relative;overflow:hidden;}
+.profile-avatar-big img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.profile-avatar-edit{position:absolute;bottom:0;right:0;width:26px;height:26px;background:var(--dark);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;}
+.profile-avatar-input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.profile-name-big{font-size:18px;font-weight:800;color:var(--text);}
+.profile-email-small{font-size:12px;color:var(--muted);margin-top:2px;}
+.profile-section-hdr{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:14px 0 8px;border-bottom:1px solid var(--border);margin-bottom:10px;}
+.profile-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid #f5f5f5;}
+.profile-row:last-child{border-bottom:none;}
+.profile-row-label{font-size:12px;color:var(--muted);font-weight:600;}
+.profile-row-value{font-size:13px;font-weight:700;color:var(--text);text-align:right;max-width:60%;}
+.profile-edit-btn{background:#f0f0f0;border:1.5px solid var(--border);border-radius:9px;padding:6px 14px;font-size:12px;font-weight:700;color:var(--text);cursor:pointer;font-family:'Sora',sans-serif;}
+.profile-edit-modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.5);display:none;align-items:flex-end;backdrop-filter:blur(2px);}
+.profile-edit-modal.open{display:flex;}
+.profile-edit-box{background:#fff;border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;}
+
+/* ── JOB HISTORY SHEET ── */
+.hist-job-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;}
+.hist-job-route{font-size:14px;font-weight:800;color:var(--text);margin-bottom:3px;}
+.hist-job-date{font-size:11px;color:var(--muted);margin-bottom:10px;}
+.hist-job-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.hist-job-cell{background:#f8f8f8;border-radius:10px;padding:9px;text-align:center;}
+.hist-job-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+.hist-job-val{font-size:13px;font-weight:800;color:var(--text);}
+.hist-stars{color:#f59e0b;font-size:13px;font-weight:700;}
+
+/* ── WALLET / PAYOUT SHEET ── */
+.wallet-balance-card{background:var(--dark);border-radius:18px;padding:22px 20px;color:#fff;margin-bottom:16px;}
+.wallet-balance-lbl{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.wallet-balance-amt{font-size:40px;font-weight:800;letter-spacing:-1px;line-height:1.1;}
+.wallet-balance-sub{font-size:12px;color:rgba(255,255,255,.4);margin-top:6px;}
+.wallet-request-btn{width:100%;border:none;border-radius:13px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;background:#fff;color:var(--dark);margin-top:12px;font-family:'Sora',sans-serif;transition:all .2s;}
+.wallet-request-btn:active{opacity:.85;}
+.wallet-section{background:#fff;border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px;}
+.wallet-bank-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f5f5f5;font-size:13px;}
+.wallet-bank-row:last-child{border-bottom:none;}
+.wallet-bank-lbl{color:var(--muted);font-weight:600;}
+.wallet-bank-val{font-weight:700;color:var(--text);}
+.wallet-payout-hist-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f5f5f5;}
+.wallet-payout-hist-row:last-child{border-bottom:none;}
+.wallet-payout-amount{font-size:15px;font-weight:800;color:var(--green);}
+.wallet-payout-date{font-size:11px;color:var(--muted);margin-top:2px;}
+.wallet-payout-status{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:#dcfce7;color:#166534;border:1px solid #bbf7d0;}
+.wallet-payout-status.pending{background:#fef9c3;color:#92400e;border-color:#fde68a;}
+
+/* ── DOC UPLOAD (pending screen) ── */
+.doc-upload-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
+.doc-upload-row:last-child{border-bottom:none;}
+.doc-upload-label{font-size:13px;font-weight:700;color:var(--text);}
+.doc-upload-status{font-size:11px;color:var(--muted);margin-top:2px;}
+.doc-upload-btn{background:#f0f0f0;border:1.5px solid var(--border);border-radius:9px;padding:7px 13px;font-size:12px;font-weight:700;color:var(--text);cursor:pointer;font-family:'Sora',sans-serif;position:relative;overflow:hidden;white-space:nowrap;}
+.doc-upload-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.doc-upload-btn.uploaded{background:#dcfce7;border-color:#bbf7d0;color:#166534;}
+.earn-bar-area{display:flex;align-items:flex-end;gap:5px;height:90px;}
+.earn-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.earn-bar-fill{width:100%;background:var(--dark);border-radius:4px 4px 0 0;min-height:3px;transition:height .4s cubic-bezier(.4,0,.2,1);}
+.earn-bar-fill.today{background:#16a34a;}
+.earn-bar-x{font-size:8px;color:var(--muted);font-weight:600;}
+.earn-hist-list{background:#fff;border:1.5px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:14px;}
+.earn-hist-row{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border);font-size:13px;}
+.earn-hist-row:last-child{border-bottom:none;}
+.earn-hist-date{color:var(--muted);font-size:12px;}
+.earn-hist-amount{font-weight:800;color:var(--text);}
+.earn-hist-trips{font-size:11px;color:var(--muted);margin-top:2px;}
+
+/* ── FCM NOTIFICATION BANNER ── */
+.fcm-banner{background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:13px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:flex-start;gap:12px;}
+.fcm-banner-icon{font-size:22px;flex-shrink:0;}
+.fcm-banner-text{font-size:13px;color:#166534;line-height:1.5;flex:1;}
+.fcm-enable-btn{background:var(--green);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;margin-top:8px;width:100%;}
+
+/* AVAILABLE JOBS SHEET — ENHANCED */
+.avail-truck-bar{background:linear-gradient(135deg,#0f172a 0%,#1a1a2e 100%);padding:14px 18px;flex-shrink:0;}
+.avail-truck-inner{display:flex;align-items:center;gap:12px;}
+.avail-truck-icon{width:44px;height:44px;background:rgba(74,222,128,.1);border:1.5px solid rgba(74,222,128,.25);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.avail-truck-type{font-size:14px;font-weight:800;color:#fff;line-height:1.3;}
+.avail-truck-make{font-size:11px;color:rgba(255,255,255,.38);margin-top:2px;}
+.avail-filter-bar{display:flex;gap:8px;padding:10px 14px;background:#0a0a14;border-bottom:1px solid #1a1a2e;flex-shrink:0;overflow-x:auto;}
+.avail-filter-bar::-webkit-scrollbar{display:none;}
+.avail-chip{flex-shrink:0;padding:7px 14px;border-radius:20px;border:1.5px solid #1e2a3a;background:transparent;color:rgba(255,255,255,.4);font-size:11px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;transition:all .2s;letter-spacing:.3px;}
+.avail-chip.active{background:#4ade80;border-color:#4ade80;color:#0a1628;}
+.avail-count-row{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;background:#0a0a14;border-bottom:1px solid #111827;flex-shrink:0;}
+.avail-count-lbl{font-size:11px;color:rgba(255,255,255,.3);font-weight:600;}
+.avail-count-val{font-size:11px;font-weight:800;color:#4ade80;}
+.avail-job-card{background:#111827;border:1.5px solid #1e2a3a;border-radius:14px;padding:14px;margin-bottom:10px;transition:border-color .2s;}
+.avail-job-card.perfect-match{border-color:rgba(74,222,128,.3);}
+.avail-job-route{font-size:14px;font-weight:800;color:#fff;margin-bottom:3px;line-height:1.3;}
+.avail-job-meta{font-size:11px;color:rgba(255,255,255,.35);margin-bottom:10px;}
+.avail-job-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;}
+.avail-stat-cell{background:#0d1117;border-radius:8px;padding:8px 6px;text-align:center;}
+.avail-stat-lbl{font-size:9px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+.avail-stat-val{font-size:13px;font-weight:800;color:#fff;}
+.avail-stat-val.earn{color:#4ade80;}
+.avail-job-footer{display:flex;align-items:center;gap:8px;}
+.avail-match-pill{font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;flex-shrink:0;}
+.pill-perfect{background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.25);}
+.pill-compat{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2);}
+.avail-accept-btn{flex:1;padding:10px 14px;background:#4ade80;color:#0a1628;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:'Sora',sans-serif;transition:transform .15s;}
+.avail-accept-btn:active{transform:scale(.97);}
+.avail-empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;}
+.avail-spinner{width:36px;height:36px;border:3px solid rgba(74,222,128,.15);border-top-color:#4ade80;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
+</style>
+<script src="https://accounts.google.com/gsi/client" async></script>
+</head>
+<body>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signInWithCredential, GoogleAuthProvider, signOut, onAuthStateChanged, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, getDocs, collection, addDoc, updateDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
+const firebaseConfig = {
+  apiKey:"AIzaSyD0dRuRqbsJr0-Kv29xcpQGjW-1DiYPNLo",
+  authDomain:"truck-connect-c0c67.firebaseapp.com",
+  projectId:"truck-connect-c0c67",
+  storageBucket:"truck-connect-c0c67.firebasestorage.app",
+  messagingSenderId:"313065662016",
+  appId:"1:313065662016:web:a43aecfce5d7db205d61a5"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+// Messaging instance — may fail gracefully on unsupported browsers
+let _messaging = null;
+try { _messaging = getMessaging(app); } catch(e) {}
+window._FB = {auth,db,createUserWithEmailAndPassword,signInWithEmailAndPassword,signInWithPopup,signInWithCredential,GoogleAuthProvider,signOut,onAuthStateChanged,EmailAuthProvider,reauthenticateWithCredential,updatePassword,doc,setDoc,getDoc,getDocs,collection,addDoc,updateDoc,onSnapshot,query,where,messaging:_messaging,getToken,onMessage};
+</script>
+
+<div class="toast" id="toast"></div>
+
+<!-- LANDING -->
+<div id="s-landing" class="screen active">
+  <div class="land-inner">
+    <div class="land-badge"><div class="land-dot"></div> Driver Platform · SA</div>
+    <div class="land-icon">🚛</div>
+    <h1 class="land-title">Drive.<br/><em>Earn More.</em></h1>
+    <p class="land-sub">Join South Africa's fastest-growing freight network. Subscribe once, earn unlimited trips.</p>
+    <div class="land-actions">
+      <button class="btn-land-p" id="btn-signup-land">Register as Driver →</button>
+      <button class="btn-land-s" id="btn-signin-land">Already registered? Sign In</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- AUTH -->
+<div id="s-auth" class="screen">
+  <div class="topnav">
+    <button class="back-btn" id="auth-back">←</button>
+    <div class="nav-logo">Truck<span>Connect</span></div>
+    <div class="nav-badge">DRIVER</div>
+  </div>
+  <div class="screen-body">
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-signup">Sign Up</button>
+      <button class="auth-tab" id="tab-signin">Sign In</button>
+    </div>
+    <div id="signup-wrap">
+      <div id="d-stepbar" class="step-bar"></div>
+      <div id="d-step-body"></div>
+    </div>
+    <div id="signin-wrap" style="display:none;">
+      <div class="section-title">Welcome Back</div>
+      <div class="section-sub">Sign in to your driver account.</div>
+      <div class="sec-badge">🔒 Secured with AES-256 encryption · POPIA compliant</div>
+      <div class="fg"><span class="fl">Email</span><input class="fi" id="si-email" type="email" placeholder="your@email.com"/><div class="err-msg" id="si-email-err"></div></div>
+      <div class="fg"><span class="fl">Password</span><input class="fi" id="si-pass" type="password" placeholder="Your password"/><div class="err-msg" id="si-pass-err"></div></div>
+      <div class="err-msg" id="si-err" style="margin-bottom:8px;"></div>
+      <button class="btn btn-dark" id="signin-btn">Sign In →</button>
+      <div style="text-align:center;color:var(--muted);font-size:12px;font-weight:600;margin:14px 0;">— or sign in with —</div>
+      <button class="btn-google" id="google-signin-btn"><svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.174 0 7.548 0 9s.348 2.826.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/></svg> Sign in with Google</button>
+      <button class="btn btn-outline" id="goto-signup-btn">Don't have an account? Sign Up</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUBSCRIPTION -->
+<div id="s-subscription" class="screen">
+  <div class="topnav">
+    <button class="back-btn" id="sub-back">←</button>
+    <div class="nav-logo">Choose <span>Plan</span></div>
+    <div class="nav-badge">STEP 6/6</div>
+  </div>
+  <div class="screen-body">
+    <div class="section-title">Choose Your Plan</div>
+    <div class="section-sub">Flat monthly subscription. Keep 100% of every job you complete.</div>
+    <div class="sub-tabs">
+      <button class="sub-tab active" id="sub-tab-basic" onclick="showSubPlan('basic')">Mover</button>
+      <button class="sub-tab" id="sub-tab-standard" onclick="showSubPlan('standard')">Standard</button>
+    </div>
+    <div id="sub-basic">
+      <div class="sub-plan-card">
+        <div style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:14px;">Mover Plan</div>
+        <div class="sub-price-box">
+          <div style="font-size:32px;font-weight:800;color:var(--text);">R699<span style="font-size:14px;font-weight:400;color:var(--muted);">/month</span></div>
+          <div class="sub-cap-badge" style="margin-top:8px;">✅ Keep 100% of your earnings</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:10px;line-height:1.5;">Pay a flat monthly subscription fee and keep every rand you earn.</div>
+        </div>
+        <div class="sub-example">Earn <strong>R10,000</strong> this month? You keep <strong style="color:var(--dark);">R10,000.00</strong></div>
+        <div style="font-size:13px;font-weight:700;margin:14px 0 8px;">Mover Benefits:</div>
+        <div class="sub-feature"><span class="sub-check">✓</span> You keep 100% of every job you complete</div>
+        <div class="sub-feature"><span class="sub-check">✓</span> Security & Safety</div>
+        <div class="sub-feature"><span class="sub-check">✓</span> Live Heatmaps</div>
+        <div class="sub-feature"><span class="sub-check">✓</span> Roadside Assistance</div>
+        <div class="sub-feature"><span class="sub-check">✓</span> Legal Assistance</div>
+        <div class="sub-feature"><span class="sub-check">✓</span> Medical Assistance</div>
+        <div class="safer-city-box"><div class="safer-city-title">🛡️ Safer City</div><div class="safer-city-text">A portion of your subscription funds driver safety training, community programs, and emergency response initiatives.</div></div>
+      </div>
+      <button class="btn btn-dark" id="start-basic-btn">Start Mover Plan — R699/month →</button>
+    </div>
+    <div id="sub-standard" style="display:none;">
+      <div class="sub-plan-card">
+        <div style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:14px;">Standard Plan <span class="sub-popular">⭐ Popular</span></div>
+        <div class="sub-price-box">
+          <div style="font-size:32px;font-weight:800;color:var(--text);">R899<span style="font-size:14px;font-weight:400;color:var(--muted);">/month</span></div>
+          <div class="sub-cap-badge" style="margin-top:8px;">✅ Keep 100% of your earnings</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:10px;line-height:1.5;">Everything in Mover, plus premium features to grow your business faster.</div>
+        </div>
+        <div class="sub-example">Earn <strong>R20,000</strong> this month? You keep <strong style="color:var(--dark);">R20,000.00</strong></div>
+        <div style="font-size:13px;font-weight:700;margin:14px 0 8px;">Standard Benefits:</div>
+        <div class="sub-feature"><span class="sub-check">✓</span> You keep 100% of every job you complete</div>
+        <div class="sub-feature"><span class="sub-check">✓</span> Priority visibility in job searches</div>
+        <div class="sub-feature"><span class="sub-check">✓</span> Access to premium & high-value loads</div>
+        <div class="sub-feature"><span class="sub-check">✓</span> Earnings analytics & reports</div>
+        <div class="sub-feature"><span class="sub-check">✓</span> Early access to new features</div>
+        <div class="sub-feature"><span class="sub-check">✓</span> Security, Roadside, Legal & Medical</div>
+        <div class="safer-city-box"><div class="safer-city-title">🛡️ Safer City</div><div class="safer-city-text">A portion of your subscription funds driver safety training, community programs, and emergency response initiatives.</div></div>
+      </div>
+      <button class="btn btn-dark" id="start-standard-btn">Start Standard Plan — R899/month →</button>
+    </div>
+    <button class="btn btn-outline" id="sub-skip-btn">Skip for now — subscribe later</button>
+  </div>
+</div>
+
+<!-- PENDING -->
+<div id="s-pending" class="screen">
+  <div class="pending-wrap">
+    <div style="font-size:64px;margin-bottom:20px;">⏳</div>
+    <div style="font-size:24px;font-weight:800;color:var(--text);margin-bottom:10px;">Application Under Review</div>
+    <div style="font-size:14px;color:var(--muted);line-height:1.7;max-width:300px;margin:0 auto 28px;text-align:center;">Your driver profile has been submitted. Our team reviews applications within 24–48 hours.</div>
+    <div class="pending-card">
+      <div class="pending-row"><span style="color:var(--muted);">ID Verification</span><span style="font-weight:700;">📋 Submitted</span></div>
+      <div style="padding:14px 0 6px;border-bottom:1px solid var(--border);">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;">📄 Vehicle Documents</div>
+        <div class="doc-upload-row">
+          <div>
+            <div class="doc-upload-label">Operator's Licence</div>
+            <div class="doc-upload-status" id="doc-op-status">Under Review</div>
+          </div>
+          <button class="doc-upload-btn" id="doc-op-btn">
+            📎 Upload
+            <input type="file" accept="image/*,application/pdf" id="doc-op-file"/>
+          </button>
+        </div>
+        <div class="doc-upload-row">
+          <div>
+            <div class="doc-upload-label">Vehicle Registration</div>
+            <div class="doc-upload-status" id="doc-reg-status">Under Review</div>
+          </div>
+          <button class="doc-upload-btn" id="doc-reg-btn">
+            📎 Upload
+            <input type="file" accept="image/*,application/pdf" id="doc-reg-file"/>
+          </button>
+        </div>
+        <div class="doc-upload-row">
+          <div>
+            <div class="doc-upload-label">Roadworthy Certificate</div>
+            <div class="doc-upload-status" id="doc-rw-status">Under Review</div>
+          </div>
+          <button class="doc-upload-btn" id="doc-rw-btn">
+            📎 Upload
+            <input type="file" accept="image/*,application/pdf" id="doc-rw-file"/>
+          </button>
+        </div>
+      </div>
+      <div class="pending-row"><span style="color:var(--muted);">Banking Details</span><span style="font-weight:700;">✅ Saved</span></div>
+      <div class="pending-row"><span style="color:var(--muted);">Subscription</span><span style="font-weight:700;" id="pend-sub-val">—</span></div>
+    </div>
+    <button class="btn btn-dark" style="max-width:320px;width:100%;" id="check-status-btn">Check Approval Status</button>
+    <button class="btn btn-outline" style="max-width:320px;width:100%;margin-top:8px;" id="pend-signout-btn">Sign Out</button>
+  </div>
+</div>
+
+<!-- DRIVER HOME -->
+<div id="s-driver-home" class="screen" style="min-height:100vh;position:relative;">
+  <div class="driver-topbar">
+    <button class="d-menu-btn" id="d-menu-btn">☰</button>
+    <div class="driver-logo">TruckConnect</div>
+    <div class="d-status-pill" id="d-status-pill">⚫ Offline</div>
+  </div>
+  <div id="driver-map"></div>
+  <button class="map-fab" id="d-locate-btn" style="bottom:220px;right:14px;">📍</button>
+  <button class="map-fab" id="d-sat-btn" style="bottom:275px;right:14px;font-size:16px;">🛰️</button>
+  <!-- 2D / 3D toggle -->
+  <div style="position:absolute;top:70px;right:14px;z-index:10;background:#fff;border-radius:20px;display:flex;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.15);border:1.5px solid var(--border);">
+    <button id="map-2d-btn" onclick="setDriverMapView('2d')" style="padding:7px 13px;border:none;background:transparent;font-size:12px;font-weight:700;color:#888;cursor:pointer;font-family:'Sora',sans-serif;">2D</button>
+    <button id="map-3d-btn" onclick="setDriverMapView('3d')" style="padding:7px 13px;border:none;background:#1c1c1e;color:#fff;font-size:12px;font-weight:700;cursor:pointer;border-radius:20px;font-family:'Sora',sans-serif;">3D</button>
+  </div>
+  <div class="driver-bottom">
+    <button class="online-btn" id="online-tog-btn">Go Online</button>
+    <button id="search-jobs-btn" style="width:100%;margin-top:10px;padding:13px;background:#1a1a2e;color:#fff;border:1.5px solid #333;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;">🔍 Search Available Jobs</button>
+    <div class="earn-row">
+      <div class="earn-cell"><div class="earn-num" id="earn-today">R0</div><div class="earn-lbl">Today</div></div>
+      <div class="earn-cell"><div class="earn-num" id="earn-week">R0</div><div class="earn-lbl">This Week</div></div>
+      <div class="earn-cell"><div class="earn-num" id="earn-trips">0</div><div class="earn-lbl">Trips</div></div>
+    </div>
+  </div>
+  <div class="job-popup" id="job-popup">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-size:16px;font-weight:800;color:var(--text);">New Load Available</div>
+      <div style="background:#1c1c1e;color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;">NEW</div>
+    </div>
+    <div class="jp-route" id="jp-route">— → —</div>
+    <div class="jp-meta" id="jp-meta">Loading details...</div>
+    <div class="jp-grid">
+      <div class="jp-cell"><div class="jp-cell-lbl">Distance</div><div class="jp-cell-val" id="jp-dist">—</div></div>
+      <div class="jp-cell"><div class="jp-cell-lbl">Earnings</div><div class="jp-cell-val" id="jp-earn" style="color:var(--green);">—</div></div>
+      <div class="jp-cell"><div class="jp-cell-lbl">Cargo</div><div class="jp-cell-val" id="jp-cargo">—</div></div>
+    </div>
+    <div class="jp-actions">
+      <button class="jp-accept" id="jp-accept-btn">✓ Accept</button>
+      <button class="jp-decline" id="jp-decline-btn">✕ Decline</button>
+    </div>
+  </div>
+  <div class="sidemenu" id="d-sidemenu">
+    <div class="sidemenu-head">
+      <div class="sidemenu-av" id="d-av" style="overflow:hidden;padding:0;"><img id="d-av-img" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:none;" src=""/><span id="d-av-initials">D</span></div>
+      <div class="sidemenu-name" id="d-uname">Driver</div>
+      <div class="sidemenu-email" id="d-uemail">—</div>
+      <div class="sidemenu-sub-badge" id="d-sub-badge">No Plan</div>
+    </div>
+    <div class="sidemenu-nav">
+      <button class="sidemenu-btn" id="menu-profile">👤 My Profile</button>
+      <button class="sidemenu-btn" id="menu-jobs">📋 My Jobs</button>
+      <button class="sidemenu-btn" id="menu-search-jobs">🔍 Search Available Jobs</button>
+      <button class="sidemenu-btn" id="menu-job-history">🕐 Job History</button>
+      <button class="sidemenu-btn" id="menu-earnings">💰 Earnings</button>
+      <button class="sidemenu-btn" id="menu-wallet">🏦 Wallet & Payouts</button>
+      <button class="sidemenu-btn" id="menu-heatmap">🔥 Toggle Heatmap</button>
+      <button class="sidemenu-btn sidemenu-btn-danger" id="menu-signout">← Sign Out</button>
+    </div>
+  </div>
+  <div class="menu-overlay-bg" id="d-menu-overlay"></div>
+  <div class="sheet-overlay" id="jobs-sheet">
+    <div class="sheet-header"><button class="sheet-back" id="close-jobs-sheet">←</button><div class="sheet-hdr-title">My Jobs</div></div>
+    <div style="padding:16px;" id="jobs-list-wrap"><div style="text-align:center;padding:44px 20px;color:var(--muted);"><div style="font-size:36px;margin-bottom:12px;opacity:.3;">✅</div><div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;">No active jobs</div><div style="font-size:12px;">Accept a load to see it here.</div></div></div>
+  </div>
+  <div class="sheet-overlay" id="earnings-sheet">
+    <div class="sheet-header"><button class="sheet-back" id="close-earnings-sheet">←</button><div class="sheet-hdr-title">Earnings</div></div>
+    <div style="padding:16px;">
+      <!-- Period selector -->
+      <div class="earn-period-tabs" id="earn-period-tabs">
+        <button class="earn-period-tab active" data-period="day" onclick="window._setEarnPeriod('day',this)">Today</button>
+        <button class="earn-period-tab" data-period="week" onclick="window._setEarnPeriod('week',this)">This Week</button>
+        <button class="earn-period-tab" data-period="month" onclick="window._setEarnPeriod('month',this)">This Month</button>
+      </div>
+      <!-- Big total -->
+      <div class="earn-stat-big"><div class="earn-big-num" id="total-earned">R0</div><div class="earn-big-lbl" id="earn-period-label">Total Earned Today</div></div>
+      <!-- Mini stats -->
+      <div class="earn-grid-2">
+        <div class="earn-mini"><div class="earn-mini-num" id="earn-trips-count">0</div><div class="earn-mini-lbl">Trips</div></div>
+        <div class="earn-mini"><div class="earn-mini-num" id="earn-avg-trip">R0</div><div class="earn-mini-lbl">Avg / Trip</div></div>
+      </div>
+      <!-- Bar chart -->
+      <div class="earn-chart-wrap">
+        <div class="earn-chart-title" id="earn-chart-title">Daily Breakdown</div>
+        <div class="earn-bar-area" id="earn-bar-area"></div>
+      </div>
+      <!-- History list -->
+      <div class="earn-hist-list" id="earn-hist-list"></div>
+      <!-- Payout card -->
+      <div class="payout-card"><div style="font-size:11px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">NEXT PAYOUT</div><div style="font-size:22px;font-weight:800;" id="next-payout-date">—</div><div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:4px;">Paid to your bank account every 14 days</div></div>
+      <!-- Subscription cost -->
+      <div class="earn-mini" style="margin-bottom:14px;"><div class="earn-mini-num" id="sub-cost">R0</div><div class="earn-mini-lbl">Monthly Subscription</div></div>
+      <!-- FCM notification banner -->
+      <div class="fcm-banner" id="fcm-banner" style="display:none;">
+        <span class="fcm-banner-icon">🔔</span>
+        <div style="flex:1;">
+          <div class="fcm-banner-text"><strong>Enable job notifications</strong><br/>Get alerted instantly when new loads match your truck.</div>
+          <button class="fcm-enable-btn" onclick="window._enableNotifications()">Enable Push Notifications</button>
+        </div>
+      </div>
+      <div id="fcm-status" style="display:none;font-size:12px;color:var(--green);font-weight:600;padding:10px 0;">🔔 Push notifications are enabled</div>
+    </div>
+  </div>
+  <!-- AVAILABLE JOBS SHEET -->
+  <div class="sheet-overlay" id="avail-jobs-sheet" style="background:#0a0a14;display:flex;flex-direction:column;overflow:hidden;">
+    <!-- Fixed top section -->
+    <div style="flex-shrink:0;">
+      <div class="sheet-header" style="background:#0f172a;border-bottom:1.5px solid #1a2030;">
+        <button class="sheet-back" id="close-avail-jobs-sheet" style="color:rgba(255,255,255,.55);">←</button>
+        <div class="sheet-hdr-title" style="color:#fff;flex:1;">Available Jobs</div>
+        <button id="refresh-jobs-btn" style="background:none;border:none;color:rgba(255,255,255,.45);font-size:19px;cursor:pointer;padding:4px 8px;" title="Refresh">🔄</button>
+      </div>
+      <!-- Truck identity bar -->
+      <div class="avail-truck-bar">
+        <div class="avail-truck-inner">
+          <div class="avail-truck-icon">🚛</div>
+          <div style="flex:1;">
+            <div class="avail-truck-type" id="avail-truck-type-lbl">Loading truck info...</div>
+            <div class="avail-truck-make" id="avail-truck-make-lbl">Only jobs your truck can handle are shown</div>
+          </div>
+        </div>
+      </div>
+      <!-- Filter chips -->
+      <div class="avail-filter-bar" id="avail-filter-bar">
+        <button class="avail-chip active" data-filter="all">All Matched</button>
+        <button class="avail-chip" data-filter="today">Today / ASAP</button>
+        <button class="avail-chip" data-filter="highpay">High Pay</button>
+        <button class="avail-chip" data-filter="short">Short Haul</button>
+        <button class="avail-chip" data-filter="long">Long Haul</button>
+      </div>
+      <!-- Count row -->
+      <div class="avail-count-row">
+        <span class="avail-count-lbl">Matched to your truck capacity</span>
+        <span class="avail-count-val" id="avail-job-count">—</span>
+      </div>
+    </div>
+    <!-- Scrollable job list -->
+    <div style="flex:1;overflow-y:auto;padding:12px 14px 32px;" id="avail-jobs-list">
+      <div class="avail-empty-state">
+        <div class="avail-spinner"></div>
+        <div style="font-size:13px;color:rgba(255,255,255,.35);font-weight:600;">Loading jobs...</div>
+      </div>
+    </div>
+  </div>
+  <button class="map-fab sos-fab" id="sos-btn" title="SOS Emergency">SOS</button>
+
+  <!-- ── PROFILE SHEET ── -->
+  <div class="sheet-overlay" id="profile-sheet">
+    <div class="sheet-header">
+      <button class="sheet-back" id="close-profile-sheet">←</button>
+      <div class="sheet-hdr-title">My Profile</div>
+      <button id="profile-save-btn" style="background:var(--dark);color:#fff;border:none;border-radius:9px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;">Save</button>
+    </div>
+    <div style="padding:0 16px 40px;">
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar-big" id="profile-avatar-big">
+          <span id="profile-av-initials">D</span>
+          <img id="profile-av-img" src="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;"/>
+          <div class="profile-avatar-edit">📷<input type="file" accept="image/*" class="profile-avatar-input" id="profile-photo-input"/></div>
+        </div>
+        <div class="profile-name-big" id="profile-name-disp">Driver</div>
+        <div class="profile-email-small" id="profile-email-disp">—</div>
+      </div>
+
+      <div class="profile-section-hdr">Personal Details</div>
+      <div class="fg"><label class="fl">Full Name</label><input class="fi" id="prf-name" placeholder="Your full name"/></div>
+      <div class="fg"><label class="fl">Phone Number</label><input class="fi" id="prf-phone" placeholder="+27 XXX XXX XXXX" type="tel"/></div>
+
+      <div class="profile-section-hdr">Truck Details</div>
+      <div class="fg"><label class="fl">Truck Make & Model</label><input class="fi" id="prf-truck" placeholder="e.g. Hino 300 Series"/></div>
+      <div class="fg"><label class="fl">Truck Type / Capacity</label>
+        <select class="fs" id="prf-trucktype">
+          <option value="">Select type</option>
+          <option value="1 Ton Bakkie">1 Ton Bakkie</option>
+          <option value="3 Ton">3 Ton</option>
+          <option value="5 Ton">5 Ton</option>
+          <option value="8 Ton">8 Ton</option>
+          <option value="14 Ton Rigid">14 Ton Rigid</option>
+          <option value="34 Ton Semi">34 Ton Semi</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Licence Plate</label><input class="fi" id="prf-plate" placeholder="e.g. CA 123-456"/></div>
+
+      <div class="profile-section-hdr">Security</div>
+      <button class="btn btn-outline" id="profile-chgpwd-btn" style="margin-top:0;">🔒 Change Password</button>
+    </div>
+  </div>
+
+  <!-- ── CHANGE PASSWORD MODAL ── -->
+  <div class="profile-edit-modal" id="chgpwd-modal">
+    <div class="profile-edit-box">
+      <div class="feat-handle"></div>
+      <div class="feat-title" style="margin-bottom:16px;">Change Password</div>
+      <div class="fg"><label class="fl">Current Password</label><input class="fi" id="chgpwd-current" type="password" placeholder="Enter current password"/></div>
+      <div class="fg"><label class="fl">New Password</label><input class="fi" id="chgpwd-new" type="password" placeholder="At least 8 characters"/></div>
+      <div class="fg"><label class="fl">Confirm New Password</label><input class="fi" id="chgpwd-confirm" type="password" placeholder="Repeat new password"/></div>
+      <div class="err-msg" id="chgpwd-err" style="display:none;margin-bottom:8px;"></div>
+      <button class="btn btn-dark" id="chgpwd-submit-btn">Update Password →</button>
+      <button class="btn btn-outline" id="chgpwd-cancel-btn">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ── JOB HISTORY SHEET ── -->
+  <div class="sheet-overlay" id="job-history-sheet">
+    <div class="sheet-header"><button class="sheet-back" id="close-job-history-sheet">←</button><div class="sheet-hdr-title">Job History</div></div>
+    <div style="padding:16px;" id="job-history-list">
+      <div style="text-align:center;padding:44px 20px;color:var(--muted);">
+        <div style="font-size:36px;margin-bottom:12px;opacity:.3;">🕐</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;">No completed trips yet</div>
+        <div style="font-size:12px;">Completed trips will appear here.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── WALLET / PAYOUT SHEET ── -->
+  <div class="sheet-overlay" id="wallet-sheet">
+    <div class="sheet-header"><button class="sheet-back" id="close-wallet-sheet">←</button><div class="sheet-hdr-title">Wallet & Payouts</div></div>
+    <div style="padding:16px 16px 40px;">
+      <!-- Balance card -->
+      <div class="wallet-balance-card">
+        <div class="wallet-balance-lbl">Available Balance</div>
+        <div class="wallet-balance-amt" id="wallet-balance">R0</div>
+        <div class="wallet-balance-sub" id="wallet-balance-sub">Last payout: —</div>
+        <button class="wallet-request-btn" id="wallet-request-btn">Request Payout →</button>
+      </div>
+
+      <!-- Bank account details -->
+      <div class="wallet-section">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div style="font-size:14px;font-weight:800;color:var(--text);">Bank Account</div>
+          <button id="wallet-edit-bank-btn" class="profile-edit-btn">Edit</button>
+        </div>
+        <div class="wallet-bank-row"><span class="wallet-bank-lbl">Bank</span><span class="wallet-bank-val" id="wlt-bank">—</span></div>
+        <div class="wallet-bank-row"><span class="wallet-bank-lbl">Account Holder</span><span class="wallet-bank-val" id="wlt-holder">—</span></div>
+        <div class="wallet-bank-row"><span class="wallet-bank-lbl">Account Number</span><span class="wallet-bank-val" id="wlt-accno">•••• ••••</span></div>
+        <div class="wallet-bank-row"><span class="wallet-bank-lbl">Account Type</span><span class="wallet-bank-val" id="wlt-acctype">—</span></div>
+        <div class="wallet-bank-row"><span class="wallet-bank-lbl">Branch Code</span><span class="wallet-bank-val" id="wlt-branch">—</span></div>
+      </div>
+
+      <!-- Payout schedule -->
+      <div class="wallet-section">
+        <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:12px;">Payout Schedule</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.6;">Payouts are processed every <strong style="color:var(--text);">14 days</strong>. Your next payout date is <strong style="color:var(--text);" id="wlt-next-date">—</strong>.</div>
+        <div style="margin-top:12px;background:#f8f8f8;border-radius:12px;padding:14px;">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700;margin-bottom:6px;">This Period</div>
+          <div style="font-size:24px;font-weight:800;color:var(--text);" id="wlt-period-earn">R0</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;" id="wlt-period-trips">0 trips</div>
+        </div>
+      </div>
+
+      <!-- Payout history -->
+      <div class="wallet-section">
+        <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:12px;">Payout History</div>
+        <div id="wallet-payout-hist">
+          <div class="wallet-payout-hist-row">
+            <div><div class="wallet-payout-amount">R2 450</div><div class="wallet-payout-date">15 Apr 2025 · 3 trips</div></div>
+            <span class="wallet-payout-status">Paid</span>
+          </div>
+          <div class="wallet-payout-hist-row">
+            <div><div class="wallet-payout-amount">R3 100</div><div class="wallet-payout-date">1 Apr 2025 · 4 trips</div></div>
+            <span class="wallet-payout-status">Paid</span>
+          </div>
+          <div class="wallet-payout-hist-row">
+            <div><div class="wallet-payout-amount">R1 800</div><div class="wallet-payout-date">15 Mar 2025 · 2 trips</div></div>
+            <span class="wallet-payout-status">Paid</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PAYOUT REQUEST MODAL ── -->
+  <div class="profile-edit-modal" id="payout-request-modal">
+    <div class="profile-edit-box">
+      <div class="feat-handle"></div>
+      <div class="feat-title">Request Payout</div>
+      <div class="feat-sub">Your available balance will be paid to your registered bank account within 1–2 business days.</div>
+      <div style="background:#f8f8f8;border:1.5px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;text-align:center;">
+        <div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Payout Amount</div>
+        <div style="font-size:32px;font-weight:800;color:var(--text);" id="payout-modal-amount">R0</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;" id="payout-modal-bank">to your registered account</div>
+      </div>
+      <div class="err-msg" id="payout-err" style="display:none;margin-bottom:8px;"></div>
+      <button class="btn btn-dark" id="payout-confirm-btn">Confirm Payout Request →</button>
+      <button class="btn btn-outline" id="payout-cancel-btn">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ── SOS MODAL ── -->
+  <div class="feat-overlay" id="sos-overlay">
+    <div class="feat-box">
+      <div class="feat-handle"></div>
+      <button class="feat-close" id="sos-close">✕</button>
+      <div class="feat-title">🆘 Emergency Panel</div>
+      <div class="feat-sub">Your safety is our priority. Choose an action below.</div>
+      <button class="sos-opt" onclick="window._sosCall()">
+        <span class="sos-opt-icon">📞</span>
+        <div><div class="sos-opt-label">Call Emergency Services</div><div class="sos-opt-desc">Dial 112 — Police, Fire, Ambulance</div></div>
+      </button>
+      <button class="sos-opt sos-opt-blue" onclick="window._sosShareLocation()">
+        <span class="sos-opt-icon">📍</span>
+        <div><div class="sos-opt-label">Share My Location</div><div class="sos-opt-desc">Send GPS coordinates to TruckConnect support</div></div>
+      </button>
+      <button class="sos-opt sos-opt-blue" onclick="window._sosAlertSupport()">
+        <span class="sos-opt-icon">🚨</span>
+        <div><div class="sos-opt-label">Alert TruckConnect Support</div><div class="sos-opt-desc">Flag this trip for urgent review</div></div>
+      </button>
+      <button class="sos-opt sos-opt-safe" onclick="window._sosSafe()">
+        <span class="sos-opt-icon">✅</span>
+        <div><div class="sos-opt-label">I am Safe — Close Panel</div><div class="sos-opt-desc">Everything is fine, dismiss this alert</div></div>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── CUSTOMER RATING MODAL ── -->
+  <div class="feat-overlay" id="rating-overlay">
+    <div class="feat-box">
+      <div class="feat-handle"></div>
+      <div class="feat-title">⭐ Rate the Customer</div>
+      <div class="feat-sub" id="rating-sub">How was your experience with this customer?</div>
+      <div class="star-row" id="star-row">
+        <button class="star-btn" data-val="1" onclick="window._setRating(1)">⭐</button>
+        <button class="star-btn" data-val="2" onclick="window._setRating(2)">⭐</button>
+        <button class="star-btn" data-val="3" onclick="window._setRating(3)">⭐</button>
+        <button class="star-btn" data-val="4" onclick="window._setRating(4)">⭐</button>
+        <button class="star-btn" data-val="5" onclick="window._setRating(5)">⭐</button>
+      </div>
+      <div class="rating-label" id="rating-label">Tap a star to rate</div>
+      <div class="rat-tag-row" id="rat-tags"></div>
+      <textarea class="fi" id="rating-comment" placeholder="Optional note about this customer..." style="min-height:80px;resize:none;margin-bottom:14px;"></textarea>
+      <button class="btn btn-dark" id="submit-rating-btn" onclick="window._submitRating()">Submit Rating →</button>
+      <button class="btn btn-outline" onclick="window._skipRating()">Skip for now</button>
+    </div>
+  </div>
+
+  <!-- ── PROOF OF DELIVERY MODAL ── -->
+  <div class="feat-overlay" id="pod-overlay">
+    <div class="feat-box">
+      <div class="feat-handle"></div>
+      <div class="feat-title">📷 Proof of Delivery</div>
+      <div class="feat-sub">Take a photo of the delivered goods or drop-off location to confirm delivery.</div>
+      <img class="pod-preview" id="pod-preview" src="" alt="Proof"/>
+      <div class="pod-upload-box" id="pod-upload-box">
+        <div style="font-size:36px;margin-bottom:10px;">📸</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Tap to take photo</div>
+        <div style="font-size:11px;color:var(--muted);">Camera or gallery · Required for delivery confirmation</div>
+        <input type="file" id="pod-file" accept="image/*" capture="environment"/>
+      </div>
+      <div class="fg">
+        <span class="fl">Delivery Note (optional)</span>
+        <textarea class="fi" id="pod-note" placeholder="e.g. Left with receptionist, goods in good condition..." style="min-height:70px;resize:none;"></textarea>
+      </div>
+      <button class="btn btn-dark" id="pod-submit-btn" onclick="window._submitPOD()">✅ Confirm Delivery</button>
+      <button class="btn btn-outline" onclick="window._skipPOD()">Skip Photo — Mark Delivered Anyway</button>
+    </div>
+  </div>
+
+  <!-- ── BLOCK CUSTOMER MODAL ── -->
+  <div class="feat-overlay" id="block-overlay">
+    <div class="feat-box">
+      <div class="feat-handle"></div>
+      <button class="feat-close" id="block-close">✕</button>
+      <div class="feat-title">🚫 Report / Block Customer</div>
+      <div class="feat-sub" id="block-sub">Select a reason for blocking this customer. Our team will review within 24 hours.</div>
+      <div id="block-reasons">
+        <button class="block-reason-btn" data-reason="Rude or abusive behaviour" onclick="window._selectBlockReason(this)">😤 Rude or abusive behaviour</button>
+        <button class="block-reason-btn" data-reason="Refused to pay or pay dispute" onclick="window._selectBlockReason(this)">💸 Refused to pay / payment dispute</button>
+        <button class="block-reason-btn" data-reason="Dangerous pickup or drop-off location" onclick="window._selectBlockReason(this)">⚠️ Dangerous pickup or drop-off</button>
+        <button class="block-reason-btn" data-reason="Incorrect or fraudulent cargo details" onclick="window._selectBlockReason(this)">📦 Incorrect / fraudulent cargo details</button>
+        <button class="block-reason-btn" data-reason="No-show or unresponsive" onclick="window._selectBlockReason(this)">📵 No-show or unresponsive</button>
+        <button class="block-reason-btn" data-reason="Other misconduct" onclick="window._selectBlockReason(this)">🚨 Other misconduct</button>
+      </div>
+      <textarea class="fi" id="block-detail" placeholder="Additional details (optional)..." style="min-height:70px;resize:none;margin-top:10px;margin-bottom:14px;"></textarea>
+      <button class="btn btn-dark" style="background:#dc2626;" id="block-submit-btn" onclick="window._submitBlock()">🚫 Submit Report &amp; Block</button>
+      <button class="btn btn-outline" id="block-cancel-btn">Cancel</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- NAV OVERLAY -->
+<div id="ov-navigation">
+  <!-- TOP bar -->
+  <div class="nav-instruction-bar">
+    <div class="nav-turn-box" id="nav-turn-icon">⬆️</div>
+    <div style="flex:1;">
+      <div class="nav-dist-label" id="nav-distance-next">--</div>
+      <div class="nav-street-label" id="nav-instruction">Starting navigation...</div>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div id="nav-map-tiles"></div>
+
+  <!-- RIGHT buttons -->
+  <div class="nav-side-btns">
+    <button class="nav-side-btn" id="nav-music-btn" onclick="toggleMusicPanel()">🎵</button>
+    <button class="nav-side-btn" id="nav-sound-btn" onclick="toggleNavSound()">🔊</button>
+  </div>
+
+  <!-- BOTTOM bar -->
+  <div class="nav-bottom-bar">
+    <div class="nav-bottom-row">
+      <div class="nav-speed-circle">
+        <div class="nav-speed-num" id="nav-speed">0</div>
+        <div class="nav-speed-unit">km/h</div>
+      </div>
+      <div class="nav-center-info">
+        <div class="nav-clock" id="nav-clock">--:--</div>
+        <div class="nav-eta-sub" id="nav-eta">-- min &bull; -- km</div>
+      </div>
+      <button class="nav-exit-btn" id="nav-close-btn">✕</button>
+    </div>
+  </div>
+
+  <!-- MUSIC PANEL (slides up from bottom) -->
+  <div class="nav-music-panel" id="nav-music-panel">
+    <div class="nav-music-header">
+      <span class="nav-music-title">Select an audio app</span>
+      <button class="nav-music-collapse" onclick="toggleMusicPanel()">&#8679;</button>
+    </div>
+    <div class="nav-music-apps">
+      <button class="nav-music-app" onclick="openMusicApp('spotify')">
+        <div class="nav-music-icon" style="background:#1DB954;">
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+        </div>
+        <span class="nav-music-lbl">Spotify</span>
+      </button>
+      <button class="nav-music-app" onclick="openMusicApp('youtube')">
+        <div class="nav-music-icon" style="background:#FF0000;">
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="white"><path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
+        </div>
+        <span class="nav-music-lbl">YouTube Music</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+<script>if(typeof maplibregl!=='undefined'){var mapboxgl=maplibregl;}else{console.error('MapLibre failed to load');}</script>
+<script>
+(function(){
+'use strict';
+var MB="Yo1KH6rbp81TFmF2VR9MTunQo56QVtbPQCLwq4bOEzxTOr3peEZixPnaZBJZTYpb";
+var JAWG_STYLE="https://tiles.openfreemap.org/styles/liberty";
+
+// ── ENCRYPTION — AES-GCM via Web Crypto API ──
+// Key is derived from uid + app salt using PBKDF2.
+// Sensitive fields are encrypted before writing to Firestore.
+// Without the uid and salt, the ciphertext is unreadable.
+var _ENC_SALT = 'TruckConnect-ZA-2024-v1';
+
+async function _deriveKey(uid) {
+  var enc = new TextEncoder();
+  var keyMaterial = await window.crypto.subtle.importKey(
+    'raw', enc.encode(uid + _ENC_SALT), {name:'PBKDF2'}, false, ['deriveKey']
+  );
+  return window.crypto.subtle.deriveKey(
+    {name:'PBKDF2', salt:enc.encode(_ENC_SALT), iterations:100000, hash:'SHA-256'},
+    keyMaterial, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']
+  );
+}
+
+async function encryptField(uid, plaintext) {
+  if(!plaintext) return '';
+  var key = await _deriveKey(uid);
+  var iv = window.crypto.getRandomValues(new Uint8Array(12));
+  var enc = new TextEncoder();
+  var cipherBuf = await window.crypto.subtle.encrypt(
+    {name:'AES-GCM', iv:iv}, key, enc.encode(String(plaintext))
+  );
+  // Store as base64(iv):base64(ciphertext)
+  var toB64 = function(buf){ return btoa(String.fromCharCode(...new Uint8Array(buf))); };
+  return toB64(iv) + ':' + toB64(cipherBuf);
+}
+
+async function encryptSensitiveFields(uid, data) {
+  var fields = ['idNumber','accountNumber','branchCode','accountHolder','accountType','bank'];
+  var result = Object.assign({}, data);
+  for (var i = 0; i < fields.length; i++) {
+    var f = fields[i];
+    if (result[f]) {
+      result[f] = await encryptField(uid, result[f]);
+    }
+  }
+  result._encrypted = true; // flag so you know fields are encrypted
+  return result;
+}
+
+// Compress selfie to a small thumbnail (max 200×200, JPEG quality 0.7)
+// to keep Firestore document well under the 1MB limit.
+function compressSelfie(file, cb) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      var MAX = 200;
+      var w = img.width, h = img.height;
+      if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+      else        { w = Math.round(w * MAX / h); h = MAX; }
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      cb(canvas.toDataURL('image/jpeg', 0.7));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── AI DOCUMENT TYPE CHECK ──
+// Sends the image to Claude vision and checks it looks like the right doc.
+// docType: 'prdp' or 'disc'
+// Returns a promise that resolves to { ok: bool, reason: string }
+async function aiCheckDoc(dataUrl, docType) {
+  var descriptions = {
+    prdp: 'a South African PrDP (Professional Driving Permit) card or certificate — it typically shows the driver\'s photo, name, permit categories (G, P, D), and an expiry date',
+    disc: 'a South African vehicle licence disc — a small circular or rectangular sticker/certificate showing the vehicle registration number, expiry date, and issued by a provincial licensing authority'
+  };
+  var label = docType === 'prdp' ? 'PrDP / Licence' : 'Licence Disc';
+  var description = descriptions[docType];
+  // Extract base64 content from data URL
+  var parts = dataUrl.split(',');
+  if (parts.length < 2) return { ok: false, reason: 'Could not read image.' };
+  var mimeMatch = parts[0].match(/data:([^;]+);/);
+  var mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+  var b64 = parts[1];
+  try {
+    var resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 60,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: mimeType, data: b64 } },
+            { type: 'text', text: 'Does this image appear to show ' + description + '? Reply with only YES or NO.' }
+          ]
+        }]
+      })
+    });
+    if (!resp.ok) return { ok: true, reason: 'Check skipped.' }; // fail open
+    var data = await resp.json();
+    var answer = (data.content && data.content[0] && data.content[0].text || '').trim().toUpperCase();
+    if (answer.startsWith('YES')) return { ok: true, reason: label + ' looks valid ✓' };
+    if (answer.startsWith('NO')) return { ok: false, reason: 'This doesn\'t look like a ' + label + '. Please re-upload the correct document.' };
+    return { ok: true, reason: 'Check skipped.' }; // indeterminate — fail open
+  } catch(e) {
+    return { ok: true, reason: 'Check skipped.' }; // network error — fail open
+  }
+}
+
+// ── FCM PUSH NOTIFICATIONS ──
+// SETUP REQUIRED:
+//   1. Firebase Console → Project Settings → Cloud Messaging
+//   2. Web Push certificates → Generate key pair → copy the key below
+//   3. Deploy firebase-messaging-sw.js in the same folder as this HTML
+var FCM_VAPID_KEY = 'BLjg-tEF3iP4wGWSp1lh4PW2-cteT98wXJBluC-Y6kCJWH4nVsNKeHDt61aDIqKRcd00IehNBRHo7HVJ7LPJQQ8';
+
+async function initFCM(uid) {
+  // Skip if not configured, not supported, or no uid
+  if (!uid) return;
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
+  if (!FCM_VAPID_KEY || FCM_VAPID_KEY === 'YOUR_VAPID_KEY_HERE') {
+    console.info('TruckConnect: FCM VAPID key not set — notifications disabled.');
+    return;
+  }
+  var FB = window._FB;
+  if (!FB || !FB.messaging || !FB.getToken || !FB.onMessage) return;
+  try {
+    var permission = await Notification.requestPermission();
+    if (permission !== 'granted') return;
+
+    // Register service worker (same folder as HTML)
+    var swUrl = new URL('firebase-messaging-sw.js', window.location.href).href;
+    var reg = await navigator.serviceWorker.register(swUrl);
+
+    // Get FCM device token
+    var token = await FB.getToken(FB.messaging, { vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg });
+    if (token) {
+      // Save token to Firestore so admin can send targeted notifications
+      FB.updateDoc(FB.doc(FB.db, 'drivers', uid), { fcmToken: token }).catch(function(){});
+    }
+
+    // Handle notifications while the app is OPEN (foreground)
+    FB.onMessage(FB.messaging, function(payload) {
+      var n = payload.notification || {};
+      var title = n.title || 'TruckConnect';
+      var body  = n.body  || '';
+      // Show as an in-app toast instead of a browser notification
+      var t = document.getElementById('toast');
+      if (t) {
+        t.textContent = '🔔 ' + title + (body ? ' — ' + body : '');
+        t.classList.add('show');
+        setTimeout(function(){ t.classList.remove('show'); }, 4000);
+      }
+    });
+
+  } catch(e) {
+    // Silent — notifications are optional, never crash the app
+    console.warn('TruckConnect FCM init failed:', e.message || e);
+  }
+}
+
+function validateSAID(id){
+  id=(id||'').replace(/\D/g,'');
+  if(id.length!==13)return false;
+  var yy=parseInt(id.substring(0,2),10);
+  var mm=parseInt(id.substring(2,4),10);
+  var dd=parseInt(id.substring(4,6),10);
+  var yyyy=(yy<=25?2000:1900)+yy;
+  var dob=new Date(yyyy,mm-1,dd);
+  if(dob.getFullYear()!==yyyy||dob.getMonth()!==mm-1||dob.getDate()!==dd)return false;
+  var now=new Date();
+  if(dob>=now||yyyy<now.getFullYear()-120)return false;
+  var sum=0;
+  for(var i=0;i<13;i++){
+    var digit=parseInt(id[i],10);
+    if(i%2===0){sum+=digit;}
+    else{var d2=digit*2;sum+=d2>9?d2-9:d2;}
+  }
+  return sum%10===0;
+}
+
+var BANKS=["Capitec Bank","FNB","Standard Bank","ABSA","Nedbank","TymeBank","African Bank","Discovery Bank","Other"];
+var BRANCH={"Capitec Bank":"470010","FNB":"250655","Standard Bank":"051001","ABSA":"632005","Nedbank":"198765","TymeBank":"678910"};
+var PROVS=["Gauteng","Western Cape","KwaZulu-Natal","Eastern Cape","Limpopo","Mpumalanga","North West","Free State","Northern Cape"];
+var dData={},dStep=0,isOnline=false,is3D=true;
+var _availJobsUnsub=null; // real-time listener for available jobs sheet
+
+window.setDriverMapView=function(mode){
+  is3D=(mode==='3d');
+  var b2=$('map-2d-btn'),b3=$('map-3d-btn');
+  if(b2&&b3){
+    if(is3D){b3.style.background='#1c1c1e';b3.style.color='#fff';b2.style.background='transparent';b2.style.color='#888';}
+    else{b2.style.background='#1c1c1e';b2.style.color='#fff';b3.style.background='transparent';b3.style.color='#888';}
+  }
+  if(driverMap&&driverMap.setTilt){
+    driverMap.setMapTypeId(is3D?'hybrid':'roadmap');
+    if(is3D)driverMap.setTilt(45); else driverMap.setTilt(0);
+  }
+};
+var driverMap=null,driverMarker=null,driverLat=null,driverLng=null;
+var navMap=null,navWatchId=null,isSat=false;
+var acceptedJobs=[],declinedIds=[],pendingJob=null;
+var dTodayEarn=0,dWeekEarn=0,dTrips=0,currentUid=null;
+var _jobsUnsub=null; // holds the Firestore snapshot unsubscribe function
+
+function $(id){return document.getElementById(id);}
+function txt(id,t){var el=$(id);if(el)el.textContent=String(t);}
+function on(id,ev,fn){var el=$(id);if(el)el.addEventListener(ev,fn);}
+function goTo(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});var s=$(id);if(s){s.classList.add('active');s.scrollTop=0;}}
+function val(id){return $(id)?$(id).value:'';}
+function showErr(id,msg){var el=$(id);if(el){el.textContent='⚠ '+msg;el.style.display='block';}}
+function hideErr(id){var el=$(id);if(el)el.style.display='none';}
+function toast(msg,dur){var t=$('toast');if(!t)return;t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},dur||2500);}
+
+function stepBar(steps,cur){
+  var el=$('d-stepbar');if(!el)return;
+  el.innerHTML=steps.map(function(s,i){
+    var cls=i<cur?' done':'';var cc=i===cur?' active':i<cur?' done':'';var lc=i===cur?' active':i<cur?' done':'';
+    return'<div class="step-node'+cls+'"><div class="step-circle'+cc+'">'+(i<cur?'✓':i+1)+'</div><div class="step-lbl'+lc+'">'+s+'</div></div>';
+  }).join('');
+}
+
+function renderStep(){
+  stepBar(['Info','ID','Truck','Bank','T&C'],dStep);
+  var body=$('d-step-body');if(!body)return;
+  var bankOpts=BANKS.map(function(b){return'<option value="'+b+'">'+b+'</option>';}).join('');
+  var provOpts=PROVS.map(function(p){return'<option value="'+p+'">'+p+'</option>';}).join('');
+
+  if(dStep===0){
+    body.innerHTML='<div class="section-title">Driver Info</div><div class="section-sub">Details must match your official documents.</div>'+
+      '<div class="sec-badge">🔒 Your data is AES-256 encrypted · POPIA compliant</div>'+
+      '<div class="fg"><span class="fl">Full Name</span><input class="fi" id="d-name" placeholder="As on your ID" value="'+(dData.name||'')+'"/><div class="err-msg" id="d-en"></div></div>'+
+      '<div class="fg"><span class="fl">Phone Number</span><input class="fi" id="d-phone" type="tel" placeholder="e.g. 082 345 6789" value="'+(dData.phone||'')+'"/><div class="err-msg" id="d-ep"></div></div>'+
+      '<div class="fg"><span class="fl">Email Address</span><input class="fi" id="d-email" type="email" placeholder="you@example.com" value="'+(dData.email||'')+'"/><div class="err-msg" id="d-ee"></div></div>'+
+      '<div class="fg"><span class="fl">Password</span><input class="fi" id="d-pass" type="password" placeholder="Min 6 characters" oninput="window._dPwStrength(this.value)"/>'+
+        '<div class="pw-strength-bar"><div class="pw-strength-fill" id="d-pw-fill" style="width:0%;background:#e0e0e0;"></div></div>'+
+        '<div class="pw-strength-label" id="d-pw-lbl" style="color:var(--muted);"></div>'+
+        '<div class="err-msg" id="d-ew"></div></div>'+
+      '<button class="btn btn-dark" id="d-next-btn">Continue →</button>'+
+      '<div style="text-align:center;color:var(--muted);font-size:12px;font-weight:600;margin:14px 0;">— or sign up with —</div>'+
+      '<button class="btn-google" id="google-signup-btn"><svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.174 0 7.548 0 9s.348 2.826.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/></svg> Sign up with Google</button>';
+    window._dPwStrength=function(pw){
+      var fill=document.getElementById('d-pw-fill'),lbl=document.getElementById('d-pw-lbl');if(!fill||!lbl)return;
+      var score=0;if(pw.length>=6)score++;if(pw.length>=10)score++;if(/[A-Z]/.test(pw))score++;if(/[0-9]/.test(pw))score++;if(/[^A-Za-z0-9]/.test(pw))score++;
+      var pct=[0,20,45,70,88,100][score];
+      var colors=['#e0e0e0','#ef4444','#f97316','#eab308','#22c55e','#16a34a'][score];
+      var labels=['','Weak','Fair','Good','Strong','Very Strong'][score];
+      fill.style.width=pct+'%';fill.style.background=colors;lbl.textContent=labels;lbl.style.color=colors;
+    };
+    on('d-next-btn','click',dNext);
+    setTimeout(function(){
+      var gb=document.getElementById('google-signup-btn');if(!gb)return;
+      gb.addEventListener('click',function(){handleGoogleAuth('signup');});
+    },50);
+  } else if(dStep===1){
+    body.innerHTML='<div class="section-title">Verify Your ID</div><div class="section-sub">Choose your document type for identity verification.</div>'+
+      '<div class="fg">'+
+        '<span class="fl">Document Type</span>'+
+        '<div class="id-type-toggle">'+
+          '<button id="d-doc-sa" class="id-type-btn active-id" onclick="window._dDocType=\'sa\';document.getElementById(\'d-sa-wrap\').style.display=\'block\';document.getElementById(\'d-pp-wrap\').style.display=\'none\';this.classList.add(\'active-id\');document.getElementById(\'d-doc-pp\').classList.remove(\'active-id\');">🪪 SA ID</button>'+
+          '<button id="d-doc-pp" class="id-type-btn" onclick="window._dDocType=\'passport\';document.getElementById(\'d-pp-wrap\').style.display=\'block\';document.getElementById(\'d-sa-wrap\').style.display=\'none\';this.classList.add(\'active-id\');document.getElementById(\'d-doc-sa\').classList.remove(\'active-id\');">🛂 Passport</button>'+
+        '</div>'+
+      '</div>'+
+      '<div id="d-sa-wrap">'+
+        '<div class="fg"><span class="fl">SA ID Number</span><input class="fi" id="d-idnum" type="tel" placeholder="13-digit SA ID number" maxlength="13" oninput="window._dValidateSAID()"/><div id="d-said-status" class="id-status"></div><div class="err-msg" id="d-eid"></div></div>'+
+      '</div>'+
+      '<div id="d-pp-wrap" style="display:none;">'+
+        '<div class="fg"><span class="fl">Passport Number</span><input class="fi" id="d-passport" type="text" placeholder="e.g. A12345678" maxlength="20" oninput="window._dValidatePP()" style="text-transform:uppercase;"/><div id="d-pp-status" class="id-status"></div><div class="err-msg" id="d-eid-pp"></div></div>'+
+        '<div class="fg"><span class="fl">Country of Issue</span>'+
+          '<select class="fs" id="d-pp-country">'+
+            '<option value="">Select country...</option>'+
+            '<option value="ZA">South Africa</option><option value="ZW">Zimbabwe</option><option value="ZM">Zambia</option>'+
+            '<option value="MZ">Mozambique</option><option value="BW">Botswana</option><option value="NA">Namibia</option>'+
+            '<option value="LS">Lesotho</option><option value="SZ">Eswatini</option><option value="MW">Malawi</option>'+
+            '<option value="OTHER">Other</option>'+
+          '</select>'+
+        '</div>'+
+      '</div>'+
+      '<div class="fg"><span class="fl">Selfie Photo</span><div style="background:#fff;border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;"><div id="selfie-preview" style="display:'+(dData.selfiePhoto?'block':'none')+'"><img id="selfie-img" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--dark);" src="'+(dData.selfiePhoto||'')+'"/></div><label style="display:inline-block;background:var(--dark);color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:10px;">📷 Take Selfie<input type="file" id="selfie-file" accept="image/*" capture="user" style="display:none;"/></label><div style="font-size:11px;color:var(--muted);margin-top:8px;">Shown to customers when you accept their job</div></div></div>'+
+      '<button class="btn btn-dark" id="d-next-btn">Continue →</button><button class="btn btn-outline" id="d-back-btn">← Back</button>';
+    window._dDocType='sa';
+    window._dValidateSAID=function(){
+      var id=(val('d-idnum')||'').replace(/\D/g,'');
+      var st=document.getElementById('d-said-status');if(!st)return;
+      if(id.length<13){st.style.display='none';return;}
+      st.style.display='block';
+      var valid=validateSAID(id);
+      if(valid){
+        var yy=parseInt(id.substring(0,2));var mm=id.substring(2,4);var dd=id.substring(4,6);
+        var yyyy=(yy>parseInt(new Date().getFullYear().toString().substring(2)))?(1900+yy):(2000+yy);
+        var gender=parseInt(id.substring(6,10))>=5000?'Male':'Female';
+        st.innerHTML='<span style="color:var(--green);">✅ Valid SA ID · Born '+dd+'/'+mm+'/'+yyyy+' · '+gender+'</span>';
+      }else{
+        st.innerHTML='<span style="color:var(--red);">❌ Invalid SA ID number — please check</span>';
+      }
+    };
+    window._dValidatePP=function(){
+      var pp=(val('d-passport')||'').trim().toUpperCase();
+      var st=document.getElementById('d-pp-status');if(!st)return;
+      if(pp.length<5){st.style.display='none';return;}
+      st.style.display='block';
+      var valid=/^[A-Z]{1,2}[0-9]{6,8}$/.test(pp);
+      st.innerHTML=valid?'<span style="color:var(--green);">✅ Valid passport format</span>':'<span style="color:var(--red);">❌ Invalid — should be 1-2 letters + 6-8 digits (e.g. A12345678)</span>';
+    };
+    on('d-next-btn','click',dNext);on('d-back-btn','click',function(){dStep=0;renderStep();});
+    setTimeout(function(){
+      var sf=document.getElementById('selfie-file');if(!sf)return;
+      sf.addEventListener('change',function(){
+        if(this.files&&this.files[0]){
+          compressSelfie(this.files[0],function(dataUrl){
+            document.getElementById('selfie-img').src=dataUrl;
+            document.getElementById('selfie-preview').style.display='block';
+            dData.selfiePhoto=dataUrl;
+          });
+        }
+      });
+    },100);
+  } else if(dStep===2){
+    body.innerHTML='<div class="section-title">Vehicle Details</div><div class="section-sub">Enter your truck information. Upload documents before accepting loads.</div>'+
+      '<div class="fg"><span class="fl">Truck Make & Model</span><input class="fi" id="d-truck" placeholder="e.g. Mercedes-Benz Actros 2645" value="'+(dData.truck||'')+'"/><div class="err-msg" id="d-etk"></div></div>'+
+      '<div class="fg"><span class="fl">Truck Type / Capacity</span><input class="fi" id="d-trucktype" placeholder="e.g. 34 Ton Semi, 5 Ton Rigid, 1 Ton Bakkie" value="'+(dData.truckType||'')+'"/><div class="err-msg" id="d-ett"></div></div>'+
+      '<div class="frow"><div class="fg"><span class="fl">Registration Number</span><input class="fi" id="d-plate" placeholder="e.g. GP 123-456" value="'+(dData.plate||'')+'"/><div class="err-msg" id="d-epl"></div></div><div class="fg"><span class="fl">Province</span><select class="fs" id="d-prov"><option value="">Select...</option>'+provOpts+'</select></div></div>'+
+      '<div class="upload-box" id="prdp-box" style="border-color:'+(dData.prdpPhoto?'#4ade80':'')+'"><div style="font-size:28px;margin-bottom:8px;" id="prdp-icon">'+(dData.prdpPhoto?'✅':'📤')+'</div><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Upload <strong>PrDP / Licence</strong></div><div style="font-size:11px;color:var(--muted);" id="prdp-status">'+(dData.prdpPhoto?'<span style="color:#166534;">Document uploaded ✓</span>':'PNG, JPG or PDF — required')+'</div><input type="file" id="prdp-file" accept="image/*,application/pdf" capture="environment"/></div>'+
+      '<div class="upload-box" id="disc-box" style="border-color:'+(dData.discPhoto?'#4ade80':'')+'"><div style="font-size:28px;margin-bottom:8px;" id="disc-icon">'+(dData.discPhoto?'✅':'📤')+'</div><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Upload <strong>Licence Disc</strong></div><div style="font-size:11px;color:var(--muted);" id="disc-status">'+(dData.discPhoto?'<span style="color:#166534;">Document uploaded ✓</span>':'PNG, JPG or PDF — required')+'</div><input type="file" id="disc-file" accept="image/*,application/pdf" capture="environment"/></div>'+
+      '<button class="btn btn-dark" id="d-next-btn">Continue →</button><button class="btn btn-outline" id="d-back-btn">← Back</button>';
+    on('d-next-btn','click',dNext);on('d-back-btn','click',function(){dStep=1;renderStep();});
+    setTimeout(function(){
+      var prdpFile=document.getElementById('prdp-file');
+      if(prdpFile){prdpFile.addEventListener('change',function(){
+        if(this.files&&this.files[0]){
+          var f=this.files[0];
+          dData.prdpPhotoAiOk=true; // default pass (PDFs / network failures skip check)
+          if(f.type==='application/pdf'){
+            dData.prdpPhoto='pdf:'+f.name;
+            document.getElementById('prdp-icon').textContent='✅';
+            document.getElementById('prdp-box').style.borderColor='#4ade80';
+            document.getElementById('prdp-status').innerHTML='<span style="color:#166534;">Document uploaded ✓</span>';
+          } else {
+            document.getElementById('prdp-icon').textContent='⏳';
+            document.getElementById('prdp-box').style.borderColor='#fbbf24';
+            document.getElementById('prdp-status').innerHTML='<span style="color:#92400e;">🔍 Verifying document...</span>';
+            compressSelfie(f,function(dataUrl){
+              dData.prdpPhoto=dataUrl;
+              aiCheckDoc(dataUrl,'prdp').then(function(result){
+                dData.prdpPhotoAiOk=result.ok;
+                if(result.ok){
+                  document.getElementById('prdp-icon').textContent='✅';
+                  document.getElementById('prdp-box').style.borderColor='#4ade80';
+                  document.getElementById('prdp-status').innerHTML='<span style="color:#166534;">'+result.reason+'</span>';
+                } else {
+                  document.getElementById('prdp-icon').textContent='⚠️';
+                  document.getElementById('prdp-box').style.borderColor='#f87171';
+                  document.getElementById('prdp-status').innerHTML='<span style="color:#dc2626;">'+result.reason+'</span>';
+                }
+              });
+            });
+          }
+        }
+      });}
+      var discFile=document.getElementById('disc-file');
+      if(discFile){discFile.addEventListener('change',function(){
+        if(this.files&&this.files[0]){
+          var f=this.files[0];
+          dData.discPhotoAiOk=true;
+          if(f.type==='application/pdf'){
+            dData.discPhoto='pdf:'+f.name;
+            document.getElementById('disc-icon').textContent='✅';
+            document.getElementById('disc-box').style.borderColor='#4ade80';
+            document.getElementById('disc-status').innerHTML='<span style="color:#166534;">Document uploaded ✓</span>';
+          } else {
+            document.getElementById('disc-icon').textContent='⏳';
+            document.getElementById('disc-box').style.borderColor='#fbbf24';
+            document.getElementById('disc-status').innerHTML='<span style="color:#92400e;">🔍 Verifying document...</span>';
+            compressSelfie(f,function(dataUrl){
+              dData.discPhoto=dataUrl;
+              aiCheckDoc(dataUrl,'disc').then(function(result){
+                dData.discPhotoAiOk=result.ok;
+                if(result.ok){
+                  document.getElementById('disc-icon').textContent='✅';
+                  document.getElementById('disc-box').style.borderColor='#4ade80';
+                  document.getElementById('disc-status').innerHTML='<span style="color:#166534;">'+result.reason+'</span>';
+                } else {
+                  document.getElementById('disc-icon').textContent='⚠️';
+                  document.getElementById('disc-box').style.borderColor='#f87171';
+                  document.getElementById('disc-status').innerHTML='<span style="color:#dc2626;">'+result.reason+'</span>';
+                }
+              });
+            });
+          }
+        }
+      });}
+    },100);
+  } else if(dStep===3){
+    body.innerHTML='<div class="section-title">Banking Details</div><div class="section-sub">Your payout account. Please double-check these carefully.</div>'+
+      '<div class="fg"><span class="fl">Bank</span><select class="fs" id="d-bank"><option value="">Select your bank...</option>'+bankOpts+'</select><div class="err-msg" id="d-ebk"></div></div>'+
+      '<div class="fg"><span class="fl">Account Holder Name</span><input class="fi" id="d-ahn" placeholder="Full name on account" value="'+(dData.accountHolder||'')+'"/><div class="err-msg" id="d-eahn"></div></div>'+
+      '<div class="fg"><span class="fl">Account Number</span><input class="fi" id="d-acn" type="tel" placeholder="Your account number" value="'+(dData.accountNumber||'')+'"/><div class="err-msg" id="d-eacn"></div></div>'+
+      '<div class="frow"><div class="fg"><span class="fl">Account Type</span><select class="fs" id="d-act"><option value="Cheque">Cheque</option><option value="Savings">Savings</option><option value="Transmission">Transmission</option></select></div><div class="fg"><span class="fl">Branch Code</span><input class="fi" id="d-brc" placeholder="Auto-filled" value="'+(dData.branchCode||'')+'"/></div></div>'+
+      '<button class="btn btn-dark" id="d-next-btn">Continue →</button><button class="btn btn-outline" id="d-back-btn">← Back</button>';
+    on('d-next-btn','click',dNext);on('d-back-btn','click',function(){dStep=2;renderStep();});
+    setTimeout(function(){
+      var bsel=$('d-bank');if(bsel){if(dData.bank)bsel.value=dData.bank;bsel.addEventListener('change',function(){var br=BRANCH[this.value]||'';if($('d-brc'))$('d-brc').value=br;});}
+    },100);
+  } else if(dStep===4){
+    body.innerHTML='<div class="section-title">Terms & Conditions</div><div class="section-sub">Please read and accept before completing registration.</div>'+
+      '<div style="background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:16px;max-height:220px;overflow-y:auto;font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:16px;">'+
+      '<strong style="color:var(--text);font-size:13px;">TruckConnect Driver Terms</strong><br/><br/>'+
+      '1. You must hold a valid PrDP and comply with all SA road regulations at all times.<br/>'+
+      '2. Your monthly subscription fee is non-refundable once processed.<br/>'+
+      '3. Flat monthly subscription: Mover Plan R699/month, Standard Plan R899/month. You keep 100% of every job you complete.<br/>'+
+      '4. TruckConnect may suspend accounts for misconduct or fraudulent activity.<br/>'+
+      '5. You are an independent contractor, not an employee of TruckConnect (Pty) Ltd.<br/>'+
+      '6. Payouts are made every 14 days to your registered bank account.<br/>'+
+      '7. Your vehicle must be roadworthy and insured at all times while operating on the platform.<br/>'+
+      '8. Misrepresentation of vehicle details or identity will result in immediate account termination.</div>'+
+      '<label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;padding:14px;background:#fff;border:1.5px solid var(--border);border-radius:12px;margin-bottom:16px;">'+
+      '<input type="checkbox" id="d-tc-agree" style="width:18px;height:18px;accent-color:var(--dark);flex-shrink:0;margin-top:2px;"/>'+
+      '<span style="font-size:13px;color:var(--text);line-height:1.5;">I have read and agree to the TruckConnect Driver Terms & Conditions</span></label>'+
+      '<div class="err-msg" id="d-tc-err" style="margin-bottom:8px;"></div>'+
+      '<button class="btn btn-dark" id="d-next-btn">Complete Registration →</button><button class="btn btn-outline" id="d-back-btn">← Back</button>';
+    on('d-next-btn','click',dNext);on('d-back-btn','click',function(){dStep=3;renderStep();});
+  }
+}
+
+function dNext(){
+  if(dStep===0){
+    var n=val('d-name').trim(),p=val('d-phone').trim(),e=val('d-email').trim(),w=val('d-pass');
+    var ok=true;
+    if(!n){showErr('d-en','Full name required');ok=false;}else hideErr('d-en');
+    if(p.replace(/\D/g,'').length<10){showErr('d-ep','Valid SA phone required');ok=false;}else hideErr('d-ep');
+    if(!e.includes('@')){showErr('d-ee','Valid email required');ok=false;}else hideErr('d-ee');
+    if(w.length<6){showErr('d-ew','Minimum 6 characters');ok=false;}else hideErr('d-ew');
+    if(!ok)return;
+    dData.name=n;dData.phone=p;dData.email=e;dData.password=w;dStep=1;renderStep();
+  } else if(dStep===1){
+    var docType=window._dDocType||'sa';
+    if(docType==='sa'){
+      var id=val('d-idnum').replace(/\D/g,'');
+      if(!validateSAID(id)){showErr('d-eid','Invalid SA ID number. Please check and try again.');return;}
+      hideErr('d-eid');dData.idNumber=id;dData.idType='SA ID';
+    } else {
+      var pp=(val('d-passport')||'').trim().toUpperCase();
+      var ppcountry=val('d-pp-country');
+      if(!pp){showErr('d-eid-pp','Passport number required');return;}
+      if(!/^[A-Z]{1,2}[0-9]{6,8}$/.test(pp)){showErr('d-eid-pp','Invalid format — e.g. A12345678');return;}
+      if(!ppcountry){showErr('d-eid-pp','Please select country of issue');return;}
+      hideErr('d-eid-pp');dData.idNumber=pp;dData.idType='Passport';dData.passportCountry=ppcountry;
+    }
+    if(!dData.selfiePhoto){toast('⚠ Please take a selfie photo before continuing — it becomes your profile picture.');return;}
+    dStep=2;renderStep();
+  } else if(dStep===2){
+    var t=val('d-truck').trim(),tt=val('d-trucktype').trim(),pl=val('d-plate').trim();
+    var ok=true;
+    if(!t){showErr('d-etk','Please enter your truck make and model');ok=false;}else hideErr('d-etk');
+    if(!tt){showErr('d-ett','Please enter your truck type or capacity');ok=false;}else hideErr('d-ett');
+    if(!pl){showErr('d-epl','Registration number required');ok=false;}else hideErr('d-epl');
+    if(!dData.prdpPhoto){var pb=document.getElementById('prdp-status');if(pb){pb.innerHTML='<span style="color:#dc2626;">⚠ PrDP / Licence is required</span>';}ok=false;}
+    else if(dData.prdpPhotoAiOk===false){var pb2=document.getElementById('prdp-status');if(pb2){pb2.innerHTML='<span style="color:#dc2626;">⚠ Wrong document — please re-upload your PrDP / Licence</span>';}ok=false;}
+    if(!dData.discPhoto){var db=document.getElementById('disc-status');if(db){db.innerHTML='<span style="color:#dc2626;">⚠ Licence Disc is required</span>';}ok=false;}
+    else if(dData.discPhotoAiOk===false){var db2=document.getElementById('disc-status');if(db2){db2.innerHTML='<span style="color:#dc2626;">⚠ Wrong document — please re-upload your Licence Disc</span>';}ok=false;}
+    if(!ok)return;
+    dData.truck=t;dData.truckType=tt;dData.plate=pl;dData.province=val('d-prov');
+    dStep=3;renderStep();
+  } else if(dStep===3){
+    var bk=val('d-bank'),ahn=val('d-ahn').trim(),acn=val('d-acn').trim();
+    var ok=true;
+    if(!bk){showErr('d-ebk','Please select your bank');ok=false;}else hideErr('d-ebk');
+    if(!ahn){showErr('d-eahn','Account holder name required');ok=false;}else hideErr('d-eahn');
+    if(acn.replace(/\D/g,'').length<5){showErr('d-eacn','Please enter a valid account number');ok=false;}else hideErr('d-eacn');
+    if(!ok)return;
+    dData.bank=bk;dData.accountHolder=ahn;dData.accountNumber=acn;
+    dData.accountType=val('d-act');dData.branchCode=val('d-brc')||BRANCH[bk]||'';
+    dStep=4;renderStep();
+  } else if(dStep===4){
+    if(!$('d-tc-agree')||!$('d-tc-agree').checked){showErr('d-tc-err','You must accept the Terms & Conditions to continue');return;}
+    createAccount();
+  }
+}
+
+function handleGoogleAuth(mode){
+  var FB=window._FB;if(!FB){toast('Firebase not ready. Please refresh.');return;}
+  if(typeof google==='undefined'||!google.accounts){toast('Google loading, please try again.');return;}
+  var tokenClient=google.accounts.oauth2.initTokenClient({
+    client_id:'798935050164-4i8k63gsti7gqnjofq3329050ap4tq34.apps.googleusercontent.com',
+    scope:'email profile openid',
+    callback:function(response){
+      if(response.error){toast('Google sign-in failed. Please try again.');return;}
+      var credential=FB.GoogleAuthProvider.credential(null,response.access_token);
+      FB.signInWithCredential(FB.auth,credential)
+      .then(function(result){
+        currentUid=result.user.uid;
+        var gUser=result.user;
+        return FB.getDoc(FB.doc(FB.db,'drivers',currentUid)).then(function(snap){
+          if(snap.exists()){
+            dData=snap.data();saveSession();
+            if(dData.status==='approved')goToDriverHome();
+            else{goTo('s-pending');txt('pend-sub-val',dData.subscription==='basic'?'✅ Mover Plan (R699/mo)':dData.subscription==='standard'?'⭐ Standard Plan (R899/mo)':'Not selected');}
+          } else {
+            dData.email=gUser.email||'';
+            dData.name=gUser.displayName||'';
+            dData._googleAuth=true;
+            dStep=1;
+            goTo('s-auth');switchTab('signup');
+            renderStep();
+            toast('Google account connected! Complete your ID details.');
+          }
+        });
+      })
+      .catch(function(err){
+        var msg='Google sign-in failed. Please try again.';
+        if(err.code==='auth/network-request-failed')msg='No internet connection.';
+        showErr('si-err',msg);toast(msg);
+      });
+    }
+  });
+  tokenClient.requestAccessToken({prompt:'select_account'});
+}
+
+function createAccount(){
+  var btn=$('d-next-btn');if(btn){btn.disabled=true;btn.textContent='Creating Account...';}
+  var FB=window._FB;if(!FB){if(btn){btn.disabled=false;btn.textContent='Complete Registration →';}toast('Firebase not ready. Please refresh.');return;}
+
+  function saveDriverDoc(uid){
+    var docData={uid:uid,id:'DRV-'+Date.now(),name:dData.name,phone:dData.phone,email:dData.email,idNumber:dData.idNumber,idType:dData.idType||'SA ID',passportCountry:dData.passportCountry||null,truck:dData.truck,truckType:dData.truckType,plate:dData.plate,province:dData.province||'',bank:dData.bank,accountHolder:dData.accountHolder,accountNumber:dData.accountNumber,accountType:dData.accountType,branchCode:dData.branchCode,selfiePhoto:dData.selfiePhoto||null,prdpPhoto:dData.prdpPhoto||null,discPhoto:dData.discPhoto||null,applied:new Date().toLocaleDateString('en-ZA'),status:'pending',subscription:'none',type:'driver'};
+    return encryptSensitiveFields(uid, docData).then(function(encryptedDoc){
+      return FB.setDoc(FB.doc(FB.db,'drivers',uid),encryptedDoc).then(function(){return docData;});
+    });
+  }
+
+  if(dData._googleAuth&&currentUid){
+    // User already authenticated via Google — just save the driver doc
+    saveDriverDoc(currentUid)
+    .then(function(doc){
+      Object.assign(dData,doc);saveSession();
+      if(btn){btn.disabled=false;btn.textContent='Complete Registration →';}
+      goTo('s-subscription');
+    })
+    .catch(function(err){
+      showErr('d-tc-err','Could not save account: '+(err.message||err.code));
+      if(btn){btn.disabled=false;btn.textContent='Complete Registration →';}
+    });
+  } else {
+    FB.createUserWithEmailAndPassword(FB.auth,dData.email,dData.password)
+    .then(function(uc){
+      currentUid=uc.user.uid;
+      return saveDriverDoc(currentUid);
+    })
+    .then(function(doc){
+      Object.assign(dData,doc);saveSession();
+      if(btn){btn.disabled=false;btn.textContent='Complete Registration →';}
+      goTo('s-subscription');
+    })
+    .catch(function(err){
+      var msg='Could not create account. Please try again.';
+      if(err.code==='auth/email-already-in-use')msg='An account with this email already exists. Please sign in instead.';
+      else if(err.code==='auth/weak-password')msg='Password must be at least 6 characters.';
+      else if(err.code==='auth/network-request-failed')msg='No internet connection. Please check your network.';
+      showErr('d-tc-err',msg);
+      if(btn){btn.disabled=false;btn.textContent='Complete Registration →';}
+    });
+  }
+}
+
+function saveSession(){try{localStorage.setItem('tc_driver_session',JSON.stringify({uid:currentUid,data:dData}));}catch(e){}}
+function clearSession(){
+  // Unsubscribe all Firestore listeners before signing out
+  if(_jobsUnsub){_jobsUnsub();_jobsUnsub=null;}
+  if(_availJobsUnsub){_availJobsUnsub();_availJobsUnsub=null;}
+  try{localStorage.removeItem('tc_driver_session');}catch(e){}
+  var FB=window._FB;if(FB)FB.signOut(FB.auth).catch(function(){});
+}
+
+function goToDriverHome(){
+  goTo('s-driver-home');
+  // Request notification permission and register FCM token
+  if(currentUid) initFCM(currentUid);
+  (function(){
+    var avImg=document.getElementById('d-av-img');
+    var avInit=document.getElementById('d-av-initials');
+    if(dData.selfiePhoto&&avImg){
+      avImg.src=dData.selfiePhoto;avImg.style.display='block';
+      if(avInit)avInit.style.display='none';
+    } else {
+      if(avImg)avImg.style.display='none';
+      if(avInit){avInit.style.display='';avInit.textContent=dData.name?dData.name[0].toUpperCase():'D';}
+    }
+  })();
+  txt('d-uname',dData.name||'Driver');
+  txt('d-uemail',dData.email||'—');
+  txt('d-sub-badge',dData.subscription==='standard'?'⭐ Standard Plan':dData.subscription==='basic'?'✓ Mover Plan':'No Plan');
+  _seedEarningsHistory();
+  setTimeout(function(){if(typeof mapboxgl!=='undefined')initDriverMap();},300);
+  listenForJobs();
+}
+
+function initDriverMap(){
+  if(driverMap)return;
+  function _init(){
+    if(typeof google==='undefined'||!google.maps){setTimeout(_init,300);return;}
+    driverMap=new google.maps.Map(document.getElementById('driver-map'),{
+      center:{lat:-26.2041,lng:28.0473},zoom:14,
+      mapTypeId:'hybrid',tilt:45,
+      disableDefaultUI:true,
+      styles:[{featureType:'all',elementType:'labels.text.fill',stylers:[{color:'#ffffff'}]}]
+    });
+    if(navigator.geolocation){
+      navigator.geolocation.watchPosition(function(pos){
+        driverLat=pos.coords.latitude;driverLng=pos.coords.longitude;
+        var latlng=new google.maps.LatLng(driverLat,driverLng);
+        if(driverMarker){driverMarker.setPosition(latlng);}
+        else{
+          var el=document.createElement('div');
+          el.style.cssText='position:relative;width:24px;height:24px;';
+          el.innerHTML='<div style="position:absolute;inset:0;background:rgba(255,255,255,.15);border-radius:50%;animation:pulseRing 1.8s ease infinite;"></div><div style="position:absolute;top:4px;left:4px;width:16px;height:16px;background:#fff;border:3px solid #1c1c1e;border-radius:50%;"></div>';
+          driverMarker=new google.maps.marker.AdvancedMarkerElement?
+            new google.maps.marker.AdvancedMarkerElement({position:latlng,map:driverMap,content:el}):
+            new google.maps.Marker({position:latlng,map:driverMap,icon:{path:google.maps.SymbolPath.CIRCLE,scale:10,fillColor:'#fff',fillOpacity:1,strokeColor:'#1c1c1e',strokeWeight:3}});
+          driverMap.panTo(latlng);
+        }
+      },function(){},{enableHighAccuracy:true,maximumAge:5000});
+    }
+  }
+  _init();
+}
+
+function toggleOnline(){
+  isOnline=!isOnline;
+  var btn=$('online-tog-btn');
+  if(isOnline){btn.classList.add('on');btn.textContent='🟢 Online — Tap to go Offline';txt('d-status-pill','🟢 Online');}
+  else{btn.classList.remove('on');btn.textContent='Go Online';txt('d-status-pill','⚫ Offline');hideJobPopup();}
+}
+
+function getTruckCapacity(){return dData.truckType||dData.truck||'';}
+
+function truckMatches(jobTruck,driverTruck){
+  if(!jobTruck)return true;
+  var j=jobTruck.toLowerCase(),d=driverTruck.toLowerCase();
+  if(j===d)return true;
+  var order=['1ton','bakkie','1 ton','small','3ton','3 ton','medium','5ton','5 ton','8ton','8 ton','large','14ton','14 ton','rigid','34ton','34 ton','semi','extra large'];
+  var ji=order.findIndex(function(x){return j.indexOf(x)!==-1;});
+  var di=order.findIndex(function(x){return d.indexOf(x)!==-1;});
+  if(ji===-1||di===-1)return true;
+  return di>=ji;
+}
+
+function listenForJobs(){
+  var FB=window._FB;if(!FB)return;
+  if(_jobsUnsub){_jobsUnsub();_jobsUnsub=null;}
+  var dTruck=getTruckCapacity();
+  _jobsUnsub=FB.onSnapshot(FB.query(FB.collection(FB.db,'bookings'),FB.where('ds','==','avail')),function(snap){
+    var avail=[];
+    snap.forEach(function(d){
+      var b=Object.assign({id:d.id},d.data()); // FIX: include doc ID
+      if(b.ds==='avail'&&declinedIds.indexOf(d.id)===-1&&truckMatches(b.truckType,dTruck))avail.push(b);
+    });
+    // FIX: don't interrupt a driver already on an active trip
+    var alreadyOnTrip=acceptedJobs.some(function(j){return j.ds==='in_progress';});
+    if(isOnline&&avail.length>0&&!pendingJob&&!alreadyOnTrip)showJobPopup(avail[0]);
+  },function(err){toast('Could not load jobs: '+err.message);});
+}
+
+var _availAllJobs=[]; // cache all matched jobs for client-side filter re-use
+var _availActiveFilter='all';
+
+// Expanded sample jobs covering a wide range of truck sizes across SA
+var SAMPLE_JOBS=[
+  {id:'JB001',from:'Johannesburg CBD',to:'Pretoria North',cargo:'Household Furniture',dist:'58 km',distKm:58,price:'R850',priceNum:850,truckType:'1 Ton Bakkie',date:'Today',urgent:true},
+  {id:'JB002',from:'Sandton',to:'Durban CBD',cargo:'Electronics & Appliances',dist:'570 km',distKm:570,price:'R4 200',priceNum:4200,truckType:'3 Ton',date:'Tomorrow',urgent:false},
+  {id:'JB003',from:'Boksburg',to:'Cape Town',cargo:'General Freight',dist:'1 400 km',distKm:1400,price:'R9 500',priceNum:9500,truckType:'5 Ton',date:'Today',urgent:true},
+  {id:'JB004',from:'Germiston',to:'Bloemfontein',cargo:'Building Materials',dist:'380 km',distKm:380,price:'R3 100',priceNum:3100,truckType:'8 Ton',date:'Today',urgent:false},
+  {id:'JB005',from:'Alberton',to:'Nelspruit',cargo:'Food Produce',dist:'320 km',distKm:320,price:'R2 800',priceNum:2800,truckType:'1 Ton Bakkie',date:'ASAP',urgent:true},
+  {id:'JB006',from:'Midrand',to:'Port Elizabeth',cargo:'Auto Parts',dist:'1 050 km',distKm:1050,price:'R7 800',priceNum:7800,truckType:'14 Ton',date:'Today',urgent:false},
+  {id:'JB007',from:'Roodepoort',to:'East London',cargo:'Retail Stock',dist:'950 km',distKm:950,price:'R6 500',priceNum:6500,truckType:'34 Ton Semi',date:'Tomorrow',urgent:false},
+  {id:'JB008',from:'Centurion',to:'Polokwane',cargo:'Industrial Equipment',dist:'290 km',distKm:290,price:'R3 400',priceNum:3400,truckType:'8 Ton',date:'ASAP',urgent:true},
+  {id:'JB009',from:'Kempton Park',to:'Kimberley',cargo:'Mining Supplies',dist:'470 km',distKm:470,price:'R4 800',priceNum:4800,truckType:'14 Ton',date:'Today',urgent:false},
+  {id:'JB010',from:'Springs',to:'Rustenburg',cargo:'Steel & Metal',dist:'165 km',distKm:165,price:'R2 200',priceNum:2200,truckType:'5 Ton',date:'Today',urgent:true},
+  {id:'JB011',from:'Benoni',to:'Witbank',cargo:'Perishables',dist:'100 km',distKm:100,price:'R1 400',priceNum:1400,truckType:'3 Ton',date:'ASAP',urgent:true},
+  {id:'JB012',from:'Randburg',to:'Upington',cargo:'Agricultural Goods',dist:'800 km',distKm:800,price:'R7 200',priceNum:7200,truckType:'34 Ton Semi',date:'Tomorrow',urgent:false},
+  {id:'JB013',from:'Soweto',to:'Vereeniging',cargo:'Clothing & Textiles',dist:'55 km',distKm:55,price:'R750',priceNum:750,truckType:'1 Ton Bakkie',date:'Today',urgent:false},
+  {id:'JB014',from:'Krugersdorp',to:'Mafikeng',cargo:'Retail Deliveries',dist:'280 km',distKm:280,price:'R2 600',priceNum:2600,truckType:'3 Ton',date:'Today',urgent:false},
+  {id:'JB015',from:'Pretoria East',to:'Tzaneen',cargo:'Chemical Goods',dist:'260 km',distKm:260,price:'R3 000',priceNum:3000,truckType:'5 Ton',date:'ASAP',urgent:true},
+];
+
+function _parsePriceNum(j){
+  if(j.priceNum)return j.priceNum;
+  var s=(j.price||'').replace(/[^0-9]/g,'');
+  return s?parseInt(s,10):0;
+}
+
+function _applyFilter(jobs,filter){
+  if(filter==='all')return jobs;
+  if(filter==='today')return jobs.filter(function(j){return j.urgent||(j.date||'').toLowerCase()==='today'||(j.date||'').toLowerCase()==='asap';});
+  if(filter==='highpay')return jobs.filter(function(j){return _parsePriceNum(j)>=3000;});
+  if(filter==='short')return jobs.filter(function(j){return(j.distKm||0)<400;});
+  if(filter==='long')return jobs.filter(function(j){return(j.distKm||0)>=400;});
+  return jobs;
+}
+
+function _truckMatchLevel(jobTruck,driverTruck){
+  // Returns 'perfect', 'compat', or 'none'
+  if(!jobTruck)return'compat';
+  var j=(jobTruck||'').toLowerCase().replace(/\s+/g,'');
+  var d=(driverTruck||'').toLowerCase().replace(/\s+/g,'');
+  // Exact match
+  if(j===d||d.indexOf(j)!==-1||j.indexOf(d)!==-1)return'perfect';
+  // Capacity order — driver can always take jobs equal to or smaller than their truck
+  var order=[
+    ['1ton','bakkie'],
+    ['3ton'],
+    ['5ton'],
+    ['8ton'],
+    ['14ton','rigid'],
+    ['34ton','semi','extralarge']
+  ];
+  var jRank=-1,dRank=-1;
+  order.forEach(function(grp,i){
+    grp.forEach(function(kw){if(j.indexOf(kw)!==-1)jRank=i;if(d.indexOf(kw)!==-1)dRank=i;});
+  });
+  if(jRank===-1||dRank===-1)return'compat'; // unknown — allow
+  if(dRank===jRank)return'perfect';
+  if(dRank>jRank)return'compat'; // driver's truck is bigger — can carry
+  return'none'; // job requires bigger truck than driver has
+}
+
+function _renderAvailJobs(jobs){
+  var list=$('avail-jobs-list');if(!list)return;
+  var dTruck=getTruckCapacity();
+  if(!jobs.length){
+    list.innerHTML='<div class="avail-empty-state"><div style="font-size:40px;margin-bottom:14px;opacity:.25;">📭</div><div style="font-size:15px;font-weight:800;color:rgba(255,255,255,.5);margin-bottom:6px;">No jobs found</div><div style="font-size:12px;color:rgba(255,255,255,.25);">Try a different filter or check back later.</div></div>';
+    return;
+  }
+  list.innerHTML=jobs.map(function(j){
+    var level=_truckMatchLevel(j.truckType,dTruck);
+    var pillHtml=level==='perfect'
+      ?'<span class="avail-match-pill pill-perfect">✓ Perfect Match</span>'
+      :'<span class="avail-match-pill pill-compat">↑ Your truck qualifies</span>';
+    var cardClass='avail-job-card'+(level==='perfect'?' perfect-match':'');
+    var priceNum=_parsePriceNum(j);
+    var urgentBadge=j.urgent?'<span style="background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.2);font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:6px;">URGENT</span>':'';
+    return'<div class="'+cardClass+'">'+
+      '<div class="avail-job-route">'+(j.from||'—')+' → '+(j.to||'—')+'</div>'+
+      '<div class="avail-job-meta">'+(j.cargo||'General Freight')+' · '+(j.date||'ASAP')+urgentBadge+'</div>'+
+      '<div class="avail-job-stats">'+
+        '<div class="avail-stat-cell"><div class="avail-stat-lbl">Distance</div><div class="avail-stat-val">'+(j.dist||'—')+'</div></div>'+
+        '<div class="avail-stat-cell"><div class="avail-stat-lbl">Earnings</div><div class="avail-stat-val earn">'+(j.price||'—')+'</div></div>'+
+        '<div class="avail-stat-cell"><div class="avail-stat-lbl">Required</div><div class="avail-stat-val" style="font-size:10px;">'+(j.truckType||'Any')+'</div></div>'+
+      '</div>'+
+      '<div class="avail-job-footer">'+
+        pillHtml+
+        '<button class="avail-accept-btn" onclick="quickAcceptJob(\''+j.id+'\')">✓ Accept</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function searchAvailJobs(){
+  var list=$('avail-jobs-list');if(!list)return;
+  var dTruck=getTruckCapacity();
+  var dMake=dData.truck||'';
+  // Update truck identity bar
+  var typeEl=$('avail-truck-type-lbl');var makeEl=$('avail-truck-make-lbl');
+  if(typeEl)typeEl.textContent=dTruck||'Truck type not set';
+  if(makeEl)makeEl.textContent=dMake||(dTruck?'Showing jobs your truck can handle':'Update your profile to set truck type');
+  // Loading state
+  list.innerHTML='<div class="avail-empty-state"><div class="avail-spinner"></div><div style="font-size:13px;color:rgba(255,255,255,.35);font-weight:600;">Searching for jobs...</div></div>';
+  var countEl=$('avail-job-count');if(countEl)countEl.textContent='—';
+  var FB=window._FB;
+  function processJobs(rawJobs){
+    var matched=rawJobs.filter(function(j){
+      return declinedIds.indexOf(j.id)===-1&&_truckMatchLevel(j.truckType,dTruck)!=='none';
+    });
+    matched.sort(function(a,b){
+      var aP=_truckMatchLevel(a.truckType,dTruck)==='perfect'?1:0;
+      var bP=_truckMatchLevel(b.truckType,dTruck)==='perfect'?1:0;
+      if(bP!==aP)return bP-aP;
+      return _parsePriceNum(b)-_parsePriceNum(a);
+    });
+    _availAllJobs=matched;
+    var filtered=_applyFilter(matched,_availActiveFilter);
+    if(countEl)countEl.textContent=matched.length+' job'+(matched.length!==1?'s':'')+' matched';
+    _renderAvailJobs(filtered);
+  }
+  if(!FB){
+    setTimeout(function(){processJobs(SAMPLE_JOBS);},600);
+    return;
+  }
+  // Unsubscribe previous listener
+  if(_availJobsUnsub){_availJobsUnsub();_availJobsUnsub=null;}
+  // Real-time listener — auto-removes jobs the moment another driver accepts
+  _availJobsUnsub=FB.onSnapshot(
+    FB.query(FB.collection(FB.db,'bookings'),FB.where('ds','==','avail')),
+    function(snap){
+      var raw=[];
+      snap.forEach(function(d){
+        var b=Object.assign({id:d.id},d.data());
+        if(b.ds==='avail')raw.push(b);
+      });
+      processJobs(raw.length?raw:SAMPLE_JOBS);
+    },
+    function(err){
+      toast('Jobs feed error: '+err.message);
+      processJobs(SAMPLE_JOBS);
+    }
+  );
+}
+
+window.quickAcceptJob=function(jobId){
+  var FB=window._FB;
+  if(FB){
+    // First verify the job is still available (prevent race condition)
+    FB.getDoc(FB.doc(FB.db,'bookings',jobId))
+      .then(function(snap){
+        if(!snap.exists()){toast('❌ This job no longer exists.');return;}
+        var b=snap.data();
+        if(b.ds!=='avail'){toast('❌ Job already taken by another driver.');return;}
+        // Now update — only this driver can set it to accepted at this moment
+        return FB.updateDoc(FB.doc(FB.db,'bookings',jobId),{
+          ds:'accepted',
+          driverUid:currentUid,
+          driverName:dData.name,
+          driverTruck:dData.truckType||dData.truck||'',
+          driverPhone:dData.phone||'',
+          acceptedAt:new Date().toISOString()
+        }).then(function(){
+          // Close available jobs sheet and stop its real-time listener
+          if(_availJobsUnsub){_availJobsUnsub();_availJobsUnsub=null;}
+          var sheet=$('avail-jobs-sheet');if(sheet)sheet.style.transform='translateY(100%)';
+          // Add to accepted jobs and show in My Jobs
+          var bData=Object.assign({},b,{id:jobId,ds:'accepted',driverUid:currentUid,driverName:dData.name,at:new Date().toLocaleTimeString()});
+          acceptedJobs.push(bData);
+          dTrips++;dTodayEarn+=(b.priceNum||0);dWeekEarn+=(b.priceNum||0);
+          txt('earn-today','R'+dTodayEarn.toLocaleString());txt('earn-week','R'+dWeekEarn.toLocaleString());txt('earn-trips',dTrips);
+          renderJobs();
+          toast('✅ Job accepted! Check My Jobs to start trip.');
+          // ── Resolve coords then broadcast ETA ──
+          _resolveJobCoords(bData).then(function(){
+            return _getDriverPosition();
+          }).then(function(driverPos){
+            if(driverPos&&bData.toCoords) _broadcastETA(jobId, driverPos, bData.toCoords);
+          });
+        });
+      })
+      .catch(function(e){toast('Error: '+e.message);});
+  }else{
+    toast('Job accepted! 🎉');
+    var btn=document.querySelector('[onclick="quickAcceptJob(\''+jobId+'\')"]');
+    if(btn)btn.closest('.avail-job-card').remove();
+  }
+};
+
+function showJobPopup(b){
+  pendingJob=b;
+  txt('jp-route',(b.from||'—')+' → '+(b.to||'—'));
+  txt('jp-meta',(b.cargo||'General Freight')+' · '+(b.date||'ASAP'));
+  txt('jp-dist',b.dist||'—');
+  txt('jp-earn',b.price||'—');
+  txt('jp-cargo',b.cargo||'—');
+  $('job-popup').style.transform='translateY(0)';
+}
+function hideJobPopup(){$('job-popup').style.transform='translateY(100%)';pendingJob=null;}
+
+function acceptJob(){
+  if(!pendingJob)return;
+  var b=pendingJob;
+  var FB=window._FB;
+  if(FB){
+    // Check still available first
+    FB.getDoc(FB.doc(FB.db,'bookings',b.id))
+      .then(function(snap){
+        if(!snap.exists()||snap.data().ds!=='avail'){toast('❌ Job already taken.');hideJobPopup();throw new Error('_cancelled');}
+        return FB.updateDoc(FB.doc(FB.db,'bookings',b.id),{
+          ds:'accepted',driverUid:currentUid,driverName:dData.name,
+          driverTruck:dData.truckType||dData.truck||'',
+          driverPhone:dData.phone||'',
+          acceptedAt:new Date().toISOString()
+        });
+      })
+      .then(function(){
+        b.ds='accepted';b.driverUid=currentUid;b.driverName=dData.name;
+        dTrips++;dTodayEarn+=(b.priceNum||0);dWeekEarn+=(b.priceNum||0);
+        txt('earn-today','R'+dTodayEarn.toLocaleString());txt('earn-week','R'+dWeekEarn.toLocaleString());txt('earn-trips',dTrips);
+        acceptedJobs.push(Object.assign({},b,{at:new Date().toLocaleTimeString()}));
+        renderJobs();hideJobPopup();toast('Job accepted! 🎉 Open My Jobs to start.');
+        // ── Resolve coords then broadcast ETA ──
+        var _accepted=acceptedJobs[acceptedJobs.length-1];
+        _resolveJobCoords(_accepted).then(function(){
+          return _getDriverPosition();
+        }).then(function(driverPos){
+          if(driverPos&&_accepted.toCoords) _broadcastETA(b.id, driverPos, _accepted.toCoords);
+        });
+      })
+      .catch(function(e){if(e.message!=='_cancelled')toast('Could not accept: '+e.message);});
+  } else {
+    dTrips++;dTodayEarn+=(b.priceNum||0);dWeekEarn+=(b.priceNum||0);
+    txt('earn-today','R'+dTodayEarn.toLocaleString());txt('earn-week','R'+dWeekEarn.toLocaleString());txt('earn-trips',dTrips);
+    acceptedJobs.push(Object.assign({},b,{at:new Date().toLocaleTimeString()}));
+    renderJobs();hideJobPopup();toast('Job accepted! 🎉');
+  }
+}
+
+window.startTrip=function(jobId){
+  var FB=window._FB;
+  if(FB){
+    FB.updateDoc(FB.doc(FB.db,'bookings',jobId),{ds:'in_progress',startedAt:new Date().toISOString()})
+      .then(function(){
+        var j=acceptedJobs.find(function(x){return x.id===jobId;});
+        if(j)j.ds='in_progress';
+        renderJobs();toast('🚛 Trip started! Safe travels.');
+      })
+      .catch(function(e){toast('Error: '+e.message);});
+  } else {
+    var j=acceptedJobs.find(function(x){return x.id===jobId;});
+    if(j)j.ds='in_progress';
+    renderJobs();toast('🚛 Trip started!');
+  }
+};
+
+window.completeTrip=function(jobId){
+  var FB=window._FB;
+  if(FB){
+    FB.updateDoc(FB.doc(FB.db,'bookings',jobId),{ds:'completed',completedAt:new Date().toISOString()})
+      .then(function(){
+        acceptedJobs=acceptedJobs.filter(function(x){return x.id!==jobId;});
+        renderJobs();toast('✅ Delivery complete! Great work.');
+      })
+      .catch(function(e){toast('Error: '+e.message);});
+  } else {
+    acceptedJobs=acceptedJobs.filter(function(x){return x.id!==jobId;});
+    renderJobs();toast('✅ Delivery complete!');
+  }
+};
+
+window.cancelTrip=function(jobId){
+  if(!confirm('Return this job to pending? Another driver will be able to accept it.'))return;
+  var FB=window._FB;
+  if(FB){
+    FB.updateDoc(FB.doc(FB.db,'bookings',jobId),{ds:'avail',driverUid:null,driverName:null,driverTruck:null,acceptedAt:null})
+      .then(function(){
+        acceptedJobs=acceptedJobs.filter(function(x){return x.id!==jobId;});
+        renderJobs();toast('Job returned to available pool.');
+      })
+      .catch(function(e){toast('Error: '+e.message);});
+  } else {
+    acceptedJobs=acceptedJobs.filter(function(x){return x.id!==jobId;});
+    renderJobs();toast('Job cancelled.');
+  }
+};
+
+function renderJobs(){
+  var wrap=$('jobs-list-wrap');if(!wrap)return;
+  if(!acceptedJobs.length){wrap.innerHTML='<div style="text-align:center;padding:44px 20px;color:var(--muted);"><div style="font-size:36px;margin-bottom:12px;opacity:.3;">✅</div><div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;">No active jobs</div><div style="font-size:12px;">Accept a load to see it here.</div></div>';return;}
+  wrap.innerHTML=acceptedJobs.map(function(j){
+    var safeFrom=j.from?j.from.replace(/[<>&"']/g,''):'—';
+    var safeTo=j.to?j.to.replace(/[<>&"']/g,''):'—';
+    var isPending=j.ds==='accepted';
+    var isInProgress=j.ds==='in_progress';
+    var statusColor=isInProgress?'#3b82f6':isPending?'#16a34a':'#888';
+    var statusLabel=isInProgress?'🚛 In Progress':isPending?'✅ Accepted':'—';
+    var tripButtons='';
+    if(isPending){
+      tripButtons=
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">'+
+          '<button class="nav-start-btn" style="background:#16a34a;" onclick="startTrip(\''+j.id+'\')">▶ Start Trip</button>'+
+          '<button class="nav-start-btn" style="background:#f0f0f0;color:#888;border:1.5px solid #ddd;" onclick="cancelTrip(\''+j.id+'\')">✕ Cancel</button>'+
+        '</div>'+
+        // Leg 1: Driver live GPS → Customer pickup address
+        '<button class="nav-start-btn" style="margin-top:8px;" onclick="navigateTo('+JSON.stringify(j.fromCoords||null)+','+JSON.stringify(j.from||'')+',null,null)" >🧭 Navigate to Pickup</button>';
+    } else if(isInProgress){
+      tripButtons=
+        '<button class="nav-start-btn" style="background:#16a34a;margin-top:12px;" onclick="completeTrip(\''+j.id+'\')">✅ Mark as Delivered</button>'+
+        // Leg 2: Customer pickup address → Customer destination
+        '<button class="nav-start-btn" style="margin-top:8px;" onclick="navigateTo('+JSON.stringify(j.toCoords||null)+','+JSON.stringify(j.to||'')+','+JSON.stringify(j.fromCoords||null)+','+JSON.stringify(j.from||'')+')">🧭 Navigate to Drop-off</button>'+
+        '<button class="nav-start-btn" style="margin-top:8px;background:#fee2e2;color:#991b1b;border:1.5px solid #fca5a5;" onclick="showBlockModal(\''+j.id+'\',\''+encodeURIComponent(j.customerUid||'')+'\',\''+encodeURIComponent(j.customerName||'Customer')+'\')">🚫 Report / Block Customer</button>';
+    }
+    return'<div class="job-card">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">'+
+        '<div class="job-card-route">'+safeFrom+' → '+safeTo+'</div>'+
+        '<div style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;background:rgba(0,0,0,.06);color:'+statusColor+';">'+statusLabel+'</div>'+
+      '</div>'+
+      '<div class="job-card-id">#'+j.id+' · Accepted '+j.at+'</div>'+
+      '<div class="job-card-grid">'+
+        '<div class="job-card-cell"><div class="job-card-lbl">Earnings</div><div class="job-card-val" style="color:var(--green);">'+j.price+'</div></div>'+
+        '<div class="job-card-cell"><div class="job-card-lbl">Distance</div><div class="job-card-val">'+(j.dist||'—')+'</div></div>'+
+      '</div>'+
+      tripButtons+
+    '</div>';
+  }).join('');
+}
+
+window.showSubPlan=function(plan){
+  $('sub-basic').style.display=plan==='basic'?'block':'none';
+  $('sub-standard').style.display=plan==='standard'?'block':'none';
+  $('sub-tab-basic').classList.toggle('active',plan==='basic');
+  $('sub-tab-standard').classList.toggle('active',plan==='standard');
+};
+
+function choosePlan(plan){
+  dData.subscription=plan;
+  var FB=window._FB;
+  if(FB&&currentUid)FB.updateDoc(FB.doc(FB.db,'drivers',currentUid),{subscription:plan}).catch(function(e){toast('Could not save plan: '+e.message);});
+  saveSession();goTo('s-pending');
+  txt('pend-sub-val',plan==='basic'?'✅ Mover Plan (R699/mo)':'⭐ Standard Plan (R899/mo)');
+}
+
+function checkApprovalStatus(){
+  var FB=window._FB;if(!FB||!currentUid){toast('Not signed in.');return;}
+  var btn=$('check-status-btn');if(btn){btn.disabled=true;btn.textContent='Checking...';}
+  FB.getDoc(FB.doc(FB.db,'drivers',currentUid))
+  .then(function(snap){
+    if(btn){btn.disabled=false;btn.textContent='Check Approval Status';}
+    if(snap.exists()&&snap.data().status==='approved'){
+      dData=snap.data();saveSession();goToDriverHome();
+    } else {
+      toast('⏳ Still under review. Please check back later.');
+    }
+  })
+  .catch(function(e){
+    if(btn){btn.disabled=false;btn.textContent='Check Approval Status';}
+    toast('Connection error: '+e.message);
+  });
+}
+
+// ── Music panel ──
+function toggleMusicPanel(){
+  var panel=document.getElementById('nav-music-panel');
+  if(panel)panel.classList.toggle('open');
+}
+function openMusicApp(app){
+  toggleMusicPanel();
+  if(app==='spotify') window.open('https://open.spotify.com','_blank');
+  else window.open('https://music.youtube.com','_blank');
+}
+var _navSoundOn=true;
+var _lastSpoken='';
+
+function _speak(text){
+  if(!_navSoundOn)return;
+  if(!window.speechSynthesis)return;
+  if(text===_lastSpoken)return; // don't repeat same instruction
+  _lastSpoken=text;
+  window.speechSynthesis.cancel(); // stop any current speech
+  var u=new SpeechSynthesisUtterance(text);
+  u.lang='en-ZA'; // South African English
+  u.rate=0.95;
+  u.pitch=1;
+  u.volume=1;
+  window.speechSynthesis.speak(u);
+}
+
+function toggleNavSound(){
+  _navSoundOn=!_navSoundOn;
+  var btn=document.getElementById('nav-sound-btn');
+  if(btn)btn.textContent=_navSoundOn?'🔊':'🔇';
+  if(!_navSoundOn)window.speechSynthesis&&window.speechSynthesis.cancel();
+  else _speak('Sound on');
+}
+
+// ── Clock ticker ──
+var _navClockInterval=null;
+function startNavClock(){
+  function tick(){
+    var now=new Date();
+    var h=now.getHours(),m=now.getMinutes();
+    var ampm=h>=12?'PM':'AM';
+    h=h%12||12;
+    var el=document.getElementById('nav-clock');
+    if(el)el.textContent=h+':'+(m<10?'0'+m:m)+' '+ampm;
+  }
+  tick();
+  _navClockInterval=setInterval(tick,10000);
+}
+function stopNavClock(){
+  if(_navClockInterval){clearInterval(_navClockInterval);_navClockInterval=null;}
+}
+
+function startNav(from,to){
+  var url='https://router.project-osrm.org/route/v1/driving/'+from[0]+','+from[1]+';'+to[0]+','+to[1]+'?overview=full&geometries=geojson&steps=true';
+  fetch(url).then(function(r){return r.json();}).then(function(d){
+    if(!d.routes||!d.routes.length){toast('Could not load navigation route.');return;}
+    var route=d.routes[0];
+    var steps=(route.legs[0]||{}).steps||[];
+    var currentStepIdx=0;
+    var routeCoords=route.geometry.coordinates;
+
+    $('ov-navigation').style.display='flex';
+    startNavClock();
+
+    // Distance between two [lng,lat] points in metres
+    function mDist(a,b){
+      var R=6371000,toR=Math.PI/180;
+      var dLat=(b[1]-a[1])*toR,dLng=(b[0]-a[0])*toR;
+      var aa=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(a[1]*toR)*Math.cos(b[1]*toR)*Math.sin(dLng/2)*Math.sin(dLng/2);
+      return R*2*Math.atan2(Math.sqrt(aa),Math.sqrt(1-aa));
+    }
+    // Find nearest route coord index to driver position
+    function nearestIdx(pos){
+      var best=0,bestD=Infinity;
+      for(var i=0;i<routeCoords.length;i++){
+        var dd=mDist(pos,routeCoords[i]);
+        if(dd<bestD){bestD=dd;best=i;}
+      }
+      return best;
+    }
+    // Remaining distance from a coord index to end
+    function remainingDist(fromIdx){
+      var total=0;
+      for(var i=fromIdx;i<routeCoords.length-1;i++) total+=mDist(routeCoords[i],routeCoords[i+1]);
+      return total;
+    }
+    // Show turn instruction for step
+    function showStep(idx){
+      if(!steps[idx])return;
+      var s=steps[idx];
+      var instr=s.maneuver&&s.maneuver.instruction?s.maneuver.instruction:'Continue';
+      txt('nav-instruction',instr);
+      var d2=s.distance;
+      var distText=d2>=1000?(d2/1000).toFixed(1)+' km':Math.round(d2)+' m';
+      txt('nav-distance-next',distText);
+      // Speak the instruction with distance
+      _speak('In '+distText+', '+instr);
+      // Turn arrow
+      var manType=s.maneuver?s.maneuver.type:'';
+      var manMod=s.maneuver?s.maneuver.modifier:'';
+      var arrows={'turn left':'↰','turn right':'↱','turn sharp left':'↰','turn sharp right':'↱','turn slight left':'↖','turn slight right':'↗','continue':'⬆','merge':'⬆','roundabout':'↻','rotary':'↻','u-turn':'↩','arrive':'📍','depart':'⬆'};
+      var key=(manType+' '+manMod).trim().toLowerCase();
+      var arrow=arrows[key]||arrows[manType]||'⬆';
+      var el=document.getElementById('nav-turn-icon');
+      if(el)el.textContent=arrow;
+    }
+    // Draw blue route line
+    function drawRoute(){
+      if(!navMap)return;
+      if(navMap.getSource('route')){
+        navMap.getSource('route').setData({type:'Feature',geometry:route.geometry});
+      } else {
+        navMap.addSource('route',{type:'geojson',data:{type:'Feature',geometry:route.geometry}});
+        navMap.addLayer({id:'route',type:'line',source:'route',layout:{'line-join':'round','line-cap':'round'},paint:{'line-color':'#4b3fbd','line-width':8,'line-opacity':1}});
+      }
+      new mapboxgl.Marker({color:'#4ade80'}).setLngLat(from).addTo(navMap);
+      new mapboxgl.Marker({color:'#ef4444'}).setLngLat(to).addTo(navMap);
+    }
+
+    if(!navMap){
+      navMap=new mapboxgl.Map({container:'nav-map-tiles',style:'https://tiles.openfreemap.org/styles/liberty',center:from,zoom:15,pitch:50,attributionControl:false});
+      navMap.on('load',function(){drawRoute();});
+    } else {
+      drawRoute();
+    }
+
+    showStep(0);
+    var startDist=route.distance>=1000?(route.distance/1000).toFixed(1)+' km':Math.round(route.distance)+' m';
+    _speak('Navigation started. Your destination is '+startDist+' away.');
+    var initDist=route.distance/1000,initDur=route.duration;
+    var initMins=Math.round(initDur/60);
+    var initHrs=Math.floor(initMins/60);
+    txt('nav-eta',(initHrs>0?initHrs+'h '+(initMins%60)+'m':initMins+' min')+' • '+initDist.toFixed(1)+' km');
+
+    if(navigator.geolocation)navWatchId=navigator.geolocation.watchPosition(function(pos){
+      var speed=Math.round((pos.coords.speed||0)*3.6);
+      txt('nav-speed',speed);
+      var driverPos=[pos.coords.longitude,pos.coords.latitude];
+      if(navMap)navMap.flyTo({center:driverPos,bearing:pos.coords.heading||0,pitch:50,zoom:16});
+
+      // Live remaining distance
+      var ni=nearestIdx(driverPos);
+      var remKm=remainingDist(ni)/1000;
+
+      // Live ETA
+      var avgKmh=speed>5?speed:40;
+      var etaMins=Math.round((remKm/avgKmh)*60);
+      var etaHrs=Math.floor(etaMins/60);
+      txt('nav-eta',(etaHrs>0?etaHrs+'h '+(etaMins%60)+'m':etaMins+' min')+' • '+remKm.toFixed(1)+' km');
+
+      // Advance step
+      if(steps[currentStepIdx+1]){
+        var nextManLoc=steps[currentStepIdx+1].maneuver.location;
+        if(mDist(driverPos,nextManLoc)<30){currentStepIdx++;showStep(currentStepIdx);}
+      }
+    },{enableHighAccuracy:true,maximumAge:2000,timeout:10000});
+  }).catch(function(e){toast('Navigation error: '+e.message);});
+}
+function stopNav(){
+  if(navWatchId){navigator.geolocation.clearWatch(navWatchId);navWatchId=null;}
+  stopNavClock();
+  // Close music panel if open
+  var panel=document.getElementById('nav-music-panel');
+  if(panel)panel.classList.remove('open');
+  if(navMap){navMap.remove();navMap=null;}
+  $('ov-navigation').style.display='none';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NEW FEATURES — v5
+// ═══════════════════════════════════════════════════════════════
+
+// ─── Earnings history store (in-memory, seeded with sample data) ───
+var earningsHistory = [];
+var _earnPeriod = 'day';
+
+function _seedEarningsHistory() {
+  // Seed last 14 days of sample data so the chart has something to show
+  var today = new Date();
+  earningsHistory = [];
+  for (var i = 13; i >= 0; i--) {
+    var d = new Date(today);
+    d.setDate(d.getDate() - i);
+    var trips = Math.floor(Math.random() * 4);
+    var earn = trips * (Math.floor(Math.random() * 2500) + 500);
+    earningsHistory.push({
+      date: d.toLocaleDateString('en-ZA', {day:'2-digit', month:'short'}),
+      dateObj: d,
+      trips: trips,
+      earned: earn
+    });
+  }
+  // Today's real earnings override the last entry
+  earningsHistory[earningsHistory.length - 1].earned = dTodayEarn;
+  earningsHistory[earningsHistory.length - 1].trips = dTrips;
+}
+
+window._setEarnPeriod = function(period, btn) {
+  _earnPeriod = period;
+  document.querySelectorAll('.earn-period-tab').forEach(function(b){b.classList.remove('active');});
+  if (btn) btn.classList.add('active');
+  _renderEarningsSheet();
+};
+
+function _renderEarningsSheet() {
+  var today = new Date();
+  var hist = earningsHistory;
+  var subset, label, chartTitle, bars;
+
+  if (_earnPeriod === 'day') {
+    // Show today's trips as hourly breakdown (mock)
+    label = 'Total Earned Today';
+    chartTitle = 'Today\'s Earnings (by trip)';
+    var total = dTodayEarn;
+    txt('total-earned', 'R' + total.toLocaleString());
+    txt('earn-period-label', label);
+    txt('earn-trips-count', dTrips);
+    txt('earn-avg-trip', dTrips ? 'R' + Math.round(dTodayEarn / dTrips).toLocaleString() : 'R0');
+    txt('earn-chart-title', chartTitle);
+    // Bar chart: last 7 trips or hours
+    var hours = ['6am','8am','10am','12pm','2pm','4pm','6pm'];
+    var vals = hours.map(function(_, i) { return i < dTrips ? Math.floor(dTodayEarn / Math.max(dTrips,1)) : 0; });
+    _renderEarnBars(hours, vals, 6);
+    _renderEarnHistList([{date:'Today', trips: dTrips, earned: dTodayEarn}]);
+  } else if (_earnPeriod === 'week') {
+    label = 'Total Earned This Week';
+    chartTitle = 'Daily Earnings — This Week';
+    var weekHist = hist.slice(-7);
+    var weekTotal = weekHist.reduce(function(s,d){return s+d.earned;},0);
+    var weekTrips = weekHist.reduce(function(s,d){return s+d.trips;},0);
+    txt('total-earned', 'R' + weekTotal.toLocaleString());
+    txt('earn-period-label', label);
+    txt('earn-trips-count', weekTrips);
+    txt('earn-avg-trip', weekTrips ? 'R' + Math.round(weekTotal / weekTrips).toLocaleString() : 'R0');
+    txt('earn-chart-title', chartTitle);
+    _renderEarnBars(weekHist.map(function(d){return d.date;}), weekHist.map(function(d){return d.earned;}), 6);
+    _renderEarnHistList(weekHist.slice().reverse());
+  } else {
+    label = 'Total Earned This Month';
+    chartTitle = 'Daily Earnings — This Month';
+    var monthHist = hist.slice(-14);
+    var monthTotal = monthHist.reduce(function(s,d){return s+d.earned;},0);
+    var monthTrips = monthHist.reduce(function(s,d){return s+d.trips;},0);
+    txt('total-earned', 'R' + monthTotal.toLocaleString());
+    txt('earn-period-label', label);
+    txt('earn-trips-count', monthTrips);
+    txt('earn-avg-trip', monthTrips ? 'R' + Math.round(monthTotal / monthTrips).toLocaleString() : 'R0');
+    txt('earn-chart-title', chartTitle);
+    _renderEarnBars(monthHist.map(function(d){return d.date;}), monthHist.map(function(d){return d.earned;}), 13);
+    _renderEarnHistList(monthHist.slice().reverse());
+  }
+  var nd = new Date(); nd.setDate(nd.getDate() + 14);
+  txt('next-payout-date', nd.toLocaleDateString('en-ZA'));
+  txt('sub-cost', 'R' + (dData.subscription === 'standard' ? 899 : 699).toLocaleString());
+  _checkFCMBanner();
+}
+
+function _renderEarnBars(labels, values, todayIdx) {
+  var area = $('earn-bar-area'); if (!area) return;
+  var max = Math.max.apply(null, values) || 1;
+  area.innerHTML = labels.map(function(lbl, i) {
+    var pct = Math.round((values[i] / max) * 100);
+    var isToday = (i === todayIdx);
+    return '<div class="earn-bar-col">' +
+      '<div class="earn-bar-fill' + (isToday ? ' today' : '') + '" style="height:' + Math.max(pct, 3) + '%;"></div>' +
+      '<div class="earn-bar-x">' + lbl + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function _renderEarnHistList(rows) {
+  var list = $('earn-hist-list'); if (!list) return;
+  if (!rows.length) { list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">No earnings recorded yet.</div>'; return; }
+  list.innerHTML = rows.map(function(r) {
+    return '<div class="earn-hist-row">' +
+      '<div><div class="earn-hist-date">' + r.date + '</div><div class="earn-hist-trips">' + r.trips + ' trip' + (r.trips !== 1 ? 's' : '') + '</div></div>' +
+      '<div class="earn-hist-amount">' + (r.earned ? 'R' + r.earned.toLocaleString() : '—') + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// ─── FCM Push Notification Registration ───
+var _fcmRegistered = false;
+
+function _checkFCMBanner() {
+  var banner = $('fcm-banner');
+  var status = $('fcm-status');
+  if (!banner || !status) return;
+  if (!('Notification' in window)) { banner.style.display = 'none'; return; }
+  if (Notification.permission === 'granted') {
+    banner.style.display = 'none';
+    status.style.display = 'block';
+  } else if (Notification.permission === 'denied') {
+    banner.style.display = 'none';
+  } else {
+    banner.style.display = 'flex';
+    status.style.display = 'none';
+  }
+}
+
+window._enableNotifications = function() {
+  if (!('Notification' in window)) { toast('Notifications not supported on this device.'); return; }
+  Notification.requestPermission().then(function(permission) {
+    if (permission === 'granted') {
+      // Generate a device token (UUID-style) and save to Firestore
+      var token = 'drv_' + currentUid + '_' + Date.now().toString(36);
+      var FB = window._FB;
+      if (FB && currentUid) {
+        FB.updateDoc(FB.doc(FB.db, 'drivers', currentUid), {
+          fcmToken: token,
+          notificationsEnabled: true,
+          tokenUpdatedAt: new Date().toISOString()
+        }).catch(function() {});
+      }
+      toast('🔔 Push notifications enabled!');
+      _checkFCMBanner();
+    } else {
+      toast('Notification permission denied. Enable in browser settings.');
+    }
+  });
+};
+
+// ─── SOS / Emergency ───
+window._sosCall = function() {
+  closeFeatOverlay('sos-overlay');
+  window.location.href = 'tel:112';
+};
+
+window._sosShareLocation = function() {
+  if (driverLat && driverLng) {
+    var FB = window._FB;
+    if (FB && currentUid) {
+      // Update driver doc
+      FB.updateDoc(FB.doc(FB.db, 'drivers', currentUid), {
+        sosTriggered: true, sosLat: driverLat, sosLng: driverLng, sosAt: new Date().toISOString()
+      }).catch(function(){});
+      // Write to sos_alerts collection so admin sees it instantly
+      FB.addDoc(FB.collection(FB.db, 'sos_alerts'), {
+        type: 'location',
+        driverUid: currentUid,
+        driverName: dData.name || 'Unknown Driver',
+        driverPhone: dData.phone || '—',
+        lat: driverLat,
+        lng: driverLng,
+        mapsUrl: 'https://maps.google.com/?q=' + driverLat + ',' + driverLng,
+        at: new Date().toISOString(),
+        acknowledged: false
+      }).catch(function(){});
+    }
+    toast('📍 Location shared with TruckConnect admin!');
+    closeFeatOverlay('sos-overlay');
+  } else {
+    toast('Getting your location... please wait.');
+  }
+};
+
+window._sosAlertSupport = function() {
+  var FB = window._FB;
+  if (FB && currentUid) {
+    // Update driver doc
+    FB.updateDoc(FB.doc(FB.db, 'drivers', currentUid), {
+      sosAlert: true, sosAlertAt: new Date().toISOString(),
+      sosLat: driverLat || null, sosLng: driverLng || null
+    }).catch(function(){});
+    // Write to sos_alerts collection so admin sees it instantly
+    FB.addDoc(FB.collection(FB.db, 'sos_alerts'), {
+      type: 'alert',
+      driverUid: currentUid,
+      driverName: dData.name || 'Unknown Driver',
+      driverPhone: dData.phone || '—',
+      lat: driverLat || null,
+      lng: driverLng || null,
+      mapsUrl: (driverLat && driverLng) ? 'https://maps.google.com/?q=' + driverLat + ',' + driverLng : null,
+      at: new Date().toISOString(),
+      acknowledged: false
+    }).catch(function(){});
+  }
+  toast('🚨 Admin has been alerted! Help is on the way.');
+  closeFeatOverlay('sos-overlay');
+};
+
+window._sosSafe = function() {
+  closeFeatOverlay('sos-overlay');
+  toast('✅ Glad you are safe.');
+};
+
+// ─── Customer Rating ───
+var _ratingJobId = null;
+var _ratingCustomerId = null;
+var _ratingStars = 0;
+var _ratingTags = [];
+var RATING_LABELS = ['', 'Very Poor', 'Below Average', 'Average', 'Good', 'Excellent'];
+var RATING_TAGS_POS = ['Polite & professional', 'Goods well packed', 'Easy to communicate', 'On time', 'Would take again'];
+var RATING_TAGS_NEG = ['Rude or abusive', 'Goods poorly packed', 'Hard to reach', 'Not on time', 'Incorrect details'];
+
+window._setRating = function(val) {
+  _ratingStars = val;
+  document.querySelectorAll('.star-btn').forEach(function(b, i) {
+    b.classList.toggle('lit', i < val);
+  });
+  txt('rating-label', RATING_LABELS[val] || '');
+  // Render contextual tags
+  var tags = val >= 4 ? RATING_TAGS_POS : RATING_TAGS_NEG;
+  _ratingTags = [];
+  var row = $('rat-tags');
+  if (row) {
+    row.innerHTML = tags.map(function(t) {
+      return '<button class="rat-tag" onclick="window._toggleRatTag(this,\'' + t.replace(/'/g, '') + '\')">' + t + '</button>';
+    }).join('');
+  }
+};
+
+window._toggleRatTag = function(btn, tag) {
+  btn.classList.toggle('active');
+  var idx = _ratingTags.indexOf(tag);
+  if (idx === -1) _ratingTags.push(tag);
+  else _ratingTags.splice(idx, 1);
+};
+
+window._submitRating = function() {
+  if (!_ratingStars) { toast('Please select a star rating first.'); return; }
+  var comment = ($('rating-comment') || {}).value || '';
+  var FB = window._FB;
+  if (FB && _ratingJobId) {
+    var ratingDoc = {
+      jobId: _ratingJobId,
+      customerId: _ratingCustomerId || 'unknown',
+      driverUid: currentUid,
+      driverName: dData.name || '',
+      stars: _ratingStars,
+      tags: _ratingTags,
+      comment: comment,
+      ratedAt: new Date().toISOString()
+    };
+    FB.setDoc(FB.doc(FB.db, 'customerRatings', _ratingJobId + '_drv'), ratingDoc).catch(function(){});
+  }
+  toast('⭐ Rating submitted — thank you!');
+  closeFeatOverlay('rating-overlay');
+  _ratingStars = 0; _ratingTags = []; _ratingJobId = null;
+};
+
+window._skipRating = function() {
+  closeFeatOverlay('rating-overlay');
+  _ratingStars = 0; _ratingTags = []; _ratingJobId = null;
+};
+
+function showRatingModal(jobId, customerName) {
+  _ratingJobId = jobId;
+  _ratingStars = 0; _ratingTags = [];
+  txt('rating-sub', 'How was your experience with ' + (customerName || 'this customer') + '?');
+  document.querySelectorAll('.star-btn').forEach(function(b) { b.classList.remove('lit'); });
+  txt('rating-label', 'Tap a star to rate');
+  var row = $('rat-tags'); if (row) row.innerHTML = '';
+  var comm = $('rating-comment'); if (comm) comm.value = '';
+  openFeatOverlay('rating-overlay');
+}
+
+// ─── Proof of Delivery ───
+var _podJobId = null;
+var _podPhotoData = null;
+
+window._submitPOD = function() {
+  var note = ($('pod-note') || {}).value || '';
+  var FB = window._FB;
+  if (FB && _podJobId) {
+    var update = { ds: 'completed', completedAt: new Date().toISOString(), deliveryNote: note };
+    if (_podPhotoData) update.proofOfDelivery = _podPhotoData;
+    FB.updateDoc(FB.doc(FB.db, 'bookings', _podJobId), update)
+      .then(function() {
+        _finishDelivery(_podJobId);
+      })
+      .catch(function(e) { toast('Error saving delivery: ' + e.message); });
+  } else {
+    _finishDelivery(_podJobId);
+  }
+  closeFeatOverlay('pod-overlay');
+};
+
+window._skipPOD = function() {
+  var FB = window._FB;
+  if (FB && _podJobId) {
+    FB.updateDoc(FB.doc(FB.db, 'bookings', _podJobId), { ds: 'completed', completedAt: new Date().toISOString() }).catch(function(){});
+  }
+  _finishDelivery(_podJobId);
+  closeFeatOverlay('pod-overlay');
+};
+
+function _finishDelivery(jobId) {
+  var job = acceptedJobs.find(function(j) { return j.id === jobId; });
+  var customerName = job ? (job.customerName || '') : '';
+  // ── Record to job history ──
+  if (job) _addToJobHistory(job, null);
+  acceptedJobs = acceptedJobs.filter(function(j) { return j.id !== jobId; });
+  // Record in earnings history
+  if (job && earningsHistory.length) {
+    var todayEntry = earningsHistory[earningsHistory.length - 1];
+    todayEntry.earned = dTodayEarn;
+    todayEntry.trips = dTrips;
+  }
+  renderJobs();
+  toast('✅ Delivery complete! Great work.');
+  // Show rating modal after a brief delay
+  setTimeout(function() {
+    showRatingModal(jobId, customerName);
+  }, 800);
+}
+
+// ─── Block Customer ───
+var _blockJobId = null;
+var _blockCustomerId = null;
+var _blockSelectedReason = '';
+
+window._selectBlockReason = function(btn) {
+  document.querySelectorAll('.block-reason-btn').forEach(function(b) { b.classList.remove('sel'); });
+  btn.classList.add('sel');
+  _blockSelectedReason = btn.dataset.reason || '';
+};
+
+window._submitBlock = function() {
+  if (!_blockSelectedReason) { toast('Please select a reason for blocking.'); return; }
+  var detail = ($('block-detail') || {}).value || '';
+  var FB = window._FB;
+  if (FB && currentUid) {
+    var blockDoc = {
+      reportedBy: currentUid,
+      driverName: dData.name || '',
+      customerId: _blockCustomerId || 'unknown',
+      jobId: _blockJobId || '',
+      reason: _blockSelectedReason,
+      detail: detail,
+      reportedAt: new Date().toISOString(),
+      status: 'pending_review'
+    };
+    FB.setDoc(FB.doc(FB.db, 'blockedCustomers', currentUid + '_' + (_blockCustomerId || Date.now())), blockDoc).catch(function(){});
+  }
+  toast('🚫 Customer reported. Our team will review within 24h.');
+  closeFeatOverlay('block-overlay');
+  _blockJobId = null; _blockCustomerId = null; _blockSelectedReason = '';
+};
+
+window.showBlockModal = function showBlockModal(jobId, customerId, customerName) {
+  _blockJobId = jobId;
+  _blockCustomerId = customerId;
+  txt('block-sub', 'Reporting: ' + (customerName || 'this customer') + '. Our team will review within 24 hours.');
+  document.querySelectorAll('.block-reason-btn').forEach(function(b) { b.classList.remove('sel'); });
+  _blockSelectedReason = '';
+  var det = $('block-detail'); if (det) det.value = '';
+  openFeatOverlay('block-overlay');
+}
+
+// ─── Overlay helpers ───
+function openFeatOverlay(id) {
+  var el = $(id); if (el) el.classList.add('open');
+}
+function closeFeatOverlay(id) {
+  var el = $(id); if (el) el.classList.remove('open');
+}
+
+// ─── Override completeTrip to go through POD first ───
+window.completeTrip = function(jobId) {
+  _podJobId = jobId;
+  _podPhotoData = null;
+  var preview = $('pod-preview');
+  var uploadBox = $('pod-upload-box');
+  var noteField = $('pod-note');
+  if (preview) { preview.src = ''; preview.style.display = 'none'; }
+  if (uploadBox) uploadBox.style.display = 'block';
+  if (noteField) noteField.value = '';
+  openFeatOverlay('pod-overlay');
+};
+
+// ── Wire up new features on startup ──
+on('sos-btn', 'click', function() { openFeatOverlay('sos-overlay'); });
+on('sos-close', 'click', function() { closeFeatOverlay('sos-overlay'); });
+on('block-close', 'click', function() { closeFeatOverlay('block-overlay'); });
+on('block-cancel-btn', 'click', function() { closeFeatOverlay('block-overlay'); });
+
+// ═══════════════════════════════════════════════════════════════
+// FEATURE 1 — DRIVER PROFILE / SETTINGS SCREEN
+// ═══════════════════════════════════════════════════════════════
+
+function openProfileSheet() {
+  // Populate fields from dData
+  var nameEl = $('prf-name'); if (nameEl) nameEl.value = dData.name || '';
+  var phoneEl = $('prf-phone'); if (phoneEl) phoneEl.value = dData.phone || '';
+  var truckEl = $('prf-truck'); if (truckEl) truckEl.value = dData.truck || '';
+  var ttEl = $('prf-trucktype'); if (ttEl) ttEl.value = dData.truckType || '';
+  var plateEl = $('prf-plate'); if (plateEl) plateEl.value = dData.plate || '';
+
+  // Avatar
+  var initEl = $('profile-av-initials');
+  var imgEl = $('profile-av-img');
+  var nameDisp = $('profile-name-disp');
+  var emailDisp = $('profile-email-disp');
+  if (initEl) initEl.textContent = dData.name ? dData.name[0].toUpperCase() : 'D';
+  if (nameDisp) nameDisp.textContent = dData.name || 'Driver';
+  if (emailDisp) emailDisp.textContent = dData.email || '—';
+  if (imgEl && dData.selfiePhoto) {
+    imgEl.src = dData.selfiePhoto;
+    imgEl.style.display = 'block';
+    if (initEl) initEl.style.display = 'none';
+  }
+  $('profile-sheet').style.transform = 'translateY(0)';
+}
+
+on('menu-profile', 'click', function() {
+  $('d-sidemenu').style.left = '-290px'; $('d-menu-overlay').style.display = 'none';
+  openProfileSheet();
+});
+on('close-profile-sheet', 'click', function() { $('profile-sheet').style.transform = 'translateY(100%)'; });
+
+on('profile-save-btn', 'click', function() {
+  var name = ($('prf-name') || {}).value || '';
+  var phone = ($('prf-phone') || {}).value || '';
+  var truck = ($('prf-truck') || {}).value || '';
+  var truckType = ($('prf-trucktype') || {}).value || '';
+  var plate = ($('prf-plate') || {}).value || '';
+  if (!name) { toast('Please enter your name.'); return; }
+
+  dData.name = name; dData.phone = phone; dData.truck = truck;
+  dData.truckType = truckType; dData.plate = plate;
+  saveSession();
+
+  var FB = window._FB;
+  if (FB && currentUid) {
+    FB.updateDoc(FB.doc(FB.db, 'drivers', currentUid), { name: name, phone: phone, truck: truck, truckType: truckType, plate: plate })
+      .catch(function(e) { toast('Sync error: ' + e.message); });
+  }
+  // Update sidemenu display
+  txt('d-av', name[0].toUpperCase());
+  txt('d-uname', name);
+  txt('profile-name-disp', name);
+  $('profile-sheet').style.transform = 'translateY(100%)';
+  toast('✅ Profile updated!');
+});
+
+// Photo change
+setTimeout(function() {
+  var photoInput = $('profile-photo-input');
+  if (photoInput) {
+    photoInput.addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        compressSelfie(this.files[0], function(dataUrl) {
+          dData.selfiePhoto = dataUrl;
+          var imgEl = $('profile-av-img');
+          var initEl = $('profile-av-initials');
+          if (imgEl) { imgEl.src = dataUrl; imgEl.style.display = 'block'; }
+          if (initEl) initEl.style.display = 'none';
+          // Also update sidemenu avatar
+          var sAvImg=document.getElementById('d-av-img');
+          var sAvInit=document.getElementById('d-av-initials');
+          if(sAvImg){sAvImg.src=dataUrl;sAvImg.style.display='block';}
+          if(sAvInit)sAvInit.style.display='none';
+          var FB = window._FB;
+          if (FB && currentUid) {
+            FB.updateDoc(FB.doc(FB.db, 'drivers', currentUid), { selfiePhoto: dataUrl }).catch(function(){});
+          }
+          saveSession();
+          toast('📷 Photo updated!');
+        });
+      }
+    });
+  }
+}, 400);
+
+// Change password
+on('profile-chgpwd-btn', 'click', function() { $('chgpwd-modal').classList.add('open'); });
+on('chgpwd-cancel-btn', 'click', function() { $('chgpwd-modal').classList.remove('open'); });
+on('chgpwd-submit-btn', 'click', function() {
+  var cur = ($('chgpwd-current') || {}).value || '';
+  var nw = ($('chgpwd-new') || {}).value || '';
+  var cf = ($('chgpwd-confirm') || {}).value || '';
+  var errEl = $('chgpwd-err');
+  if (!cur || !nw || !cf) { if(errEl){errEl.textContent='Please fill in all fields.';errEl.style.display='block';} return; }
+  if (nw.length < 8) { if(errEl){errEl.textContent='New password must be at least 8 characters.';errEl.style.display='block';} return; }
+  if (nw !== cf) { if(errEl){errEl.textContent='Passwords do not match.';errEl.style.display='block';} return; }
+  if(errEl) errEl.style.display='none';
+  var FB = window._FB;
+  if (!FB || !FB.auth || !FB.auth.currentUser) { toast('Not signed in. Please sign in again.'); return; }
+  var user = FB.auth.currentUser;
+  // Re-authenticate then update password
+  var credential = FB.EmailAuthProvider.credential(user.email, cur);
+  FB.reauthenticateWithCredential(user, credential)
+    .then(function() { return FB.updatePassword(user, nw); })
+    .then(function() {
+      $('chgpwd-modal').classList.remove('open');
+      toast('🔒 Password changed successfully!');
+    })
+    .catch(function(e) {
+      var msg = e.code === 'auth/wrong-password' ? 'Current password is incorrect.' : 'Could not update password: ' + e.message;
+      if(errEl){errEl.textContent=msg;errEl.style.display='block';}
+    });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// FEATURE 2 — JOB HISTORY SCREEN
+// ═══════════════════════════════════════════════════════════════
+
+var _completedJobs = []; // accumulates completed trips during session
+
+function _addToJobHistory(job, customerRating) {
+  _completedJobs.unshift({
+    id: job.id || ('JH-' + Date.now()),
+    from: job.from || '—',
+    to: job.to || '—',
+    dist: job.dist || '—',
+    price: job.price || '—',
+    cargo: job.cargo || 'General Freight',
+    completedAt: new Date().toLocaleString('en-ZA', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),
+    customerRating: customerRating || null
+  });
+}
+
+function _renderJobHistory() {
+  var list = $('job-history-list'); if (!list) return;
+  if (!_completedJobs.length) {
+    list.innerHTML = '<div style="text-align:center;padding:44px 20px;color:var(--muted);"><div style="font-size:36px;margin-bottom:12px;opacity:.3;">🕐</div><div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;">No completed trips yet</div><div style="font-size:12px;">Completed trips will appear here.</div></div>';
+    return;
+  }
+  list.innerHTML = _completedJobs.map(function(j) {
+    var stars = j.customerRating ? '⭐'.repeat(j.customerRating) : '—';
+    return '<div class="hist-job-card">' +
+      '<div class="hist-job-route">' + j.from + ' → ' + j.to + '</div>' +
+      '<div class="hist-job-date">#' + j.id + ' · ' + j.completedAt + '</div>' +
+      '<div class="hist-job-grid">' +
+        '<div class="hist-job-cell"><div class="hist-job-lbl">Earned</div><div class="hist-job-val" style="color:var(--green);">' + j.price + '</div></div>' +
+        '<div class="hist-job-cell"><div class="hist-job-lbl">Distance</div><div class="hist-job-val">' + j.dist + '</div></div>' +
+        '<div class="hist-job-cell"><div class="hist-job-lbl">Rating Given</div><div class="hist-job-val hist-stars">' + stars + '</div></div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+on('menu-job-history', 'click', function() {
+  $('d-sidemenu').style.left = '-290px'; $('d-menu-overlay').style.display = 'none';
+  _renderJobHistory();
+  $('job-history-sheet').style.transform = 'translateY(0)';
+});
+on('close-job-history-sheet', 'click', function() { $('job-history-sheet').style.transform = 'translateY(100%)'; });
+
+// ═══════════════════════════════════════════════════════════════
+// FEATURE 3 — DEMAND HEATMAP
+// ═══════════════════════════════════════════════════════════════
+
+var _heatmapVisible = false;
+var _heatmapLayer = null;
+
+// SA demand hotspots (lat/lng, weight 0-1)
+var HEATMAP_POINTS = [
+  [28.0473,-26.2041,0.9],[28.0587,-26.1927,0.8],[27.9963,-26.1947,0.75],
+  [28.1080,-26.1622,0.7],[28.0629,-26.0075,0.6],[28.1881,-25.7461,0.65],
+  [27.8502,-26.1392,0.55],[28.2293,-26.3279,0.6],[28.3199,-26.1452,0.5],
+  [18.4232,-33.9180,0.85],[18.4896,-33.8609,0.7],[18.6272,-33.9462,0.6],
+  [30.9394,-29.8587,0.75],[30.8935,-29.7720,0.65],[31.0218,-29.9053,0.55],
+  [26.2041,-29.1210,0.5],[25.5731,-33.9608,0.6],[27.4636,-23.9045,0.55]
+];
+
+function _toggleHeatmap() {
+  if (!driverMap) { toast('Map not ready yet.'); return; }
+  _heatmapVisible = !_heatmapVisible;
+  if (_heatmapVisible) {
+    _showHeatmap();
+    toast('🔥 Heatmap ON — high demand areas shown');
+  } else {
+    _hideHeatmap();
+    toast('Heatmap off');
+  }
+}
+
+function _showHeatmap() {
+  if (!driverMap||typeof google==='undefined'||!google.maps.visualization) return;
+  if (!_heatmapLayer) {
+    var pts = HEATMAP_POINTS.map(function(p){
+      return {location: new google.maps.LatLng(p[1], p[0]), weight: p[2]};
+    });
+    _heatmapLayer = new google.maps.visualization.HeatmapLayer({
+      data: pts, map: driverMap, radius: 50, opacity: 0.75
+    });
+  } else {
+    _heatmapLayer.setMap(driverMap);
+  }
+}
+
+function _hideHeatmap() {
+  if (_heatmapLayer) _heatmapLayer.setMap(null);
+}
+
+on('menu-heatmap', 'click', function() {
+  $('d-sidemenu').style.left = '-290px'; $('d-menu-overlay').style.display = 'none';
+  _toggleHeatmap();
+});
+
+// ═══════════════════════════════════════════════════════════════
+// FEATURE 5 — IN-APP DOCUMENT UPLOAD (Pending screen)
+// ═══════════════════════════════════════════════════════════════
+
+var _docTypes = ['op', 'reg', 'rw'];
+var _docLabels = { op: "Operator's Licence", reg: 'Vehicle Registration', rw: 'Roadworthy Certificate' };
+
+setTimeout(function() {
+  _docTypes.forEach(function(type) {
+    function wireDocInput(fileInput) {
+      if (!fileInput) return;
+      fileInput.addEventListener('change', function() {
+        if (!this.files || !this.files[0]) return;
+        var file = this.files[0];
+        var btn = $('doc-' + type + '-btn');
+        var statusEl = $('doc-' + type + '-status');
+        // Read file and store as base64
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var dataUrl = e.target.result;
+          // Save to Firestore under driver doc
+          var FB = window._FB;
+          var docKey = 'doc_' + type;
+          if (FB && currentUid) {
+            var update = {}; update[docKey] = dataUrl; update[docKey + '_uploadedAt'] = new Date().toISOString();
+            FB.updateDoc(FB.doc(FB.db, 'drivers', currentUid), update)
+              .then(function() {
+                if (btn) btn.classList.add('uploaded');
+                if (btn) btn.innerHTML = '✅ Uploaded<input type="file" accept="image/*,application/pdf" id="doc-' + type + '-file"/>';
+                if (statusEl) statusEl.textContent = 'Uploaded — awaiting review';
+                toast('📎 ' + _docLabels[type] + ' uploaded!');
+                // Re-wire the new input using the named function
+                wireDocInput($('doc-' + type + '-file'));
+              })
+              .catch(function(e) { toast('Upload failed: ' + e.message); });
+          } else {
+            // Offline / no Firebase
+            if (btn) btn.classList.add('uploaded');
+            if (statusEl) statusEl.textContent = 'Uploaded — awaiting review';
+            toast('📎 ' + _docLabels[type] + ' uploaded!');
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    wireDocInput($('doc-' + type + '-file'));
+  });
+}, 600);
+
+// ═══════════════════════════════════════════════════════════════
+// FEATURE 6 — WALLET / PAYOUT SCREEN
+// ═══════════════════════════════════════════════════════════════
+
+function _openWalletSheet() {
+  // Calculate available balance from this period's earnings
+  var balance = dWeekEarn || dTodayEarn || 0;
+  var nd = new Date(); nd.setDate(nd.getDate() + (14 - (nd.getDate() % 14)));
+  txt('wallet-balance', 'R' + balance.toLocaleString());
+  txt('wallet-balance-sub', 'Next payout: ' + nd.toLocaleDateString('en-ZA'));
+  txt('wlt-next-date', nd.toLocaleDateString('en-ZA'));
+  txt('wlt-period-earn', 'R' + (dWeekEarn || 0).toLocaleString());
+  txt('wlt-period-trips', dTrips + ' trip' + (dTrips !== 1 ? 's' : '') + ' this week');
+
+  // Bank details (masked)
+  txt('wlt-bank', dData.bank || '—');
+  txt('wlt-holder', dData.accountHolder || dData.name || '—');
+  var accNo = dData.accountNumber || '';
+  txt('wlt-accno', accNo.length > 4 ? '•••• ' + accNo.slice(-4) : accNo || '•••• ••••');
+  txt('wlt-acctype', dData.accountType || '—');
+  txt('wlt-branch', dData.branchCode || '—');
+
+  $('wallet-sheet').style.transform = 'translateY(0)';
+}
+
+on('menu-wallet', 'click', function() {
+  $('d-sidemenu').style.left = '-290px'; $('d-menu-overlay').style.display = 'none';
+  _openWalletSheet();
+});
+on('close-wallet-sheet', 'click', function() { $('wallet-sheet').style.transform = 'translateY(100%)'; });
+
+on('wallet-request-btn', 'click', function() {
+  var balance = dWeekEarn || dTodayEarn || 0;
+  if (balance <= 0) { toast('No balance available to payout.'); return; }
+  txt('payout-modal-amount', 'R' + balance.toLocaleString());
+  var bank = dData.bank || 'your registered account';
+  var accNo = dData.accountNumber || '';
+  txt('payout-modal-bank', 'to ' + bank + (accNo ? ' ••' + accNo.slice(-4) : ''));
+  var errEl = $('payout-err'); if (errEl) errEl.style.display = 'none';
+  $('payout-request-modal').classList.add('open');
+});
+on('payout-cancel-btn', 'click', function() { $('payout-request-modal').classList.remove('open'); });
+on('payout-confirm-btn', 'click', function() {
+  var balance = dWeekEarn || dTodayEarn || 0;
+  var btn = $('payout-confirm-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
+  var FB = window._FB;
+  if (FB && currentUid) {
+    var payoutDoc = {
+      driverUid: currentUid,
+      driverName: dData.name || '',
+      amount: balance,
+      bank: dData.bank || '',
+      accountHolder: dData.accountHolder || '',
+      accountNumber: dData.accountNumber || '',
+      accountType: dData.accountType || '',
+      branchCode: dData.branchCode || '',
+      requestedAt: new Date().toISOString(),
+      status: 'pending'
+    };
+    FB.setDoc(FB.doc(FB.db, 'payoutRequests', currentUid + '_' + Date.now()), payoutDoc)
+      .then(function() {
+        if (btn) { btn.disabled = false; btn.textContent = 'Confirm Payout Request →'; }
+        $('payout-request-modal').classList.remove('open');
+        toast('✅ Payout request submitted! Paid within 1–2 business days.');
+        // Add to history display
+        var hist = $('wallet-payout-hist');
+        if (hist) {
+          var row = document.createElement('div');
+          row.className = 'wallet-payout-hist-row';
+          row.innerHTML = '<div><div class="wallet-payout-amount">R' + balance.toLocaleString() + '</div><div class="wallet-payout-date">' + new Date().toLocaleDateString('en-ZA') + ' · ' + dTrips + ' trips</div></div><span class="wallet-payout-status pending">Pending</span>';
+          hist.insertBefore(row, hist.firstChild);
+        }
+      })
+      .catch(function(e) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Confirm Payout Request →'; }
+        toast('Error: ' + e.message);
+      });
+  } else {
+    if (btn) { btn.disabled = false; btn.textContent = 'Confirm Payout Request →'; }
+    $('payout-request-modal').classList.remove('open');
+    toast('✅ Payout request submitted!');
+  }
+});
+
+on('wallet-edit-bank-btn', 'click', function() {
+  toast('To update banking details, please contact TruckConnect support.');
+});
+
+// ═══════════════════════════════════════════════════════════════
+// FEATURE 4 — ETA BROADCAST TO FIRESTORE (on job accept)
+// ═══════════════════════════════════════════════════════════════
+
+function _broadcastETA(jobId, fromCoords, toCoords) {
+  if (!fromCoords || !toCoords || !toCoords[0] || !toCoords[1]) return;
+  var url = 'https://router.project-osrm.org/route/v1/driving/' + fromCoords[0] + ',' + fromCoords[1] + ';' + toCoords[0] + ',' + toCoords[1] + '?overview=false';
+  fetch(url)
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (!d.routes || !d.routes.length) return;
+      var etaMins = Math.round(d.routes[0].duration / 60);
+      var etaTime = new Date(Date.now() + d.routes[0].duration * 1000).toISOString();
+      var FB = window._FB;
+      if (FB && jobId) {
+        FB.updateDoc(FB.doc(FB.db, 'bookings', jobId), {
+          driverEtaMins: etaMins,
+          driverEtaTime: etaTime,
+          driverLat: driverLat || null,
+          driverLng: driverLng || null,
+          etaUpdatedAt: new Date().toISOString()
+        }).catch(function(){});
+      }
+    })
+    .catch(function(){});
+}
+
+// ═══════════════════════════════════════════════════════════════
+// COORD RESOLVER — geocodes missing from/toCoords using Google Maps,
+// then recalculates real driving distance so display always matches navigation
+// ═══════════════════════════════════════════════════════════════
+
+// Nominatim geocoding — free, no API key
+function _geocodeAddress(address){
+  var query=address.toLowerCase().includes('south africa')?address:address+', South Africa';
+  return fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(query)+'&countrycodes=za&limit=1',{headers:{'Accept-Language':'en'}})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d&&d.length){return[parseFloat(d[0].lon),parseFloat(d[0].lat)];}
+      return null;
+    })
+    .catch(function(){return null;});
+}
+
+function _getDriverPosition(){
+  return new Promise(function(resolve){
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(
+        function(pos){
+          driverLat=pos.coords.latitude;driverLng=pos.coords.longitude;
+          resolve([driverLng,driverLat]);
+        },
+        function(){
+          // Fall back to last known, never use hardcoded city
+          resolve(driverLat&&driverLng?[driverLng,driverLat]:null);
+        },
+        {enableHighAccuracy:true,timeout:8000,maximumAge:15000}
+      );
+    } else {
+      resolve(driverLat&&driverLng?[driverLng,driverLat]:null);
+    }
+  });
+}
+
+function _resolveJobCoords(job){
+  var tasks=[];
+  if(!job.fromCoords&&job.from) tasks.push(_geocodeAddress(job.from).then(function(c){if(c)job.fromCoords=c;}));
+  if(!job.toCoords&&job.to)     tasks.push(_geocodeAddress(job.to).then(function(c){if(c)job.toCoords=c;}));
+  return Promise.all(tasks).then(function(){
+    if(job.fromCoords&&job.toCoords){
+      var url='https://router.project-osrm.org/route/v1/driving/'+
+        job.fromCoords[0]+','+job.fromCoords[1]+';'+
+        job.toCoords[0]+','+job.toCoords[1]+'?overview=false';
+      return fetch(url)
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d.routes&&d.routes.length){
+            var km=(d.routes[0].distance/1000).toFixed(0);
+            job.dist=km+' km';
+            renderJobs();
+          }
+        })
+        .catch(function(){});
+    }
+  });
+}
+
+// Hook: record star rating against last completed job in history
+// This runs at the end of the file after _submitRating is already defined,
+// so we register the patch in a setTimeout after all code loads.
+setTimeout(function() {
+  var orig = window._submitRating;
+  window._submitRating = function() {
+    var stars = _ratingStars;
+    orig();
+    // Attach rating to most recently completed job in history
+    if (stars && _completedJobs.length) {
+      _completedJobs[0].customerRating = stars;
+    }
+  };
+}, 800);
+
+var _orig_finishDelivery = null; // will be set after load
+['sos-overlay','rating-overlay','block-overlay'].forEach(function(id) {
+  var el=$(id);
+  if(el) el.addEventListener('click',function(e){if(e.target===el)closeFeatOverlay(id);});
+});
+// POD file input wired after DOM settles
+setTimeout(function(){
+  var podFile=$('pod-file');
+  if(podFile){
+    podFile.addEventListener('change',function(){
+      if(this.files&&this.files[0]){
+        compressSelfie(this.files[0],function(dataUrl){
+          _podPhotoData=dataUrl;
+          var preview=$('pod-preview');var uploadBox=$('pod-upload-box');
+          if(preview){preview.src=dataUrl;preview.style.display='block';}
+          if(uploadBox)uploadBox.style.display='none';
+        });
+      }
+    });
+  }
+},300);
+_seedEarningsHistory();
+
+  if(typeof mapboxgl!=='undefined'){/*MapLibre ready*/}
+
+  var fbResolved=false;
+  var fbTimeout=setTimeout(function(){
+    if(!fbResolved){fbResolved=true;clearInterval(fbReady);goTo('s-landing');}
+  },8000);
+
+  var fbReady=setInterval(function(){
+    if(window._FB){
+      clearInterval(fbReady);
+      window._FB.onAuthStateChanged(window._FB.auth,function(user){
+        if(fbResolved)return;
+        fbResolved=true;clearTimeout(fbTimeout);
+        if(user){
+          currentUid=user.uid;
+          window._FB.getDoc(window._FB.doc(window._FB.db,'drivers',user.uid))
+          .then(function(snap){
+            if(snap.exists()){
+              dData=snap.data();
+              if(dData.status==='approved')goToDriverHome();
+              else{goTo('s-pending');txt('pend-sub-val',dData.subscription==='basic'?'✅ Mover Plan (R699/mo)':dData.subscription==='standard'?'⭐ Standard Plan (R899/mo)':'Not selected');}
+            } else {goTo('s-landing');}
+          }).catch(function(){goTo('s-landing');});
+        } else {goTo('s-landing');}
+      });
+    }
+  },200);
+
+  on('btn-signup-land','click',function(){dStep=0;renderStep();goTo('s-auth');switchTab('signup');});
+  on('btn-signin-land','click',function(){goTo('s-auth');switchTab('signin');});
+  on('auth-back','click',function(){goTo('s-landing');});
+  on('tab-signup','click',function(){switchTab('signup');});
+  on('tab-signin','click',function(){switchTab('signin');});
+  on('goto-signup-btn','click',function(){switchTab('signup');});
+
+  // Google sign-in (sign-in panel)
+  on('google-signin-btn','click',function(){handleGoogleAuth('signin');});
+
+  function switchTab(t){
+    $('signup-wrap').style.display=t==='signup'?'block':'none';
+    $('signin-wrap').style.display=t==='signin'?'block':'none';
+    $('tab-signup').classList.toggle('active',t==='signup');
+    $('tab-signin').classList.toggle('active',t==='signin');
+    if(t==='signup'){dStep=0;renderStep();}
+  }
+
+  on('signin-btn','click',function(){
+    // Security: rate-limit failed sign-in attempts
+    var now=Date.now();
+    try{
+      var attempts=JSON.parse(localStorage.getItem('tc_d_signin_attempts')||'[]');
+      attempts=attempts.filter(function(t){return now-t<60000;}); // last 60s
+      if(attempts.length>=5){
+        var wait=Math.ceil((60000-(now-attempts[0]))/1000);
+        showErr('si-err','Too many failed attempts. Please wait '+wait+' seconds.');return;
+      }
+    }catch(e){}
+    var e=val('si-email').trim(),p=val('si-pass');
+    hideErr('si-email-err');hideErr('si-pass-err');hideErr('si-err');
+    if(!e||!e.includes('@')){showErr('si-email-err','Please enter a valid email address');return;}
+    if(!p){showErr('si-pass-err','Please enter your password');return;}
+    var btn=$('signin-btn');btn.disabled=true;btn.textContent='Signing In...';
+    var FB=window._FB;
+    FB.signInWithEmailAndPassword(FB.auth,e,p)
+    .then(function(uc){
+      // Clear fail counter on success
+      try{localStorage.removeItem('tc_d_signin_attempts');}catch(ex){}
+      currentUid=uc.user.uid;
+      return FB.getDoc(FB.doc(FB.db,'drivers',currentUid));
+    })
+    .then(function(snap){
+      btn.disabled=false;btn.textContent='Sign In →';
+      if(!snap.exists()){showErr('si-err','No driver account found. Please sign up first.');return;}
+      dData=snap.data();saveSession();
+      if(dData.status==='approved')goToDriverHome();
+      else{goTo('s-pending');txt('pend-sub-val',dData.subscription==='basic'?'✅ Mover Plan (R699/mo)':dData.subscription==='standard'?'⭐ Standard Plan (R899/mo)':'Not selected');}
+    })
+    .catch(function(err){
+      btn.disabled=false;btn.textContent='Sign In →';
+      // Record failed attempt
+      try{var attempts=JSON.parse(localStorage.getItem('tc_d_signin_attempts')||'[]');attempts.push(Date.now());localStorage.setItem('tc_d_signin_attempts',JSON.stringify(attempts));}catch(ex){}
+      var msg='Incorrect email or password.';
+      if(err.code==='auth/user-not-found'||err.code==='auth/invalid-credential')msg='No account found with this email. Please sign up first.';
+      else if(err.code==='auth/network-request-failed')msg='No internet connection. Please check your network.';
+      showErr('si-err',msg);
+    });
+  });
+
+  on('start-basic-btn','click',function(){choosePlan('basic');});
+  on('start-standard-btn','click',function(){choosePlan('standard');});
+  on('sub-skip-btn','click',function(){goTo('s-pending');});
+  on('sub-back','click',function(){goTo('s-auth');});
+  on('check-status-btn','click',checkApprovalStatus);
+  on('pend-signout-btn','click',function(){clearSession();goTo('s-landing');});
+  on('online-tog-btn','click',toggleOnline);
+  on('d-menu-btn','click',function(){$('d-sidemenu').style.left='0';$('d-menu-overlay').style.display='block';});
+  on('d-menu-overlay','click',function(){$('d-sidemenu').style.left='-290px';$('d-menu-overlay').style.display='none';});
+  on('menu-jobs','click',function(){$('d-sidemenu').style.left='-290px';$('d-menu-overlay').style.display='none';$('jobs-sheet').style.transform='translateY(0)';renderJobs();});
+  on('menu-search-jobs','click',function(){
+    $('d-sidemenu').style.left='-290px';$('d-menu-overlay').style.display='none';
+    $('avail-jobs-sheet').style.transform='translateY(0)';
+    searchAvailJobs();
+  });
+  on('close-jobs-sheet','click',function(){$('jobs-sheet').style.transform='translateY(100%)';});
+  on('search-jobs-btn','click',function(){$('avail-jobs-sheet').style.transform='translateY(0)';searchAvailJobs();});
+  on('close-avail-jobs-sheet','click',function(){
+    $('avail-jobs-sheet').style.transform='translateY(100%)';
+    // Stop real-time listener to save reads when sheet is closed
+    if(_availJobsUnsub){_availJobsUnsub();_availJobsUnsub=null;}
+  });
+  on('refresh-jobs-btn','click',function(){
+    // Force restart the real-time listener
+    if(_availJobsUnsub){_availJobsUnsub();_availJobsUnsub=null;}
+    searchAvailJobs();
+    toast('🔄 Jobs refreshed');
+  });
+  // Filter chip delegation
+  var filterBar=$('avail-filter-bar');
+  if(filterBar){
+    filterBar.addEventListener('click',function(e){
+      var chip=e.target.closest('.avail-chip');if(!chip)return;
+      filterBar.querySelectorAll('.avail-chip').forEach(function(c){c.classList.remove('active');});
+      chip.classList.add('active');
+      _availActiveFilter=chip.dataset.filter||'all';
+      var filtered=_applyFilter(_availAllJobs,_availActiveFilter);
+      var countEl=$('avail-job-count');
+      if(countEl)countEl.textContent=_availAllJobs.length+' job'+(_availAllJobs.length!==1?'s':'')+' matched';
+      _renderAvailJobs(filtered);
+    });
+  }
+  on('menu-earnings','click',function(){
+    $('d-sidemenu').style.left='-290px';$('d-menu-overlay').style.display='none';
+    _earnPeriod='day';
+    document.querySelectorAll('.earn-period-tab').forEach(function(b){b.classList.remove('active');});
+    var dayTab=document.querySelector('[data-period="day"]');if(dayTab)dayTab.classList.add('active');
+    _renderEarningsSheet();
+    $('earnings-sheet').style.transform='translateY(0)';
+  });
+  on('close-earnings-sheet','click',function(){$('earnings-sheet').style.transform='translateY(100%)';});
+  
+  
+  on('menu-signout','click',function(){clearSession();goTo('s-landing');});
+  on('d-locate-btn','click',function(){if(driverLat&&driverMap)driverMap.flyTo({center:[driverLng,driverLat],zoom:15});});
+  on('d-sat-btn','click',function(){isSat=!isSat;if(driverMap&&driverMap.setMapTypeId)driverMap.setMapTypeId(isSat?'hybrid':'roadmap');txt('d-sat-btn',isSat?'🗺️':'🛰️');});
+  on('jp-accept-btn','click',acceptJob);
+  on('jp-decline-btn','click',function(){if(pendingJob)declinedIds.push(pendingJob.id);hideJobPopup();});
+  on('nav-close-btn','click',stopNav);
+
+  // Navigation helper — uses in-app nav if coords exist, else opens Google Maps with address
+  // navigateTo — always uses driver's live GPS as origin
+  window.navigateTo=function(toCoords, toAddress, fromCoords, fromAddress){
+
+    function _doNav(fromLng, fromLat){
+      if(toCoords&&toCoords[0]&&toCoords[1]){
+        startNav([fromLng,fromLat], toCoords);
+      } else if(toAddress){
+        var origin=fromLat+','+fromLng;
+        window.open('https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(origin)+'&destination='+encodeURIComponent(toAddress)+'&travelmode=driving','_blank');
+      } else {
+        toast('No destination available');
+      }
+    }
+
+    // Always navigate from driver's current live GPS position
+    toast('📍 Getting your location…');
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(
+        function(pos){
+          driverLat=pos.coords.latitude;
+          driverLng=pos.coords.longitude;
+          _doNav(driverLng, driverLat);
+        },
+        function(){
+          if(driverLat&&driverLng){
+            toast('⚠️ Using last known location');
+            _doNav(driverLng, driverLat);
+          } else {
+            toast('❌ Could not get your location. Enable GPS and try again.');
+          }
+        },
+        {enableHighAccuracy:true, timeout:8000, maximumAge:5000}
+      );
+    } else if(driverLat&&driverLng){
+      _doNav(driverLng, driverLat);
+    } else {
+      toast('❌ GPS not available on this device');
+    }
+  };
+
+  document.addEventListener('click',function(e){
+    if(e.target.classList.contains('nav-start-btn')){
+      var from=JSON.parse(decodeURIComponent(e.target.dataset.from||'null'));
+      var to=JSON.parse(decodeURIComponent(e.target.dataset.to||'null'));
+      if(from&&to)startNav(from,to);
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
