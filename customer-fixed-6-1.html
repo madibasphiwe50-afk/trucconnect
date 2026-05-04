@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>TruckConnect — Customer</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@3.6.2/dist/maplibre-gl.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{-webkit-text-size-adjust:100%;}
+body{background:#000;color:#fff;font-family:'Sora',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
+input,select,button,textarea{font-family:'Sora',sans-serif;}
+input::placeholder,textarea::placeholder{color:#555;}
+select option{background:#111;color:#fff;}
+:root{--bg:#000;--card:#111;--border:#222;--text:#fff;--muted:#666;--accent:#fff;--green:#4ade80;--red:#f87171;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(50px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes pulseRing{0%{transform:scale(.8);opacity:.6}100%{transform:scale(2.2);opacity:0}}
+.screen{display:none;min-height:100vh;flex-direction:column;background:var(--bg);}
+.screen.active{display:flex;animation:fadeIn .2s ease;}
+/* LANDING */
+#s-landing{background:#000;overflow:hidden;position:relative;}
+#s-landing::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:400px;height:400px;background:radial-gradient(circle,rgba(255,255,255,.04) 0%,transparent 70%);pointer-events:none;}
+.land-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:60px 28px 50px;}
+.land-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);font-size:10px;font-weight:700;letter-spacing:2px;padding:5px 14px;border-radius:20px;margin-bottom:36px;text-transform:uppercase;}
+.land-dot{width:6px;height:6px;background:#4ade80;border-radius:50%;animation:blink 2s ease infinite;flex-shrink:0;}
+.land-icon{font-size:72px;margin-bottom:20px;line-height:1;}
+.land-title{font-size:38px;font-weight:800;color:#fff;text-align:center;line-height:1.1;letter-spacing:-1px;margin-bottom:12px;}
+.land-title em{font-style:normal;color:#666;}
+.land-sub{font-size:14px;color:rgba(255,255,255,.36);text-align:center;line-height:1.8;margin-bottom:48px;max-width:290px;font-weight:300;}
+.land-actions{width:100%;max-width:360px;display:flex;flex-direction:column;gap:12px;}
+.btn-land-p{width:100%;background:#fff;color:#000;border:none;border-radius:14px;padding:17px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-land-p:active{transform:scale(.97);}
+.btn-land-s{width:100%;background:rgba(255,255,255,.07);color:rgba(255,255,255,.65);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-land-s:active{transform:scale(.97);}
+.land-feat{display:flex;gap:0;margin-top:44px;padding-top:32px;border-top:1px solid rgba(255,255,255,.07);width:100%;max-width:340px;justify-content:space-around;}
+.lf-item{text-align:center;}
+.lf-num{font-size:20px;font-weight:800;color:#fff;}
+.lf-lbl{font-size:9px;color:rgba(255,255,255,.28);margin-top:3px;letter-spacing:1px;text-transform:uppercase;}
+/* TOPNAV */
+.topnav{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:#000;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.nav-logo{font-size:17px;font-weight:800;color:#fff;}
+.nav-logo span{color:var(--muted);}
+.back-btn{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px;min-width:36px;line-height:1;}
+.nav-badge{font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;background:#111;color:var(--muted);border:1px solid var(--border);}
+.screen-body{padding:20px;flex:1;overflow-y:auto;}
+.section-title{font-size:22px;font-weight:800;color:#fff;margin-bottom:6px;letter-spacing:-.3px;}
+.section-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.65;}
+/* FORMS */
+.fg{margin-bottom:14px;}
+.fl{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:7px;text-transform:uppercase;letter-spacing:.5px;}
+.fi,.fs{width:100%;background:#111;border:1px solid var(--border);border-radius:12px;padding:14px 16px;color:#fff;font-size:14px;outline:none;appearance:none;-webkit-appearance:none;transition:border-color .2s;font-family:'Sora',sans-serif;}
+.fi:focus,.fs:focus{border-color:#555;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.err-msg{color:var(--red);font-size:12px;margin-top:5px;font-weight:500;}
+/* BUTTONS */
+.btn{width:100%;border:none;border-radius:13px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;display:block;transition:all .2s;font-family:'Sora',sans-serif;}
+.btn-white{background:#fff;color:#000;}
+.btn-white:active{opacity:.85;}
+.btn-outline{background:transparent;color:var(--muted);border:1px solid var(--border);margin-top:10px;}
+.btn-outline:active{border-color:#555;}
+.btn-green-solid{background:#16a34a;color:#fff;}
+/* TABS */
+.auth-tabs{display:flex;gap:4px;background:#111;border:1px solid var(--border);border-radius:13px;padding:4px;margin-bottom:24px;}
+.auth-tab{flex:1;padding:11px;border:none;border-radius:9px;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Sora',sans-serif;}
+.auth-tab.active{background:#fff;color:#000;}
+/* STEP BAR */
+.step-bar{display:flex;align-items:center;margin-bottom:28px;}
+.step-node{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;position:relative;}
+.step-node:not(:last-child)::after{content:'';position:absolute;top:13px;left:50%;width:100%;height:1px;background:var(--border);z-index:0;}
+.step-node.done:not(:last-child)::after{background:#fff;}
+.step-circle{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:#000;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--muted);position:relative;z-index:1;transition:all .3s;}
+.step-circle.active{border-color:#fff;background:#fff;color:#000;}
+.step-circle.done{border-color:#fff;color:#fff;}
+.step-lbl{font-size:9px;color:var(--muted);text-align:center;font-weight:500;}
+.step-lbl.active{color:#fff;font-weight:700;}
+.step-lbl.done{color:#fff;}
+/* CARDS */
+.card{background:#111;border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:12px;}
+.pill-ok{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.2);}
+/* BOTTOM NAV */
+.btm-nav{display:flex;background:#000;border-top:1px solid var(--border);position:sticky;bottom:0;z-index:50;}
+.btm-btn{flex:1;background:none;border:none;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;color:var(--muted);font-family:'Sora',sans-serif;}
+.btm-btn.active{color:#fff;}
+.btm-btn-icon{font-size:20px;}
+.btm-btn-lbl{font-size:9px;font-weight:600;letter-spacing:.3px;}
+/* TRUCK PICKER */
+.truck-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.truck-card{background:#111;border:1px solid var(--border);border-radius:14px;padding:14px;cursor:pointer;transition:all .2s;text-align:center;}
+.truck-card.sel{border-color:#fff;background:#1a1a1a;}
+.truck-card-icon{font-size:28px;margin-bottom:6px;}
+.truck-card-name{font-size:12px;font-weight:700;color:#fff;}
+.truck-card-rate{font-size:11px;color:var(--muted);margin-top:2px;}
+/* ROUTE CARD */
+.route-card{background:#111;border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;}
+.route-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.route-val{font-size:14px;font-weight:700;color:#fff;}
+/* FARE BOX */
+.fare-box{background:#111;border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px;text-align:center;}
+.fare-main{font-size:40px;font-weight:800;color:#fff;letter-spacing:-.5px;}
+.fare-sub{font-size:12px;color:var(--muted);margin-top:4px;}
+.fare-breakdown{margin-top:14px;display:flex;flex-direction:column;gap:8px;}
+.fare-row{display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid var(--border);}
+.fare-row:last-child{border-bottom:none;}
+.fare-key{color:var(--muted);}
+.fare-val{font-weight:700;color:#fff;}
+/* AUTOCOMPLETE */
+.autocomplete-wrap{position:relative;}
+.autocomplete-list{position:absolute;top:100%;left:0;right:0;background:#111;border:1px solid var(--border);border-radius:12px;z-index:200;max-height:200px;overflow-y:auto;margin-top:4px;}
+.autocomplete-item{padding:12px 14px;font-size:13px;color:#fff;cursor:pointer;border-bottom:1px solid var(--border);}
+.autocomplete-item:last-child{border-bottom:none;}
+.autocomplete-item:active{background:#1a1a1a;}
+/* BOOKING CARD */
+.bk-card{background:#111;border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;}
+.bk-route{font-size:14px;font-weight:800;color:#fff;margin-bottom:4px;}
+.bk-meta{font-size:11px;color:var(--muted);margin-bottom:10px;}
+.bk-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:6px 0;border-bottom:1px solid var(--border);}
+.bk-row:last-child{border-bottom:none;}
+.bk-key{color:var(--muted);}
+.bk-val{font-weight:700;color:#fff;}
+/* MAP SCREEN */
+#s-map-screen{position:relative;overflow:hidden;}
+#customer-map{position:absolute;inset:0;z-index:1;}
+.map-top-overlay{position:absolute;top:0;left:0;right:0;z-index:10;background:rgba(0,0,0,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:14px 16px;}
+.map-bottom-sheet{position:absolute;bottom:0;left:0;right:0;z-index:10;background:#000;border-radius:22px 22px 0 0;border-top:1px solid var(--border);padding:20px 16px 32px;max-height:55vh;overflow-y:auto;}
+/* PAYMENT */
+.pay-opts{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.pay-opt{background:#111;border:1px solid var(--border);border-radius:13px;padding:16px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:border-color .2s;}
+.pay-opt.sel{border-color:#fff;}
+.pay-opt-icon{font-size:24px;flex-shrink:0;}
+.pay-opt-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:2px;}
+.pay-opt-sub{font-size:11px;color:var(--muted);}
+/* PROFILE */
+.profile-av{width:64px;height:64px;border-radius:50%;background:#1a1a1a;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#fff;margin:0 auto 12px;}
+/* SUCCESS */
+.success-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 28px;min-height:80vh;text-align:center;}
+.success-ring{width:88px;height:88px;border-radius:50%;background:#1a1a1a;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 24px;animation:popIn .5s cubic-bezier(.34,1.56,.64,1);}
+.suc-title{font-size:26px;font-weight:800;color:#fff;margin-bottom:10px;letter-spacing:-.3px;}
+.suc-sub{font-size:14px;color:var(--muted);line-height:1.75;max-width:300px;margin:0 auto 32px;}
+.vlist{background:#111;border:1px solid var(--border);border-radius:14px;padding:18px 20px;text-align:left;width:100%;max-width:360px;margin:0 auto 24px;}
+.vrow{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.vrow:last-child{border-bottom:none;}
+.vic{font-size:16px;flex-shrink:0;margin-top:2px;}
+.vt{color:var(--muted);}
+.vt strong{color:#fff;display:block;font-size:12px;margin-bottom:2px;font-weight:700;}
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9000;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+.loading-spinner{width:44px;height:44px;border-radius:50%;border:3px solid #222;border-top-color:#fff;animation:spin 1s linear infinite;}
+.loading-text{font-size:14px;font-weight:600;color:var(--muted);}
+/* GOOGLE BTN */
+.btn-google{width:100%;background:#1a1a1a;color:#fff;border:1px solid var(--border);border-radius:13px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:10px;font-family:'Sora',sans-serif;transition:all .2s;}
+.btn-google:active{opacity:.8;}
+.sec-badge{display:flex;align-items:center;gap:6px;background:#111;border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:11px;color:var(--muted);font-weight:600;margin-bottom:14px;}
+/* PASSWORD STRENGTH */
+.pw-strength-bar{height:4px;border-radius:2px;margin-top:6px;background:#222;overflow:hidden;}
+.pw-strength-fill{height:100%;border-radius:2px;transition:width .3s,background .3s;}
+.pw-strength-label{font-size:10px;font-weight:600;margin-top:3px;}
+/* ACTIVE BOOKING TRACKER */
+.active-bk-card{background:linear-gradient(135deg,#111 0%,#1a1a1a 100%);border:1.5px solid #333;border-radius:18px;padding:18px;margin-bottom:18px;}
+.active-bk-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.active-bk-label{font-size:10px;font-weight:700;letter-spacing:1.5px;color:#4ade80;text-transform:uppercase;}
+.active-bk-status-pill{font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;}
+.status-accepted{background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.3);}
+.status-in_progress{background:rgba(96,165,250,.15);color:#60a5fa;border:1px solid rgba(96,165,250,.3);}
+.status-pending{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2);}
+.active-bk-route{font-size:16px;font-weight:800;color:#fff;margin-bottom:3px;}
+.active-bk-meta{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:14px;}
+.active-bk-driver{display:flex;align-items:center;gap:12px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:12px;}
+.active-bk-driver-av{width:38px;height:38px;border-radius:50%;background:#222;border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0;}
+.active-bk-driver-name{font-size:13px;font-weight:700;color:#fff;margin-bottom:2px;}
+.active-bk-driver-truck{font-size:11px;color:rgba(255,255,255,.4);}
+.active-bk-finding{display:flex;align-items:center;gap:10px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:12px;}
+.finding-dot{width:8px;height:8px;border-radius:50%;background:#fbbf24;animation:blink 1.2s ease infinite;flex-shrink:0;}
+.finding-text{font-size:12px;color:rgba(255,255,255,.5);font-weight:600;}
+.active-bk-steps{display:flex;align-items:center;gap:0;margin-top:14px;}
+.trip-step{display:flex;align-items:center;gap:6px;flex:1;}
+.trip-step-dot{width:18px;height:18px;border-radius:50%;border:2px solid #333;background:#111;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;}
+.trip-step-dot.done{background:#4ade80;border-color:#4ade80;color:#000;}
+.trip-step-dot.active{background:#fff;border-color:#fff;color:#000;}
+.trip-step-label{font-size:9px;font-weight:600;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;}
+.trip-step-label.active{color:#fff;}
+.trip-step-label.done{color:#4ade80;}
+.trip-step-line{flex:1;height:1px;background:#222;margin:0 4px;}
+.trip-step-line.done{background:#4ade80;}
+/* CANCEL BUTTON */
+.cancel-bk-btn{width:100%;margin-top:14px;background:transparent;border:1px solid rgba(248,113,113,.3);border-radius:12px;padding:13px;color:#f87171;font-size:13px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;transition:all .2s;}
+.cancel-bk-btn:active{background:rgba(248,113,113,.08);}
+/* RATING MODAL */
+.rating-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:8000;display:none;align-items:flex-end;}
+.rating-overlay.show{display:flex;}
+.rating-box{background:#111;border:1px solid #222;border-radius:22px 22px 0 0;padding:28px 24px 40px;width:100%;animation:slideUp .3s ease;}
+.rating-title{font-size:20px;font-weight:800;color:#fff;margin-bottom:6px;}
+.rating-sub{font-size:13px;color:#666;margin-bottom:24px;}
+.stars-wrap{display:flex;justify-content:center;gap:12px;margin-bottom:24px;}
+.star-btn{font-size:36px;background:none;border:none;cursor:pointer;opacity:.3;transition:all .2s;line-height:1;}
+.star-btn.lit{opacity:1;}
+.rating-submit{width:100%;background:#fff;color:#000;border:none;border-radius:13px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;}
+.rating-skip{width:100%;background:transparent;color:#555;border:none;padding:14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;margin-top:6px;}
+/* HISTORY SCREEN */
+#s-history .screen-body{padding:20px;}
+.hist-empty{text-align:center;padding:48px 20px;color:var(--muted);}
+</style>
+<script src="https://accounts.google.com/gsi/client" async></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD0dRuRqbsJr0-Kv29xcpQGjW-1DiYPNLo&libraries=places" async defer></script>
+</head>
+<body>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, getRedirectResult, signInWithCredential, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey:"AIzaSyD0dRuRqbsJr0-Kv29xcpQGjW-1DiYPNLo",
+  authDomain:"truck-connect-c0c67.firebaseapp.com",
+  projectId:"truck-connect-c0c67",
+  storageBucket:"truck-connect-c0c67.firebasestorage.app",
+  messagingSenderId:"313065662016",
+  appId:"1:313065662016:web:a43aecfce5d7db205d61a5"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+window._FB = {auth,db,createUserWithEmailAndPassword,signInWithEmailAndPassword,signInWithPopup,signInWithRedirect,getRedirectResult,signInWithCredential,GoogleAuthProvider,signOut,onAuthStateChanged,doc,setDoc,getDoc,collection,addDoc,getDocs,query,where,onSnapshot,updateDoc};
+</script>
+
+<div class="loading-overlay" id="loading-overlay" style="display:flex;">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Loading TruckConnect...</div>
+</div>
+
+<!-- LANDING -->
+<div id="s-landing" class="screen active">
+  <div class="land-inner">
+    <div class="land-badge"><div class="land-dot"></div> Live in South Africa</div>
+    <div class="land-icon">📦</div>
+    <h1 class="land-title">Move<br/><em>Anything.</em></h1>
+    <p class="land-sub">Book a truck in minutes. Transparent pricing, real-time tracking, nationwide coverage.</p>
+    <div class="land-actions">
+      <button class="btn-land-p" id="btn-signup-land">Book a Truck →</button>
+      <button class="btn-land-s" id="btn-signin-land">Already have an account? Sign In</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- AUTH -->
+<div id="s-auth" class="screen">
+  <div class="topnav">
+    <button class="back-btn" id="auth-back">←</button>
+    <div class="nav-logo">Truck<span>Connect</span></div>
+    <div class="nav-badge">CUSTOMER</div>
+  </div>
+  <div class="screen-body">
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-signup">Sign Up</button>
+      <button class="auth-tab" id="tab-signin">Sign In</button>
+    </div>
+    <div id="signup-wrap">
+      <div id="c-stepbar" class="step-bar"></div>
+      <div id="c-step-body"></div>
+    </div>
+    <div id="signin-wrap" style="display:none;">
+      <div class="section-title">Welcome Back</div>
+      <div class="section-sub">Sign in to your account to book trucks.</div>
+      <div class="sec-badge">🔒 Secured with AES-256 encryption · POPIA compliant</div>
+      <div class="fg"><span class="fl">Email</span><input class="fi" id="si-email" type="email" placeholder="your@email.com"/><div class="err-msg" id="si-email-err" style="display:none;"></div></div>
+      <div class="fg"><span class="fl">Password</span><input class="fi" id="si-pass" type="password" placeholder="Your password"/><div class="err-msg" id="si-pass-err" style="display:none;"></div></div>
+      <div class="err-msg" id="si-err" style="display:none;margin-bottom:8px;"></div>
+      <button class="btn btn-white" id="signin-btn">Sign In →</button>
+      <div style="text-align:center;color:var(--muted);font-size:12px;font-weight:600;margin:14px 0;">— or sign in with —</div>
+      <button class="btn-google" id="google-signin-btn"><svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.174 0 7.548 0 9s.348 2.826.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/></svg> Sign in with Google</button>
+      <button class="btn btn-outline" id="goto-signup-btn">Don't have an account? Sign Up</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN HOME -->
+<div id="s-home" class="screen" style="position:relative;overflow:hidden;">
+  <!-- Full screen map -->
+  <div id="home-map" style="position:absolute;inset:0;z-index:1;"></div>
+
+  <!-- Top bar -->
+  <div style="position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;">
+    <button style="width:40px;height:40px;background:#fff;border:none;border-radius:50%;font-size:18px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center;" onclick="switchTab2('profile')">☰</button>
+    <!-- 2D / 3D toggle -->
+    <div style="background:#fff;border-radius:20px;display:flex;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.15);">
+      <button id="map-2d-btn" onclick="setMapView('2d')" style="padding:7px 14px;border:none;background:transparent;font-size:12px;font-weight:700;color:#888;cursor:pointer;font-family:'Sora',sans-serif;">2D</button>
+      <button id="map-3d-btn" onclick="setMapView('3d')" style="padding:7px 14px;border:none;background:#111;color:#fff;font-size:12px;font-weight:700;cursor:pointer;border-radius:20px;font-family:'Sora',sans-serif;">3D</button>
+    </div>
+    <button style="width:40px;height:40px;background:#fff;border:none;border-radius:50%;font-size:18px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center;" id="home-locate-btn">📍</button>
+  </div>
+
+  <!-- Bottom sheet -->
+  <div style="position:absolute;bottom:0;left:0;right:0;z-index:10;background:#fff;border-radius:22px 22px 0 0;padding:16px 16px 32px;">
+    <!-- ACTIVE BOOKING TRACKER (real-time) -->
+    <div id="active-bk-wrap" style="display:none;margin-bottom:14px;"></div>
+    <!-- Truck type picker -->
+    <div style="display:flex;gap:10px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px;">
+      <div id="htt-small" onclick="selectHomeTruck('small')" style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;background:#f0f0f0;border:2px solid #e0e0e0;border-radius:14px;padding:10px 14px;cursor:pointer;min-width:72px;transition:all .2s;">
+        <span style="font-size:26px;">🚐</span>
+        <span style="font-size:11px;font-weight:700;color:#111;">Small</span>
+      </div>
+      <div id="htt-medium" onclick="selectHomeTruck('medium')" style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;background:#f0f0f0;border:2px solid #e0e0e0;border-radius:14px;padding:10px 14px;cursor:pointer;min-width:72px;transition:all .2s;">
+        <span style="font-size:26px;">🚛</span>
+        <span style="font-size:11px;font-weight:700;color:#111;">Medium</span>
+      </div>
+      <div id="htt-large" onclick="selectHomeTruck('large')" style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;background:#f0f0f0;border:2px solid #e0e0e0;border-radius:14px;padding:10px 14px;cursor:pointer;min-width:72px;transition:all .2s;">
+        <span style="font-size:26px;">🚚</span>
+        <span style="font-size:11px;font-weight:700;color:#111;">Large</span>
+      </div>
+    </div>
+    <!-- Where to search bar -->
+    <div style="position:relative;">
+      <div style="display:flex;align-items:center;background:#f5f5f5;border:1.5px solid #e0e0e0;border-radius:14px;padding:14px 16px;gap:10px;cursor:pointer;" onclick="switchTab2('book')">
+        <span style="font-size:18px;color:#888;">🔍</span>
+        <span style="font-size:15px;color:#888;font-weight:500;">Where to & for how much?</span>
+      </div>
+    </div>
+    <!-- Bottom nav -->
+    <div style="display:flex;margin-top:14px;border-top:1px solid #f0f0f0;padding-top:10px;">
+      <button class="btm-btn active" id="btm-home" onclick="switchTab2('home')" style="color:#111;"><div class="btm-btn-icon">🏠</div><div class="btm-btn-lbl">Home</div></button>
+      <button class="btm-btn" id="btm-book" onclick="switchTab2('book')"><div class="btm-btn-icon">📦</div><div class="btm-btn-lbl">Book</div></button>
+      <button class="btm-btn" id="btm-history" onclick="switchTab2('history')"><div class="btm-btn-icon">📋</div><div class="btm-btn-lbl">History</div></button>
+      <button class="btm-btn" id="btm-profile" onclick="switchTab2('profile')"><div class="btm-btn-icon">👤</div><div class="btm-btn-lbl">Profile</div></button>
+    </div>
+  </div>
+</div>
+
+<!-- BOOK SCREEN -->
+<div id="s-book" class="screen" style="display:none;flex-direction:column;">
+  <div class="topnav" style="background:#000;border-bottom:1px solid #1a1a1a;">
+    <button class="back-btn" id="book-back" style="background:#1a1a1a;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;border:none;cursor:pointer;">←</button>
+    <div style="font-size:17px;font-weight:800;color:#fff;">Book a Truck</div>
+    <div style="width:36px;"></div>
+  </div>
+  <div class="screen-body">
+    <div style="font-size:13px;color:var(--muted);margin-bottom:22px;">Enter any address — home, school, business, anywhere in South Africa</div>
+    <div class="fg autocomplete-wrap">
+      <span class="fl">Pickup Location</span>
+      <input class="fi" id="b-from" placeholder="e.g. 103 Risi Avenue, Tshwane" autocomplete="off"/>
+      <div class="autocomplete-list" id="b-from-list" style="display:none;"></div>
+    </div>
+    <div class="fg autocomplete-wrap">
+      <span class="fl">Drop-off Location</span>
+      <input class="fi" id="b-to" placeholder="e.g. 45 Main Street, Cape Town" autocomplete="off"/>
+      <div class="autocomplete-list" id="b-to-list" style="display:none;"></div>
+    </div>
+    <div class="err-msg" id="b-loc-err" style="display:none;margin-bottom:8px;"></div>
+    <button class="btn btn-white" id="b-calc-btn" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:4px;margin-bottom:24px;">📍 Calculate Route &amp; Fare</button>
+    <div class="fg">
+      <span class="fl">Truck Type</span>
+      <select class="fs" id="b-truck-sel">
+        <option value="">Select truck type...</option>
+        <option value="1ton|1 Ton Bakkie|12">1 Ton Bakkie — R12/km</option>
+        <option value="3ton|3 Ton Truck|18">3 Ton Truck — R18/km</option>
+        <option value="5ton|5 Ton Truck|24">5 Ton Truck — R24/km</option>
+        <option value="8ton|8 Ton Truck|30">8 Ton Truck — R30/km</option>
+        <option value="14ton|14 Ton Rigid|42">14 Ton Rigid — R42/km</option>
+        <option value="34ton|34 Ton Semi|65">34 Ton Semi — R65/km</option>
+      </select>
+    </div>
+    <div class="frow">
+      <div class="fg">
+        <span class="fl">Cargo Type</span>
+        <select class="fs" id="b-cargo">
+          <option value="">Select...</option>
+          <option>General Freight</option>
+          <option>Furniture &amp; Household</option>
+          <option>Building Materials</option>
+          <option>Food &amp; Perishables</option>
+          <option>Automotive Parts</option>
+          <option>Machinery</option>
+          <option>Electronics</option>
+          <option>Agricultural Goods</option>
+          <option>Hazardous Materials</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="fg">
+        <span class="fl">Weight (Tons)</span>
+        <input class="fi" id="b-weight-num" type="number" placeholder="e.g. 5" min="0.1" step="0.1"/>
+      </div>
+    </div>
+    <div class="fg">
+      <span class="fl">Pickup Date</span>
+      <input class="fi" id="b-date" type="date"/>
+    </div>
+    <div class="fg">
+      <span class="fl">Special Instructions</span>
+      <textarea class="fi" id="b-notes" placeholder="Fragile items, loading dock..." style="resize:none;height:80px;"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- MAP SCREEN -->
+<div id="s-map-screen" class="screen">
+  <div class="map-top-overlay">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <button class="back-btn" id="map-back">←</button>
+      <div style="font-size:14px;font-weight:700;color:#fff;" id="map-title">Route Preview</div>
+      <div style="width:36px;"></div>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px;">
+      <div style="flex:1;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;padding:10px 12px;">
+        <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">FROM</div>
+        <div style="font-size:12px;font-weight:700;color:#fff;" id="map-from-lbl">—</div>
+      </div>
+      <div style="display:flex;align-items:center;color:var(--muted);font-size:18px;">→</div>
+      <div style="flex:1;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;padding:10px 12px;">
+        <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">TO</div>
+        <div style="font-size:12px;font-weight:700;color:#fff;" id="map-to-lbl">—</div>
+      </div>
+    </div>
+  </div>
+  <div id="customer-map" style="position:absolute;inset:0;z-index:1;"></div>
+  <div class="map-bottom-sheet">
+    <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px;">Estimated Fare</div>
+    <div class="fare-box">
+      <div class="fare-main" id="fare-main">R—</div>
+      <div class="fare-sub" id="fare-sub">Calculating...</div>
+      <div class="fare-breakdown">
+        <div class="fare-row"><span class="fare-key">Distance</span><span class="fare-val" id="fare-dist">—</span></div>
+        <div class="fare-row"><span class="fare-key">Truck Type</span><span class="fare-val" id="fare-truck-lbl">—</span></div>
+        <div class="fare-row"><span class="fare-key">Rate</span><span class="fare-val" id="fare-rate">—</span></div>
+        <div class="fare-row"><span class="fare-key">Est. Duration</span><span class="fare-val" id="fare-duration">—</span></div>
+      </div>
+    </div>
+    <button class="btn btn-white" id="proceed-pay-btn">Proceed to Payment →</button>
+    <button class="btn btn-outline" id="map-change-btn">← Change Details</button>
+  </div>
+</div>
+
+<!-- PAYMENT SCREEN -->
+<div id="s-payment" class="screen">
+  <div class="topnav">
+    <button class="back-btn" id="pay-back">←</button>
+    <div class="nav-logo">Payment</div>
+    <div class="nav-badge">SECURE</div>
+  </div>
+  <div class="screen-body">
+    <div class="section-title">Choose Payment</div>
+    <div class="section-sub">All payments are processed securely.</div>
+    <div class="route-card">
+      <div class="route-label">Your Route</div>
+      <div class="route-val" id="pay-route">— → —</div>
+      <div style="margin-top:8px;display:flex;justify-content:space-between;font-size:12px;color:var(--muted);">
+        <span id="pay-truck-lbl">—</span>
+        <span style="font-size:16px;font-weight:800;color:#fff;" id="pay-amount">R—</span>
+      </div>
+    </div>
+    <div class="pay-opts">
+      <div class="pay-opt sel" id="popt-eft" onclick="selPay('eft')">
+        <div class="pay-opt-icon">🏦</div>
+        <div><div class="pay-opt-title">Manual EFT</div><div class="pay-opt-sub">Bank transfer — verify with proof</div></div>
+      </div>
+      <div class="pay-opt" id="popt-cash" onclick="selPay('cash')">
+        <div class="pay-opt-icon">💵</div>
+        <div><div class="pay-opt-title">Pay on Delivery</div><div class="pay-opt-sub">Cash payment to driver</div></div>
+      </div>
+    </div>
+    <!-- EFT DETAILS -->
+    <div id="eft-details" style="display:none;background:#111;border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:12px;">FNB Business Account</div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;padding:8px 0;border-bottom:1px solid var(--border);"><span style="color:var(--muted);">Account Name</span><span style="color:#fff;font-weight:700;">TruckConnect (Pty) Ltd</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;padding:8px 0;border-bottom:1px solid var(--border);"><span style="color:var(--muted);">Account Number</span><span style="color:#fff;font-weight:700;">62812345678</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;padding:8px 0;border-bottom:1px solid var(--border);"><span style="color:var(--muted);">Branch Code</span><span style="color:#fff;font-weight:700;">250655</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;padding:8px 0;"><span style="color:var(--muted);">Reference</span><span style="color:#4ade80;font-weight:700;" id="eft-ref">TC-—</span></div>
+      <div style="margin-top:12px;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.15);border-radius:10px;padding:10px;font-size:12px;color:#4ade80;">📧 Email proof of payment to payments@truckconnect.co.za</div>
+    </div>
+    <button class="btn btn-white" id="confirm-pay-btn">Confirm Booking →</button>
+  </div>
+</div>
+
+<!-- BOOKING SUCCESS -->
+<div id="s-book-success" class="screen">
+  <div class="topnav">
+    <div class="nav-logo">Truck<span>Connect</span></div>
+    <div></div>
+  </div>
+  <div class="success-wrap">
+    <div class="success-ring">✅</div>
+    <div class="suc-title">Booking Confirmed!</div>
+    <div class="suc-sub">Your load has been posted. A driver will accept shortly.</div>
+    <div class="vlist">
+      <div class="vrow"><span class="vic">📦</span><div class="vt"><strong>Booking ID</strong><span id="suc-bk-id">—</span></div></div>
+      <div class="vrow"><span class="vic">🚛</span><div class="vt"><strong>Route</strong><span id="suc-route">—</span></div></div>
+      <div class="vrow"><span class="vic">💰</span><div class="vt"><strong>Amount</strong><span id="suc-amount">—</span></div></div>
+      <div class="vrow"><span class="vic">💳</span><div class="vt"><strong>Payment</strong><span id="suc-pay-method">—</span></div></div>
+    </div>
+    <button class="btn btn-white" style="max-width:320px;width:100%;" id="suc-home-btn">Back to Home →</button>
+  </div>
+</div>
+
+<!-- TRACK SCREEN -->
+<div id="s-track" class="screen" style="display:none;">
+  <div class="topnav">
+    <button class="back-btn" id="track-back">←</button>
+    <div class="nav-logo">Track <span>Delivery</span></div>
+    <div></div>
+  </div>
+  <div class="screen-body">
+    <div class="section-title">Track Your Load</div>
+    <div class="section-sub">Enter your booking ID or sign in to see live status.</div>
+    <div class="fg"><span class="fl">Booking ID</span><input class="fi" id="track-id-input" placeholder="e.g. BK-20240001"/></div>
+    <button class="btn btn-white" id="track-btn">Track Now →</button>
+    <div id="track-result" style="display:none;margin-top:20px;"></div>
+  </div>
+</div>
+
+<!-- HISTORY SCREEN -->
+<div id="s-history" class="screen" style="display:none;">
+  <div class="topnav">
+    <button class="back-btn" id="history-back">←</button>
+    <div class="nav-logo">Booking <span>History</span></div>
+    <div class="nav-badge">ALL TRIPS</div>
+  </div>
+  <div class="screen-body">
+    <div class="section-title">Your Trips</div>
+    <div class="section-sub">All your past and current bookings.</div>
+    <div id="history-list"><div class="hist-empty"><div style="font-size:36px;opacity:.3;margin-bottom:12px;">📋</div><div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px;">No trips yet</div><div style="font-size:12px;">Your completed trips will appear here.</div></div></div>
+  </div>
+</div>
+
+<!-- RATING MODAL -->
+<div class="rating-overlay" id="rating-overlay">
+  <div class="rating-box">
+    <div class="rating-title">Rate Your Driver</div>
+    <div class="rating-sub" id="rating-driver-name">How was your experience?</div>
+    <div class="stars-wrap" id="stars-wrap">
+      <button class="star-btn" data-star="1">⭐</button>
+      <button class="star-btn" data-star="2">⭐</button>
+      <button class="star-btn" data-star="3">⭐</button>
+      <button class="star-btn" data-star="4">⭐</button>
+      <button class="star-btn" data-star="5">⭐</button>
+    </div>
+    <button class="rating-submit" id="rating-submit-btn">Submit Rating →</button>
+    <button class="rating-skip" id="rating-skip-btn">Skip for now</button>
+  </div>
+</div>
+
+<!-- PROFILE SCREEN -->
+<div id="s-profile" class="screen" style="display:none;">
+  <div class="topnav">
+    <button class="back-btn" id="profile-back">←</button>
+    <div class="nav-logo">My <span>Profile</span></div>
+    <div></div>
+  </div>
+  <div class="screen-body">
+    <div style="text-align:center;margin-bottom:24px;">
+      <div class="profile-av" id="prof-av">C</div>
+      <div style="font-size:18px;font-weight:800;color:#fff;" id="prof-name">—</div>
+      <div style="font-size:13px;color:var(--muted);" id="prof-email">—</div>
+      <div style="display:inline-block;background:rgba(74,222,128,.1);color:#4ade80;font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;margin-top:8px;border:1px solid rgba(74,222,128,.2);">✓ Verified Customer</div>
+    </div>
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;">Account Details</div>
+      <div class="bk-row"><span class="bk-key">Full Name</span><span class="bk-val" id="prof-name2">—</span></div>
+      <div class="bk-row"><span class="bk-key">Email</span><span class="bk-val" id="prof-email2">—</span></div>
+      <div class="bk-row"><span class="bk-key">Phone</span><span class="bk-val" id="prof-phone">—</span></div>
+      <div class="bk-row"><span class="bk-key">SA ID</span><span class="bk-val">✓ Verified</span></div>
+    </div>
+    <div style="font-size:13px;font-weight:800;color:#fff;margin:20px 0 10px;letter-spacing:-.2px;">My Bookings</div>
+    <div id="home-bookings-list"><div style="text-align:center;padding:32px 20px;color:var(--muted);"><div style="font-size:32px;margin-bottom:10px;opacity:.3;">📦</div><div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px;">No bookings yet</div><div style="font-size:12px;">Book your first truck above.</div></div></div>
+    <button class="btn btn-outline" id="prof-signout-btn">Sign Out</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+<script>if(typeof maplibregl!=='undefined'){var mapboxgl=maplibregl;}else{console.error('MapLibre failed to load');}</script>
+<script>
+(function(){
+'use strict';
+var MB="Yo1KH6rbp81TFmF2VR9MTunQo56QVtbPQCLwq4bOEzxTOr3peEZixPnaZBJZTYpb";
+var GMKEY='AIzaSyD0dRuRqbsJr0-Kv29xcpQGjW-1DiYPNLo';
+var TRUCKS=[{v:"1ton",l:"1 Ton Bakkie",icon:"🚐",r:12},{v:"3ton",l:"3 Ton Truck",icon:"🚛",r:18},{v:"5ton",l:"5 Ton Truck",icon:"🚛",r:24},{v:"8ton",l:"8 Ton Truck",icon:"🚚",r:30},{v:"14ton",l:"14 Ton Rigid",icon:"🚚",r:42},{v:"34ton",l:"34 Ton Semi",icon:"🚛",r:65}];
+var CARGO_TYPES=["General Freight","Furniture & Household","Building Materials","Food & Perishables","Automotive Parts","Machinery","Electronics","Agricultural Goods","Hazardous Materials","Other"];
+
+var cData={},bookData={},currentUid=null,myBookings=[],customerMap=null;
+var selPayMethod='eft',bookStep=0;
+var fromCoords=null,toCoords=null,pendingFare=0,pendingDist='';
+var _bookingsUnsub=null; // real-time listener for bookings
+
+function $(id){return document.getElementById(id);}
+function txt(id,t){if($(id))$(id).textContent=t;}
+function html(id,h){if($(id))$(id).innerHTML=h;}
+function val(id){return $(id)?$(id).value:'';}
+function on(id,ev,fn){var el=$(id);if(el)el.addEventListener(ev,fn);}
+function goTo(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');s.style.display='none';});var s=$(id);if(s){s.style.display='flex';s.classList.add('active');s.scrollTop=0;}}
+function showLoading(){$('loading-overlay').style.display='flex';}
+function hideLoading(){$('loading-overlay').style.display='none';}
+
+function stepBar(steps,cur){
+  var el=$('c-stepbar');if(!el)return;
+  el.innerHTML=steps.map(function(s,i){
+    return'<div class="step-node'+(i<cur?' done':'')+'"><div class="step-circle'+(i===cur?' active':i<cur?' done':'')+'">'+( i<cur?'✓':i+1)+'</div><div class="step-lbl'+(i===cur?' active':i<cur?' done':'')+'">'+s+'</div></div>';
+  }).join('');
+}
+
+function renderSignupStep(){
+  stepBar(['Info','ID'],bookStep);
+  var body=$('c-step-body');if(!body)return;
+  if(bookStep===0){
+    body.innerHTML='<div class="section-title">Create Account</div><div class="section-sub">Book trucks across South Africa.</div>'+
+      '<div class="sec-badge">🔒 Your data is AES-256 encrypted · POPIA compliant</div>'+
+      '<div class="fg"><span class="fl">Full Name</span><input class="fi" id="c-name" placeholder="Your full name"/><div class="err-msg" id="c-en" style="display:none;"></div></div>'+
+      '<div class="fg"><span class="fl">Email</span><input class="fi" id="c-email" type="email" placeholder="your@email.com"/><div class="err-msg" id="c-ee" style="display:none;"></div></div>'+
+      '<div class="fg"><span class="fl">Phone</span><input class="fi" id="c-phone" type="tel" placeholder="e.g. 082 123 4567"/><div class="err-msg" id="c-ep" style="display:none;"></div></div>'+
+      '<div class="fg"><span class="fl">Password</span><input class="fi" id="c-pass" type="password" placeholder="Min 6 characters" oninput="window._cPwStrength(this.value)"/>'+
+        '<div class="pw-strength-bar"><div class="pw-strength-fill" id="c-pw-fill" style="width:0%;background:#333;"></div></div>'+
+        '<div class="pw-strength-label" id="c-pw-lbl" style="color:var(--muted);"></div>'+
+        '<div class="err-msg" id="c-ew" style="display:none;"></div></div>'+
+      '<button class="btn btn-white" id="c-next-btn">Continue →</button>'+
+      '<div style="text-align:center;color:var(--muted);font-size:12px;font-weight:600;margin:14px 0;">— or sign up with —</div>'+
+      '<button class="btn-google" id="google-signup-btn"><svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.174 0 7.548 0 9s.348 2.826.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/></svg> Sign up with Google</button>';
+    window._cPwStrength=function(pw){
+      var fill=document.getElementById('c-pw-fill'),lbl=document.getElementById('c-pw-lbl');if(!fill||!lbl)return;
+      var score=0;if(pw.length>=6)score++;if(pw.length>=10)score++;if(/[A-Z]/.test(pw))score++;if(/[0-9]/.test(pw))score++;if(/[^A-Za-z0-9]/.test(pw))score++;
+      var pct=[0,20,45,70,88,100][score];
+      var colors=['#333','#ef4444','#f97316','#eab308','#22c55e','#4ade80'][score];
+      var labels=['','Weak','Fair','Good','Strong','Very Strong'][score];
+      fill.style.width=pct+'%';fill.style.background=colors;lbl.textContent=labels;lbl.style.color=colors;
+    };
+    // Use event delegation on step body for ALL buttons — prevents lost listeners on re-render
+    var stepBody=document.getElementById('c-step-body');
+    if(stepBody){
+      stepBody.addEventListener('click',function(e){
+        if(e.target.closest('#c-next-btn'))cNext();
+        if(e.target.closest('#google-signup-btn'))handleGoogleAuth('signup');
+      });
+    }
+  } else if(bookStep===1){
+    body.innerHTML='<div class="section-title">Verify Identity</div><div class="section-sub">Choose your document type to verify your identity.</div>'+
+      '<div class="fg">'+
+        '<span class="fl">Document Type</span>'+
+        '<div style="display:flex;gap:10px;margin-bottom:4px;">'+
+          '<button id="doc-sa-btn" onclick="selectDocType(\'sa\')" style="flex:1;padding:11px;background:#1c1c1e;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:\'Sora\',sans-serif;">🪪 SA ID</button>'+
+          '<button id="doc-pp-btn" onclick="selectDocType(\'passport\')" style="flex:1;padding:11px;background:#f0f0f0;color:#888;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:\'Sora\',sans-serif;">🛂 Passport</button>'+
+        '</div>'+
+      '</div>'+
+      '<div id="sa-id-field" class="fg">'+
+        '<span class="fl">SA ID Number</span>'+
+        '<input class="fi" id="c-idnum" type="tel" placeholder="13-digit SA ID number" maxlength="13" oninput="validateSAID()"/>'+
+        '<div id="said-status" style="font-size:11px;margin-top:4px;display:none;"></div>'+
+        '<div class="err-msg" id="c-eid" style="display:none;"></div>'+
+      '</div>'+
+      '<div id="passport-field" class="fg" style="display:none;">'+
+        '<span class="fl">Passport Number</span>'+
+        '<input class="fi" id="c-passport" type="text" placeholder="e.g. A12345678" maxlength="20" oninput="validatePassport()" style="text-transform:uppercase;"/>'+
+        '<div id="pp-status" style="font-size:11px;margin-top:4px;display:none;"></div>'+
+        '<div class="err-msg" id="c-eppt" style="display:none;"></div>'+
+        '<div class="fg" style="margin-top:10px;">'+
+          '<span class="fl">Country of Issue</span>'+
+          '<select class="fs" id="c-pp-country">'+
+            '<option value="">Select country...</option>'+
+            '<option value="ZA">South Africa</option>'+
+            '<option value="ZW">Zimbabwe</option>'+
+            '<option value="ZM">Zambia</option>'+
+            '<option value="MZ">Mozambique</option>'+
+            '<option value="BW">Botswana</option>'+
+            '<option value="NA">Namibia</option>'+
+            '<option value="LS">Lesotho</option>'+
+            '<option value="SZ">Eswatini</option>'+
+            '<option value="MW">Malawi</option>'+
+            '<option value="OTHER">Other</option>'+
+          '</select>'+
+        '</div>'+
+      '</div>'+
+      '<div class="err-msg" id="c-reg-err" style="display:none;margin-bottom:8px;"></div>'+
+      '<button class="btn btn-white" id="c-next-btn">Create Account →</button>'+
+      '<button class="btn btn-outline" id="c-back-btn">← Back</button>';
+    // Inject validation functions
+    window.selectDocType=function(t){
+      var saBtn=$('doc-sa-btn'),ppBtn=$('doc-pp-btn');
+      var saField=$('sa-id-field'),ppField=$('passport-field');
+      if(t==='sa'){
+        saBtn.style.background='#1c1c1e';saBtn.style.color='#fff';
+        ppBtn.style.background='#f0f0f0';ppBtn.style.color='#888';
+        saField.style.display='block';ppField.style.display='none';
+        window._docType='sa';
+      }else{
+        ppBtn.style.background='#1c1c1e';ppBtn.style.color='#fff';
+        saBtn.style.background='#f0f0f0';saBtn.style.color='#888';
+        ppField.style.display='block';saField.style.display='none';
+        window._docType='passport';
+      }
+    };
+    window._docType='sa';
+    window.validateSAID=function(){
+      var id=val('c-idnum').replace(/\D/g,'');
+      var st=$('said-status');if(!st)return;
+      if(id.length<13){st.style.display='none';return;}
+      // SA ID checksum (Luhn algorithm)
+      var valid=validateSAIDChecksum(id);
+      st.style.display='block';
+      if(valid){
+        // Extract info from SA ID
+        var dob=id.substring(0,6);
+        var year=parseInt(dob.substring(0,2));
+        var fullYear=(year>parseInt(new Date().getFullYear().toString().substring(2,4)))?'19'+year:'20'+year;
+        var month=dob.substring(2,4);var day=dob.substring(4,6);
+        var gender=parseInt(id.substring(6,10))>=5000?'Male':'Female';
+        var citizen=id[10]==='0'?'SA Citizen':'Permanent Resident';
+        st.innerHTML='✅ <span style="color:#16a34a;font-weight:700;">Valid SA ID</span> · Born '+day+'/'+month+'/'+fullYear+' · '+gender+' · '+citizen;
+      }else{
+        st.innerHTML='❌ <span style="color:#dc2626;font-weight:700;">Invalid SA ID number</span> — please check and re-enter';
+      }
+    };
+    window.validatePassport=function(){
+      var pp=(val('c-passport')||'').trim().toUpperCase();
+      var st=$('pp-status');if(!st)return;
+      if(pp.length<6){st.style.display='none';return;}
+      st.style.display='block';
+      // Passport format: 1-2 letters followed by 6-8 digits (international standard)
+      var valid=/^[A-Z]{1,2}[0-9]{6,8}$/.test(pp);
+      if(valid){
+        st.innerHTML='✅ <span style="color:#16a34a;font-weight:700;">Valid passport format</span>';
+      }else{
+        st.innerHTML='❌ <span style="color:#dc2626;font-weight:700;">Invalid format</span> — should be 1-2 letters followed by 6-8 digits (e.g. A12345678)';
+      }
+    };
+    function validateSAIDChecksum(id){
+      if(id.length!==13||!/^\d+$/.test(id))return false;
+      // Luhn check
+      var sum=0;
+      for(var i=0;i<12;i++){
+        var d=parseInt(id[i]);
+        if(i%2===0){sum+=d;}
+        else{var x=d*2;sum+=x>9?x-9:x;}
+      }
+      var check=(10-(sum%10))%10;
+      return check===parseInt(id[12]);
+    }
+    // Event delegation for step 1 buttons
+    var stepBody1=document.getElementById('c-step-body');
+    if(stepBody1){
+      stepBody1.addEventListener('click',function(e){
+        if(e.target.closest('#c-next-btn'))cNext();
+        if(e.target.closest('#c-back-btn')){bookStep=0;renderSignupStep();}
+      });
+    }
+  }
+}
+
+function se(id,msg,show){var el=$(id);if(!el)return;el.textContent='⚠ '+msg;el.style.display=show?'block':'none';}
+
+function cNext(){
+  if(bookStep===0){
+    var n=val('c-name').trim(),e=val('c-email').trim(),p=val('c-phone').trim(),w=val('c-pass');
+    var ok=true;
+    se('c-en','Full name required',!n);if(!n)ok=false;
+    se('c-ee','Valid email required',!e.includes('@'));if(!e.includes('@'))ok=false;
+    se('c-ep','Valid phone required',p.replace(/\D/g,'').length<10);if(p.replace(/\D/g,'').length<10)ok=false;
+    se('c-ew','Min 6 characters',w.length<6);if(w.length<6)ok=false;
+    if(!ok)return;
+    cData={name:n,email:e,phone:p,password:w};bookStep=1;renderSignupStep();
+  } else if(bookStep===1){
+    var docType=window._docType||'sa';
+    if(docType==='sa'){
+      var id=val('c-idnum').replace(/\D/g,'');
+      if(id.length!==13){se('c-eid','13-digit SA ID required',true);return;}
+      // Luhn checksum
+      var sum=0;
+      for(var i=0;i<12;i++){var d=parseInt(id[i]);if(i%2===0){sum+=d;}else{var x=d*2;sum+=x>9?x-9:x;}}
+      var chk=(10-(sum%10))%10;
+      if(chk!==parseInt(id[12])){se('c-eid','Invalid SA ID number — please check',true);return;}
+      cData.idNumber=id;cData.idType='SA ID';
+    }else{
+      var pp=(val('c-passport')||'').trim().toUpperCase();
+      var country=val('c-pp-country');
+      if(!pp){se('c-eppt','Passport number required',true);return;}
+      if(!/^[A-Z]{1,2}[0-9]{6,8}$/.test(pp)){se('c-eppt','Invalid format — e.g. A12345678',true);return;}
+      if(!country){se('c-eppt','Please select country of issue',true);return;}
+      cData.idNumber=pp;cData.idType='Passport';cData.passportCountry=country;
+    }
+    var btn=$('c-next-btn');btn.disabled=true;btn.textContent='Creating Account...';
+    var FB=window._FB;
+
+    function saveCustDoc(uid){
+      var docData={uid:uid,id:'CUS-'+Date.now(),name:cData.name,email:cData.email,phone:cData.phone,idNumber:cData.idNumber,idType:cData.idType||'SA ID',passportCountry:cData.passportCountry||null,joined:new Date().toLocaleDateString('en-ZA'),bookings:0,status:'active',type:'customer'};
+      return encryptCustomerFields(uid,docData).then(function(enc){
+        return FB.setDoc(FB.doc(FB.db,'customers',uid),enc).then(function(){return docData;});
+      });
+    }
+
+    if(cData._googleAuth&&currentUid){
+      // Already authenticated via Google
+      saveCustDoc(currentUid)
+      .then(function(d){cData=Object.assign(cData,d);saveSession();goToHome();})
+      .catch(function(err){
+        var msg='Could not save account: '+(err.message||err.code);
+        var errEl=$('c-reg-err');if(errEl){errEl.textContent='⚠ '+msg;errEl.style.display='block';}
+        btn.disabled=false;btn.textContent='Create Account →';
+      });
+      return;
+    }
+
+    FB.createUserWithEmailAndPassword(FB.auth,cData.email,cData.password)
+    .then(function(uc){
+      currentUid=uc.user.uid;
+      return saveCustDoc(currentUid);
+    })
+    .then(function(d){
+      cData=Object.assign(cData,d);saveSession();goToHome();
+    })
+    .catch(function(err){
+      var msg='Could not create account. Please try again.';
+      if(err.code==='auth/email-already-in-use')msg='An account with this email already exists. Please sign in instead.';
+      else if(err.code==='auth/weak-password')msg='Password must be at least 6 characters.';
+      else if(err.code==='auth/invalid-email')msg='Please enter a valid email address.';
+      else if(err.code==='auth/network-request-failed')msg='No internet connection. Please check your network and try again.';
+      else if(err.code==='auth/too-many-requests')msg='Too many attempts. Please wait a moment and try again.';
+      else if(err.code==='auth/operation-not-allowed')msg='Email sign-up is not enabled. Please contact support.';
+      else msg='Error: '+(err.message||err.code||'Unknown error');
+      var errEl=$('c-reg-err');if(errEl){errEl.textContent='⚠ '+msg;errEl.style.display='block';}
+      btn.disabled=false;btn.textContent='Create Account →';
+    });
+  }
+}
+
+// ── ENCRYPTION — AES-GCM via Web Crypto API (POPIA compliance) ──
+var _ENC_SALT='TruckConnect-ZA-Customer-2024-v1';
+async function _deriveKey(uid){
+  var enc=new TextEncoder();
+  var km=await window.crypto.subtle.importKey('raw',enc.encode(uid+_ENC_SALT),{name:'PBKDF2'},false,['deriveKey']);
+  return window.crypto.subtle.deriveKey({name:'PBKDF2',salt:enc.encode(_ENC_SALT),iterations:100000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+async function _encryptField(uid,plaintext){
+  if(!plaintext)return'';
+  var key=await _deriveKey(uid);
+  var iv=window.crypto.getRandomValues(new Uint8Array(12));
+  var enc=new TextEncoder();
+  var cipher=await window.crypto.subtle.encrypt({name:'AES-GCM',iv:iv},key,enc.encode(String(plaintext)));
+  var b64=function(buf){return btoa(String.fromCharCode(...new Uint8Array(buf)));};
+  return b64(iv)+':'+b64(cipher);
+}
+async function encryptCustomerFields(uid,data){
+  var fields=['idNumber','phone'];
+  var result=Object.assign({},data);
+  for(var i=0;i<fields.length;i++){
+    var f=fields[i];if(result[f])result[f]=await _encryptField(uid,result[f]);
+  }
+  result._encrypted=true;
+  return result;
+}
+async function _decryptField(uid,ciphertext){
+  if(!ciphertext||!ciphertext.includes(':'))return ciphertext;
+  try{
+    var key=await _deriveKey(uid);
+    var parts=ciphertext.split(':');
+    var b64to=function(s){var b=atob(s);var a=new Uint8Array(b.length);for(var i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a;};
+    var iv=b64to(parts[0]);var cipher=b64to(parts[1]);
+    var plain=await window.crypto.subtle.decrypt({name:'AES-GCM',iv:iv},key,cipher);
+    return new TextDecoder().decode(plain);
+  }catch(e){return ciphertext;}
+}
+
+// ── GOOGLE AUTH HANDLER ──
+function handleGoogleAuth(mode){
+  var FB=window._FB;if(!FB){
+    var errEl=document.getElementById('si-err')||document.getElementById('c-reg-err');
+    if(errEl){errEl.textContent='Auth service not ready. Please try again.';errEl.style.display='block';}
+    return;
+  }
+  if(typeof google==='undefined'||!google.accounts){
+    var errEl=document.getElementById('si-err')||document.getElementById('c-reg-err');
+    if(errEl){errEl.textContent='Google loading, please try again in a moment.';errEl.style.display='block';}
+    return;
+  }
+  var tokenClient=google.accounts.oauth2.initTokenClient({
+    client_id:'313065662016-ut6d3l28qfl54ckm4qifjmp01cipumjf.apps.googleusercontent.com',
+    scope:'email profile openid',
+    callback:function(response){
+      if(response.error){
+        var errEl=document.getElementById('si-err')||document.getElementById('c-reg-err');
+        if(errEl){errEl.textContent='Google sign-in failed. Please try again.';errEl.style.display='block';}
+        return;
+      }
+      var credential=FB.GoogleAuthProvider.credential(null,response.access_token);
+      FB.signInWithCredential(FB.auth,credential)
+      .then(function(result){
+        var gUser=result.user;
+        currentUid=gUser.uid;
+        // Fetch customer doc — retry once after 1.5s in case Firestore is slow on new device
+        function tryGetCustomer(attempt){
+          return FB.getDoc(FB.doc(FB.db,'customers',currentUid)).then(function(snap){
+            if(snap.exists()){
+              cData=snap.data();
+              saveSession();
+              showGoogleEmailStatus('registered',gUser.email);
+              goToHome();
+            } else if(attempt<2){
+              // Retry once — new devices can have a cold Firestore cache
+              return new Promise(function(res){setTimeout(res,1500);}).then(function(){return tryGetCustomer(attempt+1);});
+            } else if(mode==='signup'){
+              cData={email:gUser.email||'',name:gUser.displayName||'',phone:'',_googleAuth:true};
+              bookStep=1;
+              goTo('s-auth');
+              switchAuthTab('signup');
+              renderSignupStep();
+              showGoogleEmailStatus('new',gUser.email);
+            } else {
+              FB.signOut(FB.auth).catch(function(){});
+              currentUid=null;
+              showGoogleEmailStatus('not-found',gUser.email);
+              var errEl=document.getElementById('si-err');
+              if(errEl){
+                errEl.innerHTML='<strong>'+gUser.email+'</strong> is not registered. <span style="text-decoration:underline;cursor:pointer;" onclick="switchAuthTab(&apos;signup&apos;)">Sign up instead</span>';
+                errEl.style.display='block';
+              }
+            }
+          });
+        }
+        return tryGetCustomer(1);
+      })
+      .catch(function(err){
+        var msg='Google sign-in failed. Please try again.';
+        if(err.code==='auth/network-request-failed')msg='No internet connection.';
+        var errEl=document.getElementById(mode==='signin'?'si-err':'c-reg-err');
+        if(errEl){errEl.textContent=msg;errEl.style.display='block';}
+      });
+    }
+  });
+  tokenClient.requestAccessToken({prompt:'select_account'});
+}
+
+// Visual email status badge shown after Google auth
+function showGoogleEmailStatus(status, email){
+  var colors={registered:'#4ade80',new:'#60a5fa','not-found':'#f87171'};
+  var icons={registered:'✅','new':'🆕','not-found':'❌'};
+  var labels={registered:'Registered account found','new':'New account — complete sign-up','not-found':'Email not registered'};
+  var existing=document.getElementById('google-email-status');
+  if(existing)existing.remove();
+  var badge=document.createElement('div');
+  badge.id='google-email-status';
+  badge.style.cssText='background:#111;border:1px solid #222;border-radius:12px;padding:12px 14px;margin:12px 0;display:flex;align-items:center;gap:10px;font-size:13px;animation:fadeIn .3s ease;';
+  badge.innerHTML=icons[status]+' <div><div style="font-weight:700;color:'+colors[status]+';font-size:12px;">'+labels[status]+'</div><div style="color:#666;font-size:11px;margin-top:2px;">'+email+'</div></div>';
+  var wrap=document.getElementById(status==='not-found'?'signin-wrap':'signup-wrap')||document.getElementById('signin-wrap');
+  if(wrap)wrap.insertBefore(badge,wrap.firstChild);
+  setTimeout(function(){if(badge.parentNode)badge.remove();},5000);
+}
+
+function handleGoogleRedirectResult(){
+  // No-op: redirect flow replaced by popup. Kept for compatibility.
+}
+
+function saveSession(){try{localStorage.setItem('tc_cust_session',JSON.stringify({uid:currentUid,data:cData}));}catch(e){}}
+function clearSession(){
+  if(_bookingsUnsub){_bookingsUnsub();_bookingsUnsub=null;}
+  try{localStorage.removeItem('tc_cust_session');}catch(e){}
+  var FB=window._FB;if(FB)FB.signOut(FB.auth).catch(function(){});
+}
+
+var homeMap=null,homeMarker=null,homeTruck='small',is3D=true;
+
+window.setMapView=function(mode){
+  is3D=(mode==='3d');
+  var btn2d=$('map-2d-btn'),btn3d=$('map-3d-btn');
+  if(btn2d&&btn3d){
+    if(is3D){btn3d.style.background='#111';btn3d.style.color='#fff';btn2d.style.background='transparent';btn2d.style.color='#888';}
+    else{btn2d.style.background='#111';btn2d.style.color='#fff';btn3d.style.background='transparent';btn3d.style.color='#888';}
+  }
+  if(homeMap)homeMap.easeTo({pitch:is3D?45:0,duration:600});
+};
+
+window.selectHomeTruck=function(size){
+  homeTruck=size;
+  ['small','medium','large'].forEach(function(s){
+    var el=$('htt-'+s);
+    if(el){el.style.borderColor=s===size?'#111':'#e0e0e0';el.style.background=s===size?'#111':'#f0f0f0';el.querySelector('span:last-child').style.color=s===size?'#fff':'#111';}
+  });
+};
+
+function locateUser(){
+  if(!navigator.geolocation||!homeMap)return;
+  var btn=$('home-locate-btn');
+  if(btn){btn.textContent='⏳';btn.disabled=true;}
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var lng=pos.coords.longitude,lat=pos.coords.latitude;
+    homeMap.flyTo({center:[lng,lat],zoom:15,pitch:is3D?45:0});
+    if(homeMarker){
+      homeMarker.setLngLat([lng,lat]);
+    } else {
+      var el=document.createElement('div');
+      el.style.cssText='width:44px;height:44px;display:flex;align-items:center;justify-content:center;';
+      el.innerHTML='<svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="20" fill="rgba(0,188,180,0.18)"/><polygon points="22,6 36,34 22,28 8,34" fill="#00BCB4" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>';
+      homeMarker=new mapboxgl.Marker({element:el,anchor:'center'}).setLngLat([lng,lat]).addTo(homeMap);
+    }
+    if(btn){btn.textContent='📍';btn.disabled=false;}
+  },function(){
+    if(btn){btn.textContent='📍';btn.disabled=false;}
+  },{enableHighAccuracy:true,timeout:10000});
+}
+
+function initHomeMap(){
+  // Always re-attach locate button listener each time home loads
+  var locBtn=$('home-locate-btn');
+  if(locBtn){locBtn.onclick=function(){locateUser();};}
+  if(homeMap)return;
+  homeMap=new mapboxgl.Map({container:'home-map',style:'https://api.jawg.io/styles/2aee7b4b-26d4-47dc-9d91-ecb6cbad9589.json?access-token='+MB,center:[28.0473,-26.2041],zoom:14,pitch:45,bearing:0,attributionControl:false});
+  homeMap.on('load',function(){locateUser();});
+}
+
+function goToHome(){
+  goTo('s-home');
+  txt('prof-av',cData.name?cData.name[0].toUpperCase():'C');
+  txt('prof-name',cData.name||'—');txt('prof-email',cData.email||'—');
+  txt('prof-name2',cData.name||'—');txt('prof-email2',cData.email||'—');
+  // Decrypt phone if encrypted
+  if(cData.phone&&cData.phone.includes(':')&&currentUid){
+    _decryptField(currentUid,cData.phone).then(function(plain){txt('prof-phone',plain||'—');});
+  } else {
+    txt('prof-phone',cData.phone||'—');
+  }
+  setTimeout(function(){if(typeof mapboxgl!=='undefined')initHomeMap();},300);
+  loadMyBookings();
+}
+
+function loadMyBookings(){
+  var FB=window._FB;if(!FB||!currentUid)return;
+  // Unsubscribe any existing listener
+  if(_bookingsUnsub){_bookingsUnsub();_bookingsUnsub=null;}
+  _bookingsUnsub=FB.onSnapshot(
+    FB.query(FB.collection(FB.db,'bookings'),FB.where('customerUid','==',currentUid)),
+    function(snap){
+      var prevBookings=myBookings.slice();
+      myBookings=[];
+      snap.forEach(function(d){myBookings.push(Object.assign({id:d.id},d.data()));});
+      // Sort newest first
+      myBookings.sort(function(a,b){return (b.created||'')>(a.created||'')?1:-1;});
+      // Auto-trigger rating overlay when a booking transitions to completed
+      myBookings.forEach(function(b){
+        if(b.ds==='completed'&&!b.customerRating){
+          var prev=prevBookings.find(function(p){return p.id===b.id;});
+          if(prev&&prev.ds!=='completed'){
+            openRating(b.id,b.driverName||'your driver');
+          }
+        }
+      });
+      renderHomeBookings();
+      renderActiveBooking();
+    },
+    function(err){console.warn('Bookings listener error:',err);}
+  );
+}
+
+function statusLabel(ds){
+  var map={avail:'⏳ Finding Driver',accepted:'🟢 Driver Assigned',in_progress:'🚛 In Transit',completed:'✅ Completed',cancelled:'❌ Cancelled'};
+  return map[ds]||ds||'—';
+}
+
+function renderActiveBooking(){
+  var wrap=$('active-bk-wrap');if(!wrap)return;
+  // Find most recent non-completed active booking
+  var active=myBookings.find(function(b){return b.ds==='accepted'||b.ds==='in_progress'||b.ds==='avail';});
+  if(!active){wrap.style.display='none';wrap.innerHTML='';return;}
+  wrap.style.display='block';
+  var isAccepted=active.ds==='accepted'||active.ds==='in_progress';
+  var isInProgress=active.ds==='in_progress';
+  var step1done=active.ds==='accepted'||active.ds==='in_progress'||active.ds==='completed';
+  var step2done=active.ds==='in_progress'||active.ds==='completed';
+  var step3done=active.ds==='completed';
+  var statusPillClass=active.ds==='accepted'?'status-accepted':active.ds==='in_progress'?'status-in_progress':'status-pending';
+  wrap.innerHTML=
+    '<div class="active-bk-card" style="background:#000;border:1.5px solid #222;border-radius:18px;padding:18px;">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">'+
+        '<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#4ade80;text-transform:uppercase;">📍 Active Booking</div>'+
+        '<div style="font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;'+
+          (active.ds==='accepted'?'background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.3);':
+           active.ds==='in_progress'?'background:rgba(96,165,250,.15);color:#60a5fa;border:1px solid rgba(96,165,250,.3);':
+           'background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2);')+'">'+
+          statusLabel(active.ds)+
+        '</div>'+
+      '</div>'+
+      '<div style="font-size:15px;font-weight:800;color:#fff;margin-bottom:2px;">'+(active.from||'—')+' → '+(active.to||'—')+'</div>'+
+      '<div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:14px;">#'+(active.id||'—')+' · '+(active.truck||'—')+' · '+(active.price||'—')+'</div>'+
+      (isAccepted?
+        '<div style="display:flex;align-items:center;gap:12px;background:#111;border:1px solid #222;border-radius:12px;padding:12px;margin-bottom:14px;">'+
+          '<div style="width:38px;height:38px;border-radius:50%;background:#1a1a1a;border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0;">'+
+            (active.driverName?active.driverName[0].toUpperCase():'🚛')+
+          '</div>'+
+          '<div>'+
+            '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:2px;">'+(active.driverName||'Driver')+'</div>'+
+            '<div style="font-size:11px;color:rgba(255,255,255,.4);">'+(active.driverTruck||active.truck||'Truck')+'</div>'+
+          '</div>'+
+        '</div>':
+        '<div style="display:flex;align-items:center;gap:10px;background:#111;border:1px solid #222;border-radius:12px;padding:12px;margin-bottom:14px;">'+
+          '<div style="width:8px;height:8px;border-radius:50%;background:#fbbf24;animation:blink 1.2s ease infinite;flex-shrink:0;"></div>'+
+          '<div style="font-size:12px;color:rgba(255,255,255,.5);font-weight:600;">Looking for a nearby driver...</div>'+
+        '</div>')+
+      // Trip progress steps
+      '<div style="display:flex;align-items:center;">'+
+        _tripStep('📋','Booked',true,false)+
+        _tripLine(step1done)+
+        _tripStep('🚛','Driver Found',step1done,!step1done&&active.ds!=='avail')+
+        _tripLine(step2done)+
+        _tripStep('📦','In Transit',step2done,false)+
+        _tripLine(step3done)+
+        _tripStep('✅','Done',step3done,false)+
+      '</div>'+
+      // Cancel button — only show if not in progress
+      (active.ds!=='in_progress'?
+        '<button class="cancel-bk-btn" onclick="cancelBooking(\''+active.id+'\')">✕ Cancel Booking</button>':'')+
+    '</div>';
+}
+
+function _tripStep(icon,label,done,active2){
+  return '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;">'+
+    '<div style="width:22px;height:22px;border-radius:50%;border:2px solid '+(done?'#4ade80':active2?'#fff':'#333')+';background:'+(done?'#4ade80':active2?'#fff':'#111')+';display:flex;align-items:center;justify-content:center;font-size:9px;">'+
+      (done?'✓':'·')+
+    '</div>'+
+    '<div style="font-size:8px;font-weight:700;color:'+(done?'#4ade80':active2?'#fff':'rgba(255,255,255,.25)')+';text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">'+label+'</div>'+
+  '</div>';
+}
+
+function _tripLine(done){
+  return '<div style="flex:1;height:1.5px;background:'+(done?'#4ade80':'#222')+';margin:0 4px;margin-bottom:14px;"></div>';
+}
+
+function renderHomeBookings(){
+  var wrap=$('home-bookings-list');if(!wrap)return;
+  if(!myBookings.length){wrap.innerHTML='<div style="text-align:center;padding:32px 20px;color:var(--muted);"><div style="font-size:32px;margin-bottom:10px;opacity:.3;">📦</div><div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px;">No bookings yet</div><div style="font-size:12px;">Book your first truck above.</div></div>';return;}
+  wrap.innerHTML=myBookings.slice(0,8).map(function(b){
+    var statusColor=b.ds==='completed'?'#4ade80':b.ds==='accepted'||b.ds==='in_progress'?'#60a5fa':'#fbbf24';
+    var driverRow=b.driverName?'<div class="bk-row"><span class="bk-key">Driver</span><span class="bk-val" style="color:#60a5fa;">🚛 '+b.driverName+'</span></div>':'';
+    return'<div class="bk-card">'+
+      '<div class="bk-route">'+b.from+' → '+b.to+'</div>'+
+      '<div class="bk-meta">#'+b.id+' · '+(b.date||'—')+'</div>'+
+      '<div class="bk-row"><span class="bk-key">Truck</span><span class="bk-val">'+b.truck+'</span></div>'+
+      '<div class="bk-row"><span class="bk-key">Amount</span><span class="bk-val" style="color:#4ade80;">'+b.price+'</span></div>'+
+      '<div class="bk-row"><span class="bk-key">Status</span><span class="bk-val" style="color:'+statusColor+';">'+statusLabel(b.ds)+'</span></div>'+
+      driverRow+
+    '</div>';
+  }).join('');
+}
+
+// BOOKING FLOW — single form
+var bookingData={};
+function startBooking(fromCity,toCity){
+  bookingData={from:fromCity||'',to:toCity||''};
+  if($('b-from'))$('b-from').value=bookingData.from;
+  if($('b-to'))$('b-to').value=bookingData.to;
+  var today=new Date().toISOString().split('T')[0];if($('b-date'))$('b-date').value=today;
+  goTo('s-book');
+}
+
+function initBookForm(){
+  setupAC('b-from','b-from-list',function(name,coords){bookingData.from=name;fromCoords=coords;});
+  setupAC('b-to','b-to-list',function(name,coords){bookingData.to=name;toCoords=coords;});
+  var today=new Date().toISOString().split('T')[0];if($('b-date'))$('b-date').value=today;
+  on('b-calc-btn','click',function(){
+    var f=val('b-from').trim(),t=val('b-to').trim();
+    if(!f||!t){var e=$('b-loc-err');if(e){e.textContent='⚠ Please enter both pickup and delivery locations.';e.style.display='block';}return;}
+    var e=$('b-loc-err');if(e)e.style.display='none';
+    bookingData.from=f;bookingData.to=t;
+    // Parse truck selection
+    var truckVal=val('b-truck-sel');
+    if(!truckVal){toast('Please select a truck type.');return;}
+    var parts=truckVal.split('|');
+    bookingData.truck=parts[0];bookingData.truckLabel=parts[1];bookingData.rate=parseInt(parts[2])||18;
+    bookingData.cargo=val('b-cargo')||'General Freight';
+    bookingData.weight=val('b-weight-num')?val('b-weight-num')+' tons':'—';
+    bookingData.notes=val('b-notes');
+    bookingData.date=val('b-date');
+    showMapAndFare();
+  });
+  on('book-back','click',function(){goToHome();});
+  // Auto-fill GPS location for From field using Google Maps Geocoder
+  if(navigator.geolocation&&$('b-from')&&!$('b-from').value){
+    navigator.geolocation.getCurrentPosition(function(pos){
+      var lng=pos.coords.longitude,lat=pos.coords.latitude;
+      fromCoords=[lng,lat];
+      _waitGmaps(function(){
+        new google.maps.Geocoder().geocode({location:{lat:lat,lng:lng}},function(results,status){
+          if(status==='OK'&&results&&results.length){
+            var addr=results[0].formatted_address||'';
+            if($('b-from')&&!$('b-from').value){$('b-from').value=addr;bookingData.from=addr;}
+          }
+        });
+      });
+    },function(){},{enableHighAccuracy:true,timeout:8000});
+  }
+}
+
+function showMapAndFare(){
+  goTo('s-map-screen');
+  txt('map-from-lbl',bookingData.from);txt('map-to-lbl',bookingData.to);
+  txt('map-title',bookingData.from+' → '+bookingData.to);
+
+  if(!customerMap&&typeof mapboxgl!=='undefined'){
+    customerMap=new mapboxgl.Map({container:'customer-map',style:'https://api.jawg.io/styles/2aee7b4b-26d4-47dc-9d91-ecb6cbad9589.json?access-token='+MB,center:[28.0473,-26.2041],zoom:5,attributionControl:false});
+  }
+
+  if(!fromCoords||!toCoords){toast('Please select both pickup and delivery addresses before continuing.');return;}
+  var fc=fromCoords;var tc2=toCoords;
+  var url='https://router.project-osrm.org/route/v1/driving/'+fc[0]+','+fc[1]+';'+tc2[0]+','+tc2[1]+'?overview=full&geometries=geojson';
+  fetch(url).then(function(r){return r.json();}).then(function(d){
+    if(!d.routes||!d.routes.length){txt('fare-main','R—');txt('fare-sub','Could not calculate route.');return;}
+    var route=d.routes[0];
+    var dist=route.distance/1000;
+    var dur=route.duration;
+    var rate=bookingData.rate||18;
+    var fare=Math.round(dist*rate);
+    pendingFare=fare;pendingDist=dist.toFixed(0)+' km';
+    bookingData.dist=dist.toFixed(0)+' km';bookingData.price='R'+fare.toLocaleString();bookingData.priceNum=fare;
+    var hrs=Math.floor(dur/3600),mins=Math.round((dur%3600)/60);
+    txt('fare-main','R'+fare.toLocaleString());
+    txt('fare-sub','Estimated fare for '+dist.toFixed(0)+'km');
+    txt('fare-dist',dist.toFixed(0)+' km');
+    txt('fare-truck-lbl',bookingData.truckLabel||'—');
+    txt('fare-rate','R'+rate+'/km');
+    txt('fare-duration',hrs>0?hrs+'h '+mins+'m':mins+' min');
+
+    if(customerMap){
+      customerMap.on('load',function(){
+        if(customerMap.getSource('route'))return;
+        customerMap.addSource('route',{type:'geojson',data:{type:'Feature',geometry:route.geometry}});
+        customerMap.addLayer({id:'route',type:'line',source:'route',layout:{'line-join':'round','line-cap':'round'},paint:{'line-color':'#fff','line-width':4,'line-opacity':.85}});
+        new mapboxgl.Marker({color:'#4ade80'}).setLngLat(fc).addTo(customerMap);
+        new mapboxgl.Marker({color:'#f87171'}).setLngLat(tc2).addTo(customerMap);
+        var bounds=new mapboxgl.LngLatBounds(fc,tc2);customerMap.fitBounds(bounds,{padding:80,animate:true});
+      });
+      if(customerMap.loaded()){
+        if(!customerMap.getSource('route')){
+          customerMap.addSource('route',{type:'geojson',data:{type:'Feature',geometry:route.geometry}});
+          customerMap.addLayer({id:'route',type:'line',source:'route',layout:{'line-join':'round','line-cap':'round'},paint:{'line-color':'#fff','line-width':4,'line-opacity':.85}});
+        }
+        new mapboxgl.Marker({color:'#4ade80'}).setLngLat(fc).addTo(customerMap);
+        new mapboxgl.Marker({color:'#f87171'}).setLngLat(tc2).addTo(customerMap);
+        var bounds=new mapboxgl.LngLatBounds(fc,tc2);customerMap.fitBounds(bounds,{padding:80});
+      }
+    }
+  }).catch(function(){txt('fare-main','R—');txt('fare-sub','Route calculation failed.');});
+}
+
+window.selPay=function(m){
+  selPayMethod=m;
+  ['eft','cash'].forEach(function(id){var el=$('popt-'+id);if(el)el.classList.remove('sel');});
+  var el=$('popt-'+m);if(el)el.classList.add('sel');
+  $('eft-details').style.display=m==='eft'?'block':'none';
+  var ref='TC-'+Date.now().toString().slice(-8);if($('eft-ref'))$('eft-ref').textContent=ref;
+};
+
+function confirmBooking(){
+  var bkId='BK-'+Date.now().toString().slice(-8);
+  var bk={id:bkId,customerUid:currentUid,customerName:cData.name,customerEmail:cData.email,from:bookingData.from,to:bookingData.to,fromCoords:fromCoords||null,toCoords:toCoords||null,truck:bookingData.truckLabel,truckType:bookingData.truckLabel,truckV:bookingData.truck,cargo:bookingData.cargo,weight:bookingData.weight,notes:bookingData.notes,dist:bookingData.dist,price:bookingData.price,priceNum:bookingData.priceNum,date:bookingData.date,time:bookingData.time,payMethod:selPayMethod,ds:'avail',created:new Date().toISOString()};
+  var FB=window._FB;
+  if(FB){
+    FB.setDoc(FB.doc(FB.db,'bookings',bkId),bk).catch(function(){});
+    FB.updateDoc(FB.doc(FB.db,'customers',currentUid),{bookings:myBookings.length+1}).catch(function(){});
+  }
+  myBookings.push(bk);
+  txt('suc-bk-id',bkId);txt('suc-route',bk.from+' → '+bk.to);txt('suc-amount',bk.price);txt('suc-pay-method',selPayMethod==='eft'?'Manual EFT':'Pay on Delivery');
+  goTo('s-book-success');
+}
+
+// AUTOCOMPLETE — Google Places (accurate SA street addresses, schools, homes, businesses)
+var _gmapsReady=false;
+function _waitGmaps(fn){
+  if(typeof google!=='undefined'&&google.maps&&google.maps.places){fn();}
+  else{setTimeout(function(){_waitGmaps(fn);},200);}
+}
+
+function setupAC(inputId,listId,onSelect){
+  var inp=$(inputId),list=$(listId);if(!inp||!list)return;
+  var t;
+  inp.addEventListener('input',function(){
+    clearTimeout(t);var q=this.value.trim();
+    if(q.length<2){list.style.display='none';return;}
+    t=setTimeout(function(){
+      _waitGmaps(function(){
+        var svc=new google.maps.places.AutocompleteService();
+        svc.getPlacePredictions({
+          input:q,
+          componentRestrictions:{country:'za'},
+          types:['geocode','establishment']
+        },function(predictions,status){
+          if(status!=='OK'||!predictions||!predictions.length){list.style.display='none';return;}
+          list.innerHTML=predictions.map(function(p){
+            return'<div class="autocomplete-item" data-placeid="'+p.place_id+'" data-name="'+p.description.replace(/"/g,'&quot;')+'">'+p.description+'</div>';
+          }).join('');
+          list.style.display='block';
+          list.querySelectorAll('.autocomplete-item').forEach(function(item){
+            item.addEventListener('click',function(){
+              var name=item.dataset.name||item.textContent;
+              inp.value=name;list.style.display='none';
+              // Get exact coordinates from place_id
+              var geocoder=new google.maps.Geocoder();
+              geocoder.geocode({placeId:item.dataset.placeid},function(results,gStatus){
+                if(gStatus==='OK'&&results.length){
+                  var loc=results[0].geometry.location;
+                  onSelect(name,[loc.lng(),loc.lat()]);
+                }else{
+                  onSelect(name,null);
+                }
+              });
+            });
+          });
+        });
+      });
+    },300);
+  });
+  document.addEventListener('click',function(e){if(e.target!==inp)list.style.display='none';});
+}
+
+function switchTab2(tab){
+  ['home','book','history','profile'].forEach(function(t){var b=$('btm-'+t);if(b)b.classList.remove('active');});
+  var ab=$('btm-'+tab);if(ab)ab.classList.add('active');
+  if(tab==='home'){goTo('s-home');goToHome();}
+  else if(tab==='book'){goTo('s-book');initBookForm();}
+  else if(tab==='history'){goTo('s-history');renderHistory();}
+  else if(tab==='profile'){goTo('s-profile');}
+}
+window.switchTab2=switchTab2;
+
+// CANCEL BOOKING
+window.cancelBooking=function(bookingId){
+  if(!confirm('Cancel this booking? It will be returned to the available pool for another driver.'))return;
+  var FB=window._FB;
+  if(FB){
+    FB.updateDoc(FB.doc(FB.db,'bookings',bookingId),{
+      ds:'cancelled',
+      driverUid:null,
+      driverName:null,
+      driverTruck:null,
+      cancelledAt:new Date().toISOString(),
+      cancelledBy:'customer'
+    }).then(function(){
+      alert('Booking cancelled successfully.');
+    }).catch(function(e){alert('Could not cancel: '+e.message);});
+  }
+};
+
+// BOOKING HISTORY
+function renderHistory(){
+  var wrap=$('history-list');if(!wrap)return;
+  if(!myBookings.length){
+    wrap.innerHTML='<div class="hist-empty"><div style="font-size:36px;opacity:.3;margin-bottom:12px;">📋</div><div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px;">No trips yet</div><div style="font-size:12px;">Your trips will appear here.</div></div>';
+    return;
+  }
+  var all=myBookings.slice().sort(function(a,b){return(b.created||'')>(a.created||'')?1:-1;});
+  wrap.innerHTML=all.map(function(b){
+    var statusColor=b.ds==='completed'?'#4ade80':b.ds==='cancelled'?'#f87171':b.ds==='in_progress'?'#60a5fa':'#fbbf24';
+    var statusTxt=statusLabel(b.ds);
+    var ratingRow=b.customerRating?'<div class="bk-row"><span class="bk-key">Your Rating</span><span class="bk-val">'+'⭐'.repeat(b.customerRating)+'</span></div>':'';
+    var rateBtn=b.ds==='completed'&&!b.customerRating?'<button onclick="openRating(\''+b.id+'\',\''+( b.driverName||'Driver')+'\')" style="width:100%;margin-top:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:11px;padding:11px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:\'Sora\',sans-serif;">⭐ Rate this Driver</button>':'';
+    return'<div class="bk-card">'+
+      '<div class="bk-route">'+(b.from||'—')+' → '+(b.to||'—')+'</div>'+
+      '<div class="bk-meta">#'+(b.id||'—')+' · '+(b.date||b.created?new Date(b.created).toLocaleDateString('en-ZA'):'—')+'</div>'+
+      '<div class="bk-row"><span class="bk-key">Truck</span><span class="bk-val">'+(b.truck||'—')+'</span></div>'+
+      '<div class="bk-row"><span class="bk-key">Amount</span><span class="bk-val" style="color:#4ade80;">'+(b.price||'—')+'</span></div>'+
+      '<div class="bk-row"><span class="bk-key">Status</span><span class="bk-val" style="color:'+statusColor+';">'+statusTxt+'</span></div>'+
+      (b.driverName?'<div class="bk-row"><span class="bk-key">Driver</span><span class="bk-val">🚛 '+b.driverName+'</span></div>':'')+
+      ratingRow+rateBtn+
+    '</div>';
+  }).join('');
+}
+
+// DRIVER RATING
+var _ratingBookingId=null,_selectedStar=0;
+window.openRating=function(bookingId,driverName){
+  _ratingBookingId=bookingId;_selectedStar=0;
+  txt('rating-driver-name','Rate your driver: '+driverName);
+  document.querySelectorAll('.star-btn').forEach(function(s){s.classList.remove('lit');});
+  $('rating-overlay').classList.add('show');
+};
+document.addEventListener('DOMContentLoaded',function(){
+  document.querySelectorAll('.star-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      _selectedStar=parseInt(btn.dataset.star);
+      document.querySelectorAll('.star-btn').forEach(function(s){
+        s.classList.toggle('lit',parseInt(s.dataset.star)<=_selectedStar);
+      });
+    });
+  });
+  on('rating-submit-btn','click',function(){
+    if(!_selectedStar){alert('Please select a star rating.');return;}
+    var FB=window._FB;
+    if(FB&&_ratingBookingId){
+      FB.updateDoc(FB.doc(FB.db,'bookings',_ratingBookingId),{customerRating:_selectedStar,ratedAt:new Date().toISOString()})
+        .then(function(){$('rating-overlay').classList.remove('show');renderHistory();})
+        .catch(function(e){alert('Could not save rating: '+e.message);});
+    }else{$('rating-overlay').classList.remove('show');}
+  });
+  on('rating-skip-btn','click',function(){$('rating-overlay').classList.remove('show');});
+  on('history-back','click',function(){goToHome();});
+});
+
+document.addEventListener('DOMContentLoaded',function(){
+  if(typeof mapboxgl!=='undefined'){/*MapLibre ready*/}
+
+  var fbWait=setInterval(function(){
+    if(window._FB){
+      clearInterval(fbWait);
+      window._FB.onAuthStateChanged(window._FB.auth,function(user){
+        hideLoading();
+        if(user){
+          currentUid=user.uid;
+          window._FB.getDoc(window._FB.doc(window._FB.db,'customers',user.uid)).then(function(snap){
+            if(snap.exists()){cData=snap.data();goToHome();}
+            else{goTo('s-landing');}
+          }).catch(function(){goTo('s-landing');});
+        } else {goTo('s-landing');}
+      });
+    }
+  },200);
+
+  on('btn-signup-land','click',function(){bookStep=0;renderSignupStep();goTo('s-auth');switchAuthTab('signup');});
+  on('btn-signin-land','click',function(){goTo('s-auth');switchAuthTab('signin');});
+  on('auth-back','click',function(){goTo('s-landing');});
+  on('tab-signup','click',function(){switchAuthTab('signup');});
+  on('tab-signin','click',function(){switchAuthTab('signin');});
+  on('goto-signup-btn','click',function(){switchAuthTab('signup');});
+  // Init book form once DOM is ready
+  initBookForm();
+
+  // Google sign-in button (sign-in panel)
+  on('google-signin-btn','click',function(){handleGoogleAuth('signin');});
+
+  function switchAuthTab(t){
+    $('signup-wrap').style.display=t==='signup'?'block':'none';
+    $('signin-wrap').style.display=t==='signin'?'block':'none';
+    $('tab-signup').classList.toggle('active',t==='signup');
+    $('tab-signin').classList.toggle('active',t==='signin');
+    if(t==='signup'){bookStep=0;renderSignupStep();}
+  }
+
+  on('signin-btn','click',function(){
+    // Security: rate-limit failed sign-in attempts (5 attempts per 60s)
+    var now=Date.now();
+    try{
+      var attempts=JSON.parse(localStorage.getItem('tc_c_signin_attempts')||'[]');
+      attempts=attempts.filter(function(t){return now-t<60000;});
+      if(attempts.length>=5){
+        var wait=Math.ceil((60000-(now-attempts[0]))/1000);
+        var errEl=$('si-err');errEl.textContent='⚠ Too many failed attempts. Please wait '+wait+' seconds.';errEl.style.display='block';return;
+      }
+    }catch(e){}
+    var e=val('si-email').trim(),p=val('si-pass');
+    ['si-email-err','si-pass-err','si-err'].forEach(function(id){if($(id))$(id).style.display='none';});
+    if(!e||!e.includes('@')){$('si-email-err').textContent='⚠ Valid email required.';$('si-email-err').style.display='block';return;}
+    if(!p){$('si-pass-err').textContent='⚠ Password required.';$('si-pass-err').style.display='block';return;}
+    var btn=$('signin-btn');btn.disabled=true;btn.textContent='Signing In...';
+    var FB=window._FB;
+    FB.signInWithEmailAndPassword(FB.auth,e,p)
+    .then(function(uc){
+      try{localStorage.removeItem('tc_c_signin_attempts');}catch(ex){}
+      currentUid=uc.user.uid;
+      return FB.getDoc(FB.doc(FB.db,'customers',currentUid));
+    })
+    .then(function(snap){
+      btn.disabled=false;btn.textContent='Sign In →';
+      if(!snap.exists()){$('si-err').textContent='⚠ No customer account found. Please sign up.';$('si-err').style.display='block';return;}
+      cData=snap.data();saveSession();goToHome();
+    })
+    .catch(function(err){
+      btn.disabled=false;btn.textContent='Sign In →';
+      try{var att=JSON.parse(localStorage.getItem('tc_c_signin_attempts')||'[]');att.push(Date.now());localStorage.setItem('tc_c_signin_attempts',JSON.stringify(att));}catch(ex){}
+      var msg='⚠ Incorrect email or password.';
+      if(err.code==='auth/user-not-found'||err.code==='auth/invalid-credential')msg='⚠ No account found. Please sign up.';
+      $('si-err').textContent=msg;$('si-err').style.display='block';
+    });
+  });
+
+  on('home-signout-btn','click',function(){clearSession();goTo('s-landing');});
+  on('prof-signout-btn','click',function(){clearSession();goTo('s-landing');});
+  on('find-trucks-btn','click',function(){
+    var f=val('h-from').trim(),t=val('h-to').trim();
+    startBooking(f,t);
+  });
+  on('proceed-pay-btn','click',function(){
+    txt('pay-route',bookingData.from+' → '+bookingData.to);
+    txt('pay-truck-lbl',bookingData.truckLabel||'—');
+    txt('pay-amount',bookingData.price||'R—');
+    selPay('eft');
+    goTo('s-payment');
+  });
+  on('map-change-btn','click',function(){goTo('s-book');});
+  on('pay-back','click',function(){goTo('s-map-screen');});
+  on('confirm-pay-btn','click',confirmBooking);
+  on('suc-home-btn','click',function(){goToHome();});
+  on('map-back','click',function(){goTo('s-book');});
+  on('profile-back','click',function(){goToHome();});
+  on('track-back','click',function(){goToHome();});
+
+  // HOME autocomplete
+  setupAC('h-from','h-from-list',function(name,coords){fromCoords=coords;});
+  setupAC('h-to','h-to-list',function(name,coords){toCoords=coords;});
+
+  on('track-btn','click',function(){
+    var id=val('track-id-input').trim();
+    if(!id){return;}
+    var FB=window._FB;if(!FB)return;
+    FB.getDoc(FB.doc(FB.db,'bookings',id)).then(function(snap){
+      var r=$('track-result');r.style.display='block';
+      if(!snap.exists()){r.innerHTML='<div class="card" style="text-align:center;color:var(--muted);">No booking found with that ID.</div>';return;}
+      var b=snap.data();
+      r.innerHTML='<div class="bk-card"><div class="bk-route">'+b.from+' → '+b.to+'</div><div class="bk-meta">#'+b.id+'</div><div class="bk-row"><span class="bk-key">Status</span><span class="bk-val">'+b.ds+'</span></div><div class="bk-row"><span class="bk-key">Truck</span><span class="bk-val">'+b.truck+'</span></div><div class="bk-row"><span class="bk-key">Price</span><span class="bk-val" style="color:#4ade80;">'+b.price+'</span></div>'+(b.driverName?'<div class="bk-row"><span class="bk-key">Driver</span><span class="bk-val">'+b.driverName+'</span></div>':'')+'</div>';
+    }).catch(function(){});
+  });
+
+});
+})();
+</script>
+</body>
+</html>
