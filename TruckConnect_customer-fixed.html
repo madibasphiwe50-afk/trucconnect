@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
 
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css"/>
-<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script async src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <!-- MapLibre GL JS — open-source, no API key required -->
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'"/>
 <style>
@@ -361,6 +361,20 @@ body.light-mode .hfp-truck-row.selected{border-color:#111;background:#efefef;}
 
 </head>
 <body>
+<div id="dbg" style="position:fixed;top:0;left:0;right:0;background:red;color:white;font-size:12px;z-index:99999;padding:8px;word-break:break-all;display:none;"></div>
+<script>
+window.onerror=function(msg,src,line,col,err){
+  var d=document.getElementById('dbg');
+  d.style.display='block';
+  d.innerHTML+='<b>ERR line '+line+':</b> '+msg+'<br>';
+  return false;
+};
+window.addEventListener('unhandledrejection',function(e){
+  var d=document.getElementById('dbg');
+  d.style.display='block';
+  d.innerHTML+='<b>PROMISE ERR:</b> '+(e.reason&&e.reason.message?e.reason.message:e.reason)+'<br>';
+});
+</script>
 
 <!-- FIREBASE -->
 <script type="module">
@@ -415,51 +429,12 @@ window._FB = {auth,db,createUserWithEmailAndPassword,signInWithEmailAndPassword,
     }
   }
 
-  // Last-resort fallback — only if Firebase completely fails to load
+  // Hard fallback — dismissed by goTo() normally; only fires if everything fails
   setTimeout(dismissSplashScreen, 8000);
-
-  // Check for Firebase readiness
+  // Signal that Firebase is ready — actual auth is handled AFTER all JS functions are defined
+  window._fbReady = false;
   var fbCheckInterval = setInterval(function() {
-    if (window._FB) {
-      clearInterval(fbCheckInterval);
-      // Do NOT dismiss splash here — wait until auth state is known and a screen is ready
-      // ── AUTO-LOGIN: wait for DOM then restore session ──
-      function _doAutoLogin() {
-        window._FB.onAuthStateChanged(window._FB.auth, function(user) {
-          if (user) {
-            currentUid = user.uid;
-            try {
-              var cached = JSON.parse(localStorage.getItem('tc_cust_session') || 'null');
-              if (cached && cached.uid === user.uid && cached.data) {
-                cData = cached.data;
-                goToHome();
-                return;
-              }
-            } catch(e) {}
-            window._FB.getDoc(window._FB.doc(window._FB.db, 'customers', user.uid))
-              .then(function(snap) {
-                if (snap.exists()) {
-                  cData = snap.data();
-                  saveSession();
-                  goToHome();
-                } else {
-                  goTo('s-landing');
-                }
-              })
-              .catch(function() { goTo('s-landing'); });
-          } else {
-            goTo('s-landing');
-          }
-        });
-      }
-      if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        setTimeout(_doAutoLogin, 100);
-      } else {
-        document.addEventListener('DOMContentLoaded', function() {
-          setTimeout(_doAutoLogin, 100);
-        });
-      }
-    }
+    if (window._FB) { clearInterval(fbCheckInterval); window._fbReady = true; }
   }, 50);
 </script>
 
@@ -1106,7 +1081,16 @@ function txt(id,t){if($(id))$(id).textContent=t;}
 function html(id,h){if($(id))$(id).innerHTML=h;}
 function val(id){return $(id)?$(id).value:'';}
 function on(id,ev,fn){var el=$(id);if(el)el.addEventListener(ev,fn);}
-function goTo(id){dismissSplashScreen();document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');s.style.display='none';});var s=$(id);if(s){s.style.display='flex';s.classList.add('active');s.scrollTop=0;}
+function goTo(id){
+  dismissSplashScreen();
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');s.style.display='none';});
+  var s=$(id);
+  if(s){s.style.display='flex';s.classList.add('active');s.scrollTop=0;}
+  else{
+    // Safety net: target screen missing — fall back to landing so user never sees a black screen
+    var landing=$('s-landing');
+    if(landing){landing.style.display='flex';landing.classList.add('active');}
+  }
   // Theme toggle only visible on home screen
   var themeToggle=$('theme-toggle-btn');
   if(themeToggle){themeToggle.style.display='flex';}
@@ -1482,7 +1466,7 @@ function locateUser(){
 
 function initHomeMap(){
   var el=$('home-map');
-  if(!el)return;
+  if(!el||typeof maplibregl==='undefined')return;
   var locBtn=$('home-locate-btn');
   if(locBtn){locBtn.onclick=function(){locateUser();};}
   if(homeMap){homeMap.resize();return;}
@@ -2873,8 +2857,37 @@ document.addEventListener('DOMContentLoaded',function(){
     }).catch(function(){});
   });
 
+
+  // ── AUTO-LOGIN — inside IIFE so goTo/goToHome/saveSession/currentUid are all in scope ──
+  (function(){
+    function _waitAndRun(){
+      if(!window._FB){setTimeout(_waitAndRun,50);return;}
+      window._FB.onAuthStateChanged(window._FB.auth,function(user){
+        try{
+          if(user){
+            currentUid=user.uid;
+            try{
+              var cached=JSON.parse(localStorage.getItem('tc_cust_session')||'null');
+              if(cached&&cached.uid===user.uid&&cached.data){cData=cached.data;goToHome();return;}
+            }catch(e){}
+            window._FB.getDoc(window._FB.doc(window._FB.db,'customers',user.uid))
+              .then(function(snap){
+                if(snap.exists()){cData=snap.data();saveSession();goToHome();}
+                else{goTo('s-landing');}
+              })
+              .catch(function(){goTo('s-landing');});
+          }else{
+            goTo('s-landing');
+          }
+        }catch(e){goTo('s-landing');}
+      });
+    }
+    _waitAndRun();
+  })();
+
 });
 })();
+
 </script>
 </body>
 </html>
