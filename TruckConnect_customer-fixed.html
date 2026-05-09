@@ -360,7 +360,7 @@ body.light-mode .hfp-truck-row.selected{border-color:#111;background:#efefef;}
 </style>
 
 </head>
-<body>
+<body class="light-mode">
 <div id="dbg" style="position:fixed;top:0;left:0;right:0;background:red;color:white;font-size:12px;z-index:99999;padding:8px;word-break:break-all;display:none;"></div>
 <script>
 window.onerror=function(msg,src,line,col,err){
@@ -374,6 +374,26 @@ window.addEventListener('unhandledrejection',function(e){
   d.style.display='block';
   d.innerHTML+='<b>PROMISE ERR:</b> '+(e.reason&&e.reason.message?e.reason.message:e.reason)+'<br>';
 });
+// Global dispatcher — routes all inline onclick calls into the IIFE via a queue
+window._cmdQueue=[];
+function _dispatch(fn,args){
+  if(window._appReady&&window._appCmds&&window._appCmds[fn]){
+    window._appCmds[fn].apply(null,args||[]);
+  } else {
+    window._cmdQueue.push({fn:fn,args:args||[]});
+  }
+}
+function goTo(id){_dispatch('goTo',[id]);}
+function switchTab2(t){_dispatch('switchTab2',[t]);}
+function openBookingSheet(){_dispatch('openBookingSheet',[]);}
+function closeBookingSheet(){_dispatch('closeBookingSheet',[]);}
+function openFullBooking(){_dispatch('openFullBooking',[]);}
+function hsSelectTruck(s){_dispatch('hsSelectTruck',[s]);}
+function closeHomeFare(){_dispatch('closeHomeFare',[]);}
+function proceedFromHomefare(){_dispatch('proceedFromHomefare',[]);}
+function selectHomeTruck(s){_dispatch('selectHomeTruck',[s]);}
+function hfpSelectTruck(a,b,c,d){_dispatch('hfpSelectTruck',[a,b,c,d]);}
+function hsGetPrices(){_dispatch('hsGetPrices',[]);}
 </script>
 
 <!-- FIREBASE -->
@@ -1074,7 +1094,12 @@ var _driverLocUnsub=null; // real-time listener for driver GPS location
 var _driverMapMarker=null; // MapLibre marker on homeMap showing live driver
 var _driverRouteMarker=null; // MapLibre marker on customerMap showing live driver
 var _trackingBookingId=null; // which booking we're currently tracking
-function _mapStyle(){return document.body.classList.contains('light-mode')?'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json':'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';}
+function _mapStyle(){
+  if(document.body.classList.contains('light-mode'))
+    return 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json';
+  // Dark: use Stadia Alidade Smooth Dark — free, has full POIs (schools, hospitals, bus stops)
+  return 'https://tiles.stadiamaps.com/styles/alidade_smooth_dark.json';
+}
 
 function $(id){return document.getElementById(id);}
 function txt(id,t){if($(id))$(id).textContent=t;}
@@ -1095,6 +1120,27 @@ function goTo(id){
   var themeToggle=$('theme-toggle-btn');
   if(themeToggle){themeToggle.style.display='flex';}
 }
+window._goTo=goTo;
+// Register all app commands and flush queued calls
+window._appCmds={
+  goTo:goTo,
+  switchTab2:switchTab2,
+  openBookingSheet:window.openBookingSheet,
+  closeBookingSheet:window.closeBookingSheet,
+  openFullBooking:window.openFullBooking||function(){},
+  hsSelectTruck:window.hsSelectTruck||function(){},
+  closeHomeFare:window.closeHomeFare||function(){},
+  proceedFromHomefare:window.proceedFromHomefare||function(){},
+  selectHomeTruck:window.selectHomeTruck||function(){},
+  hfpSelectTruck:window.hfpSelectTruck||function(){},
+  hsGetPrices:window.hsGetPrices||function(){}
+};
+window._appReady=true;
+// Flush any queued calls made before app was ready
+(window._cmdQueue||[]).forEach(function(cmd){
+  if(window._appCmds[cmd.fn])window._appCmds[cmd.fn].apply(null,cmd.args);
+});
+window._cmdQueue=[];
 function showLoading(){$('loading-overlay').style.display='flex';}
 function hideLoading(){$('loading-overlay').style.display='none';}
 // Toast notification — shows a small message at the bottom of the screen
@@ -1474,13 +1520,25 @@ function initHomeMap(){
     container:'home-map',
     style:_mapStyle(),
     center:[28.0473,-26.2041],
-    zoom:15,
+    zoom:16,
     pitch:is3D?55:0,
     bearing:is3D?-20:0,
     attributionControl:false
   });
   homeMap.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-left');
   setTimeout(function(){homeMap.resize();},300);
+  // Auto-zoom to user location on load
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(function(pos){
+      var lat=pos.coords.latitude,lng=pos.coords.longitude;
+      homeMap.flyTo({center:[lng,lat],zoom:16,pitch:is3D?55:0,bearing:is3D?-20:0,duration:1200,essential:true});
+      if(!homeMarker){
+        var el=document.createElement('div');
+        el.style.cssText='width:18px;height:18px;background:#1a73e8;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 5px rgba(26,115,232,0.25),0 2px 8px rgba(0,0,0,.3);';
+        homeMarker=new maplibregl.Marker({element:el}).setLngLat([lng,lat]).addTo(homeMap);
+      }
+    },function(){},{enableHighAccuracy:true,timeout:8000});
+  }
 }
 
 function goToHome(){
@@ -2174,7 +2232,7 @@ window.hsAC=function(inp,listId,isFrom){
   if(q.length<3){list.style.display='none';return;}
   clearTimeout(inp._acTimer);
   inp._acTimer=setTimeout(function(){
-    var url='https://photon.komoot.io/api/?q='+encodeURIComponent(q)+'&limit=8&lat=-28.4793&lon=24.6727&location_bias_scale=0.5';
+    var url='https://photon.komoot.io/api/?q='+encodeURIComponent(q)+'&limit=8&lat=-26.2041&lon=28.0473&location_bias_scale=0.8';
     fetch(url).then(function(r){return r.json();}).then(function(data){
       if(!data||!data.features||!data.features.length){list.style.display='none';return;}
       list.innerHTML='';
