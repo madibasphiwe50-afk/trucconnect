@@ -5921,9 +5921,10 @@ _seedEarningsHistory();
         _uasPickerOpen = false;
         clearTimeout(_uasFallbackTimer);
         var file = inp.files && inp.files[0];
+        var cb = _uasCb; // save BEFORE _uasClose() clears it
         if(!file){ window._uasClose(); return; }
         window._uasClose();
-        if(_uasCb){ _uasCb(file); }
+        if(cb){ cb(file); }
         inp.value = ''; // reset so same file can be re-selected
       });
     });
@@ -5974,42 +5975,41 @@ _seedEarningsHistory();
 })();
 </script>
 <!-- ══ UPLOAD ACTION SHEET ══ -->
-<!-- File inputs live OUTSIDE the buttons — fixes Android Chrome change-event bug -->
-<input type="file" id="uas-cam-input" accept="image/*" capture="environment" style="position:absolute;left:-9999px;opacity:0;pointer-events:none;"/>
-<input type="file" id="uas-gal-input" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" style="position:absolute;left:-9999px;opacity:0;pointer-events:none;"/>
-<input type="file" id="uas-fil-input" accept=".jpg,.jpeg,.png,.pdf,.heic,.heif,.webp" style="position:absolute;left:-9999px;opacity:0;pointer-events:none;"/>
-
+<!-- Inputs are siblings of their labels — label[for] is the most reliable mobile trigger -->
 <div id="upload-action-sheet">
   <div class="uas-panel">
     <div class="uas-handle"></div>
     <div class="uas-title" id="uas-title">Upload Document</div>
 
-    <!-- Camera -->
-    <button class="uas-btn" id="uas-cam-btn" onclick="document.getElementById('uas-cam-input').click()">
+    <!-- Camera: input + label pair -->
+    <input type="file" id="uas-cam-input" accept="image/*" capture="environment" style="opacity:0;position:absolute;width:0;height:0;"/>
+    <label class="uas-btn" for="uas-cam-input">
       <div class="uas-btn-icon cam">📷</div>
       <div class="uas-btn-label">
         <div>Take a Photo</div>
         <div class="uas-btn-sub">Use your camera right now</div>
       </div>
-    </button>
+    </label>
 
-    <!-- Gallery -->
-    <button class="uas-btn" id="uas-gal-btn" onclick="document.getElementById('uas-gal-input').click()">
+    <!-- Gallery: input + label pair -->
+    <input type="file" id="uas-gal-input" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" style="opacity:0;position:absolute;width:0;height:0;"/>
+    <label class="uas-btn" for="uas-gal-input">
       <div class="uas-btn-icon gal">🖼️</div>
       <div class="uas-btn-label">
         <div>Choose an Image</div>
         <div class="uas-btn-sub">Pick from your gallery or photos</div>
       </div>
-    </button>
+    </label>
 
-    <!-- Files -->
-    <button class="uas-btn" id="uas-fil-btn" onclick="document.getElementById('uas-fil-input').click()">
+    <!-- Files: input + label pair -->
+    <input type="file" id="uas-fil-input" accept=".jpg,.jpeg,.png,.pdf,.heic,.heif,.webp" style="opacity:0;position:absolute;width:0;height:0;"/>
+    <label class="uas-btn" for="uas-fil-input">
       <div class="uas-btn-icon fil">📁</div>
       <div class="uas-btn-label">
         <div>Browse Files</div>
         <div class="uas-btn-sub">PDF, JPG, PNG from your storage</div>
       </div>
-    </button>
+    </label>
 
     <button class="uas-cancel" onclick="window._uasClose()">Cancel</button>
   </div>
