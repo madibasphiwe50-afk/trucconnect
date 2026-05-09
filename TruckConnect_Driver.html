@@ -19,6 +19,8 @@
 <link rel="apple-touch-icon" href="icon-192.png"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css"/>
+<script async src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
 /* ── RESET & BASE ── */
@@ -52,7 +54,7 @@ input::placeholder,textarea::placeholder{color:#C0C0C0;}
 }
 
 /* ── DARK MODE ── */
-body.dark-mode{--bg:#0A0A0A;--card:#161616;--border:#242424;--text:#F0F0F0;--muted:#666;--dark:#EFEFEF;--shadow-sm:0 1px 3px rgba(0,0,0,.3);--shadow-md:0 4px 16px rgba(0,0,0,.4);--shadow-lg:0 8px 32px rgba(0,0,0,.5);}
+body.dark-mode{--bg:#1A1A1A;--card:#242424;--border:#333;--text:#F0F0F0;--muted:#777;--dark:#EFEFEF;--shadow-sm:0 1px 3px rgba(0,0,0,.3);--shadow-md:0 4px 16px rgba(0,0,0,.4);--shadow-lg:0 8px 32px rgba(0,0,0,.5);}
 body.dark-mode .topnav{background:#111;border-color:#242424;}
 body.dark-mode .topnav .nav-logo{color:#F0F0F0;}
 body.dark-mode .fi,body.dark-mode .fs{background:#1E1E1E;border-color:#2A2A2A;color:#F0F0F0;}
@@ -64,13 +66,13 @@ body.dark-mode .sub-price-box{background:#111;border-color:#242424;}
 body.dark-mode .sub-feature{border-color:#1E1E1E;}
 body.dark-mode .sub-tabs .sub-tab{background:#161616;border-color:#2A2A2A;color:#666;}
 body.dark-mode .sub-tabs .sub-tab.active{background:#F0F0F0;color:#111;border-color:#F0F0F0;}
-body.dark-mode .screen-body{background:#0A0A0A;}
-body.dark-mode .screen{background:#0A0A0A;}
-body.dark-mode .driver-topbar{background:rgba(10,10,10,.97);border-color:#242424;}
-body.dark-mode .driver-bottom{background:#141414;border-color:#242424;}
+body.dark-mode .screen-body{background:#1A1A1A;}
+body.dark-mode .screen{background:#1A1A1A;}
+body.dark-mode .driver-topbar{background:rgba(26,26,26,.97);border-color:#333;}
+body.dark-mode .driver-bottom{background:#1E1E1E;border-color:#333;}
 body.dark-mode .earn-cell{background:#161616;border-color:#242424;}
 body.dark-mode .map-fab{background:#161616;border-color:#2A2A2A;}
-body.dark-mode .sidemenu{background:#111;border-color:#242424;}
+body.dark-mode .sidemenu{background:#1E1E1E;border-color:#333;}
 body.dark-mode .sidemenu-head{border-color:#242424;}
 body.dark-mode .sidemenu-btn:hover{background:#1A1A1A;}
 body.dark-mode .job-popup{background:#141414;border-color:#242424;}
@@ -122,90 +124,8 @@ body.dark-mode .pay-plan-badge{background:#1A1A1A;color:#888;}
 .searching-overlay.open{display:flex;}
 body.dark-mode .searching-overlay{background:#050505;}
 
-/* ── IN-APP ROUTE MAP OVERLAY ── */
-#route-map-overlay{
-  position:fixed;inset:0;z-index:500;
-  display:none;flex-direction:column;
-  background:#0a0a0a;
-}
-#route-map-overlay.open{display:flex;}
-#route-map-container{flex:1;position:relative;}
-#route-map-tiles{width:100%;height:100%;}
-.route-map-header{
-  position:absolute;top:0;left:0;right:0;z-index:10;
-  display:flex;align-items:center;gap:12px;
-  padding:52px 16px 14px;
-  background:linear-gradient(to bottom,rgba(0,0,0,.85) 0%,rgba(0,0,0,0) 100%);
-}
-.route-map-close{
-  width:38px;height:38px;border-radius:50%;
-  background:rgba(255,255,255,.15);border:none;
-  color:#fff;font-size:20px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;backdrop-filter:blur(8px);
-}
-.route-map-title{font-size:16px;font-weight:800;color:#fff;letter-spacing:-.2px;}
-.route-map-sub{font-size:11px;color:rgba(255,255,255,.55);margin-top:2px;font-weight:500;}
-.route-info-panel{
-  position:absolute;bottom:0;left:0;right:0;z-index:10;
-  background:rgba(10,10,10,.97);
-  border-radius:22px 22px 0 0;
-  padding:16px 20px max(28px,env(safe-area-inset-bottom));
-  backdrop-filter:blur(12px);
-}
-.route-info-handle{
-  width:36px;height:4px;background:rgba(255,255,255,.15);
-  border-radius:2px;margin:0 auto 16px;
-}
-.route-legs-wrap{display:flex;flex-direction:column;gap:0;}
-.route-leg{
-  display:flex;align-items:flex-start;gap:12px;
-  padding:10px 0;
-  border-bottom:1px solid rgba(255,255,255,.07);
-}
-.route-leg:last-child{border-bottom:none;}
-.route-leg-dot{
-  width:10px;height:10px;border-radius:50%;
-  flex-shrink:0;margin-top:4px;
-}
-.route-leg-dot.you{background:#00c8ff;box-shadow:0 0 8px rgba(0,200,255,.6);}
-.route-leg-dot.pickup{background:#f59e0b;box-shadow:0 0 8px rgba(245,158,11,.5);}
-.route-leg-dot.dropoff{background:#16a34a;box-shadow:0 0 8px rgba(22,163,74,.5);}
-.route-leg-line{
-  width:1px;height:22px;
-  background:rgba(255,255,255,.12);
-  margin:3px 0 0 4px;
-  flex-shrink:0;
-  align-self:stretch;
-}
-.route-leg-label{font-size:9px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.7px;margin-bottom:2px;}
-.route-leg-addr{font-size:13px;font-weight:700;color:#fff;line-height:1.35;}
-.route-leg-meta{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;font-weight:500;}
-.route-stats-row{
-  display:grid;grid-template-columns:1fr 1fr 1fr;
-  gap:8px;margin-bottom:14px;
-}
-.route-stat{
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:12px;padding:10px 8px;text-align:center;
-}
-.route-stat-num{font-size:16px;font-weight:900;color:#fff;letter-spacing:-.3px;}
-.route-stat-lbl{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.6px;margin-top:2px;font-weight:600;}
-.route-nav-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;}
-.route-nav-btn{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  border:none;border-radius:12px;padding:13px;
-  font-size:13px;font-weight:700;cursor:pointer;
-  font-family:'Sora',sans-serif;text-decoration:none;
-  transition:opacity .18s;
-}
-.route-nav-btn:active{opacity:.75;}
-.route-nav-btn.gmaps{background:#4285F4;color:#fff;}
-.route-nav-btn.waze{background:#0082ff;color:#fff;}
-.route-nav-btn.inapp{background:#00c8ff;color:#000;}
-/* Leg connector line in route panel */
-.route-leg-connector{width:1px;background:rgba(255,255,255,.1);margin:0 0 0 4px;height:14px;flex-shrink:0;}
+/* ── ROUTE MAP OVERLAY (preserved for trip preview) ── */
+
 
 /* ── ANIMATIONS ── */
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
@@ -585,6 +505,73 @@ body.dark-mode .searching-overlay{background:#050505;}
 }
 .upload-box:hover{border-color:#aaa;background:#F5F5F5;}
 .upload-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+
+/* ── Upload Action Sheet ── */
+#upload-action-sheet{
+  position:fixed;inset:0;z-index:9000;
+  display:none;align-items:flex-end;
+  background:rgba(0,0,0,.5);
+  backdrop-filter:blur(4px);
+}
+#upload-action-sheet.open{display:flex;}
+.uas-panel{
+  width:100%;
+  background:var(--card);
+  border-radius:24px 24px 0 0;
+  padding:16px 16px max(32px,env(safe-area-inset-bottom));
+  box-shadow:0 -8px 40px rgba(0,0,0,.15);
+}
+.uas-handle{
+  width:36px;height:4px;
+  background:var(--border);border-radius:2px;
+  margin:0 auto 18px;
+}
+.uas-title{
+  font-size:13px;font-weight:700;
+  color:var(--muted);text-align:center;
+  margin-bottom:14px;letter-spacing:.2px;
+}
+.uas-btn{
+  width:100%;display:flex;align-items:center;gap:14px;
+  background:var(--bg);
+  border:1.5px solid var(--border);
+  border-radius:14px;
+  padding:15px 18px;
+  margin-bottom:10px;
+  font-family:'Sora',sans-serif;
+  font-size:14px;font-weight:700;
+  color:var(--text);cursor:pointer;
+  text-align:left;
+  transition:background .15s;
+  position:relative;overflow:hidden;
+}
+.uas-btn:active{background:var(--border);}
+.uas-btn-icon{
+  width:40px;height:40px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:19px;flex-shrink:0;
+}
+.uas-btn-icon.cam{background:#EFF6FF;}
+.uas-btn-icon.gal{background:#F0FDF4;}
+.uas-btn-icon.fil{background:#FFF7ED;}
+.uas-btn-label{flex:1;}
+.uas-btn-sub{font-size:11px;font-weight:500;color:var(--muted);margin-top:2px;}
+/* Hidden native inputs inside each button */
+.uas-btn input[type=file]{
+  position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;
+}
+.uas-cancel{
+  width:100%;background:transparent;border:none;
+  padding:14px;margin-top:2px;
+  font-family:'Sora',sans-serif;
+  font-size:14px;font-weight:600;color:var(--muted);
+  cursor:pointer;
+}
+body.dark-mode .uas-panel{background:#1E1E1E;}
+body.dark-mode .uas-btn{background:#161616;border-color:#2A2A2A;color:#F0F0F0;}
+body.dark-mode .uas-btn-icon.cam{background:#1e3a5f;}
+body.dark-mode .uas-btn-icon.gal{background:#14532d;}
+body.dark-mode .uas-btn-icon.fil{background:#431407;}
 
 /* ════════════════════════════════════
    DRIVER HOME MAP SCREEN
@@ -968,191 +955,362 @@ body.dark-mode .job-card{background:var(--card); border-color:var(--border); box
 .pending-row:last-child{border-bottom:none;}
 
 /* ════════════════════════════════════
-   NAVIGATION OVERLAY — Improved
+   FLOATING NAVIGATION OVERLAY — TruckConnect v6
+   Architecture: Glassmorphism dark panel that slides up from bottom.
+   External apps (Google Maps / Waze) handle actual routing.
+   TruckConnect stays alive underneath — logistics always running.
 ════════════════════════════════════ */
-#ov-navigation{
-  display:none;position:fixed;inset:0;z-index:3000;
-  flex-direction:column;background:#10111a;overflow:hidden;
-}
-#nav-map-tiles{position:absolute;inset:0;z-index:100;}
 
-/* ── TOP instruction bar ── */
-.nav-top-bar{
-  position:absolute;top:0;left:0;right:0;z-index:400;
-  background:linear-gradient(180deg,rgba(16,17,26,.98) 70%,rgba(16,17,26,0) 100%);
-  padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 28px;
-  display:flex;align-items:center;gap:16px;
-}
-.nav-turn-box{
-  width:64px;height:64px;flex-shrink:0;
-  background:rgba(0,200,255,.12);
-  border:2px solid rgba(0,200,255,.35);
-  border-radius:18px;
-  display:flex;align-items:center;justify-content:center;
-}
-.nav-turn-arrow{
-  font-size:36px;line-height:1;color:#00c8ff;
-}
-.nav-top-info{flex:1;}
-.nav-dist{
-  font-size:36px;font-weight:900;color:#fff;
-  line-height:1;letter-spacing:-1.5px;
-}
-.nav-dist span{font-size:18px;font-weight:700;color:rgba(255,255,255,.55);margin-left:3px;}
-.nav-street-name{
-  font-size:17px;font-weight:800;color:#00c8ff;
-  margin-top:4px;letter-spacing:-.2px;
-}
-
-/* ── Next-step preview strip ── */
-.nav-next-strip{
-  position:absolute;top:calc(env(safe-area-inset-top,0px) + 102px);left:0;right:0;z-index:399;
-  background:rgba(16,17,26,.82);
-  padding:8px 16px 8px 20px;
+/* ── Status pill — shown when overlay is minimized ── */
+#tc-nav-pill{
+  position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:50%;
+  transform:translateX(-50%) translateY(-80px);
+  z-index:3100;
   display:flex;align-items:center;gap:10px;
-  backdrop-filter:blur(6px);
-  border-bottom:1px solid rgba(255,255,255,.06);
-}
-.nav-next-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.8px;flex-shrink:0;}
-.nav-next-text{font-size:13px;font-weight:700;color:rgba(255,255,255,.75);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.nav-next-dist{font-size:12px;font-weight:700;color:#f59e0b;flex-shrink:0;}
-
-/* ── RIGHT floating action buttons ── */
-.nav-right-btns{
-  position:absolute;right:14px;top:180px;z-index:401;
-  display:flex;flex-direction:column;gap:10px;
-}
-.nav-fab{
-  width:52px;height:52px;
-  background:rgba(16,17,26,.88);
-  border:1.5px solid rgba(255,255,255,.12);
-  border-radius:16px;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;padding:0;
-  box-shadow:0 4px 20px rgba(0,0,0,.55);
-  backdrop-filter:blur(8px);
-  transition:transform .15s,background .15s;
-}
-.nav-fab:active{transform:scale(.88);background:rgba(0,200,255,.15);}
-
-/* ── Current street name pill ── */
-.nav-street-pill{
-  position:absolute;
-  bottom:calc(88px + env(safe-area-inset-bottom,0px) + 12px);
-  left:50%;transform:translateX(-50%);
-  z-index:401;
-  background:rgba(16,17,26,.92);
-  border:1.5px solid rgba(255,255,255,.1);
-  color:#fff;
-  font-size:14px;font-weight:800;
-  padding:10px 24px;
-  border-radius:30px;
-  white-space:nowrap;
-  box-shadow:0 4px 22px rgba(0,0,0,.6);
-  pointer-events:none;
-  letter-spacing:.1px;
-  max-width:65vw;text-align:center;
-  overflow:hidden;text-overflow:ellipsis;
-  backdrop-filter:blur(10px);
-}
-
-/* ── Speed badge ── */
-.nav-speed-badge{
-  position:absolute;
-  bottom:calc(88px + env(safe-area-inset-bottom,0px) + 8px);
-  left:14px;z-index:401;
-  width:68px;height:68px;border-radius:50%;
-  background:rgba(16,17,26,.92);
-  border:2.5px solid rgba(255,255,255,.15);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  box-shadow:0 3px 16px rgba(0,0,0,.55);
-  backdrop-filter:blur(8px);
-}
-.nav-speed-num{font-size:24px;font-weight:900;color:#fff;line-height:1;}
-.nav-speed-unit{font-size:8px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:.8px;margin-top:2px;}
-
-/* ── Hazard/Report button ── */
-.nav-hazard-btn{
-  position:absolute;
-  bottom:calc(88px + env(safe-area-inset-bottom,0px) + 6px);
-  right:14px;z-index:401;
-  width:56px;height:56px;
-  background:rgba(245,166,35,.15);
-  border:2px solid rgba(245,166,35,.5);
-  border-radius:16px;
-  cursor:pointer;padding:0;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 3px 14px rgba(0,0,0,.4);
-  backdrop-filter:blur(8px);
-}
-.nav-hazard-shape{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;}
-.nav-hazard-plus{font-size:22px;line-height:1;}
-
-/* ── BOTTOM bar ── */
-.nav-bottom-bar{
-  position:absolute;bottom:0;left:0;right:0;z-index:400;
-  background:rgba(16,17,26,.97);
-  padding:16px 20px calc(16px + env(safe-area-inset-bottom,0px));
-  display:flex;align-items:center;justify-content:space-between;
-  border-top:1px solid rgba(255,255,255,.08);
-  backdrop-filter:blur(12px);
-}
-.nav-bottom-icon{
-  width:44px;height:44px;
-  background:rgba(255,255,255,.06);
-  border:1.5px solid rgba(255,255,255,.1);
-  border-radius:12px;
+  background:rgba(10,10,28,0.97);
+  border:1px solid rgba(255,255,255,0.14);
+  border-radius:40px;
+  padding:9px 18px 9px 12px;
+  box-shadow:0 4px 28px rgba(0,0,0,0.55),0 0 0 1px rgba(255,255,255,0.05);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
   cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  color:rgba(255,255,255,.6);padding:0;flex-shrink:0;
-  transition:all .2s;
+  transition:transform 0.36s cubic-bezier(.34,1.56,.64,1);
+  white-space:nowrap;
+  max-width:calc(100vw - 32px);
 }
-.nav-bottom-icon:active{background:rgba(0,200,255,.15);color:#00c8ff;border-color:rgba(0,200,255,.4);}
-.nav-bottom-center{text-align:center;flex:1;padding:0 12px;}
-.nav-eta-time{font-size:30px;font-weight:900;color:#fff;line-height:1;letter-spacing:-1px;}
-.nav-eta-detail{font-size:12px;color:rgba(255,255,255,.4);font-weight:600;margin-top:4px;letter-spacing:.2px;}
+#tc-nav-pill.visible{transform:translateX(-50%) translateY(0);}
+.pill-pulse{
+  width:9px;height:9px;border-radius:50%;
+  background:#00e676;flex-shrink:0;
+  box-shadow:0 0 0 0 rgba(0,230,118,.5);
+  animation:pillPulse 2s ease infinite;
+}
+@keyframes pillPulse{
+  0%{box-shadow:0 0 0 0 rgba(0,230,118,.45);}
+  70%{box-shadow:0 0 0 8px rgba(0,230,118,0);}
+  100%{box-shadow:0 0 0 0 rgba(0,230,118,0);}
+}
+.pill-text{font-size:12px;font-weight:700;color:#fff;letter-spacing:-.1px;flex:1;overflow:hidden;text-overflow:ellipsis;}
+.pill-eta{font-size:11px;font-weight:800;color:#00e676;flex-shrink:0;margin-left:4px;}
+.pill-arrow{font-size:14px;color:rgba(255,255,255,.35);flex-shrink:0;}
 
-/* ── Open in App buttons (Waze / GMaps) ── */
-.nav-open-btns{
-  position:absolute;
-  bottom:calc(88px + env(safe-area-inset-bottom,0px) + 80px);
-  left:14px;z-index:402;
-  display:flex;flex-direction:column;gap:8px;
+/* ── Main overlay backdrop ── */
+#tc-nav-overlay{
+  position:fixed;inset:0;z-index:3000;
+  pointer-events:none;
+  display:none;
 }
-.nav-open-btn{
+#tc-nav-overlay.active{display:block;}
+
+/* ── The sliding panel ── */
+#tc-nav-panel{
+  position:absolute;bottom:0;left:0;right:0;
+  background:rgba(7,7,20,0.98);
+  border-radius:28px 28px 0 0;
+  padding:0 0 max(28px,env(safe-area-inset-bottom));
+  box-shadow:0 -12px 60px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.06);
+  backdrop-filter:blur(40px);
+  -webkit-backdrop-filter:blur(40px);
+  transform:translateY(100%);
+  transition:transform 0.42s cubic-bezier(.32,.72,0,1);
+  pointer-events:all;
+  max-height:92vh;
+  overflow-y:auto;
+}
+#tc-nav-panel.open{transform:translateY(0);}
+
+/* ── Panel handle ── */
+.tc-nav-handle{
+  width:38px;height:4px;
+  background:rgba(255,255,255,.15);
+  border-radius:2px;
+  margin:14px auto 0;
+}
+
+/* ── Header section ── */
+.tc-nav-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px 0;
+}
+.tc-nav-brand{
   display:flex;align-items:center;gap:8px;
-  padding:9px 14px;
-  border-radius:14px;
-  font-size:12px;font-weight:800;
-  text-decoration:none;
-  box-shadow:0 3px 14px rgba(0,0,0,.5);
-  border:none;cursor:pointer;font-family:'Sora',sans-serif;
-  transition:opacity .15s;
-  backdrop-filter:blur(8px);
+  font-size:12px;font-weight:800;color:rgba(255,255,255,.5);
+  letter-spacing:.6px;text-transform:uppercase;
 }
-.nav-open-btn:active{opacity:.75;}
-.nav-open-btn.waze{background:rgba(0,130,255,.85);color:#fff;}
-.nav-open-btn.gmaps{background:rgba(66,133,244,.85);color:#fff;}
+.tc-nav-brand-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:#00e676;
+  box-shadow:0 0 8px rgba(0,230,118,.6);
+  animation:pillPulse 2s ease infinite;
+}
+.tc-nav-header-btns{display:flex;align-items:center;gap:8px;}
+.tc-nav-icon-btn{
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.5);
+  font-size:15px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  transition:background .18s,color .18s;
+}
+.tc-nav-icon-btn:active{background:rgba(255,255,255,.14);}
 
-/* ── Night / Day mode ── */
-#ov-navigation.nav-day #nav-map-tiles{filter:brightness(1.1);}
-#ov-navigation.nav-day .nav-top-bar{background:linear-gradient(180deg,rgba(255,255,255,.98) 70%,rgba(255,255,255,0) 100%);}
-#ov-navigation.nav-day .nav-dist{color:#111;}
-#ov-navigation.nav-day .nav-street-name{color:#0066cc;}
-#ov-navigation.nav-day .nav-bottom-bar{background:rgba(255,255,255,.97);border-top:1px solid #eee;}
-#ov-navigation.nav-day .nav-eta-time{color:#111;}
-#ov-navigation.nav-day .nav-bottom-icon{background:#f0f0f0;border-color:#ddd;color:#555;}
-#ov-navigation.nav-day .nav-fab{background:rgba(255,255,255,.9);border-color:#ddd;}
-#ov-navigation.nav-day .nav-speed-badge{background:rgba(255,255,255,.95);border-color:#ccc;}
-#ov-navigation.nav-day .nav-speed-num{color:#111;}
-#ov-navigation.nav-day .nav-speed-unit{color:rgba(0,0,0,.4);}
-#ov-navigation.nav-day .nav-street-pill{background:rgba(255,255,255,.95);color:#111;border-color:#ddd;}
-#ov-navigation.nav-day .nav-next-strip{background:rgba(255,255,255,.85);}
-#ov-navigation.nav-day .nav-next-label{color:rgba(0,0,0,.4);}
-#ov-navigation.nav-day .nav-next-text{color:rgba(0,0,0,.75);}
-#ov-navigation.nav-day .nav-turn-box{background:rgba(0,100,200,.1);border-color:rgba(0,100,200,.3);}
-#ov-navigation.nav-day .nav-turn-arrow{color:#0066cc;}
-#ov-navigation.nav-day .nav-eta-detail{color:rgba(0,0,0,.45);}
+/* ── Trip route strip ── */
+.tc-nav-route-strip{
+  margin:16px 20px 0;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;
+  padding:16px;
+}
+.tc-nav-route-row{
+  display:flex;align-items:flex-start;gap:12px;
+}
+.tc-nav-dots{
+  display:flex;flex-direction:column;align-items:center;
+  gap:0;flex-shrink:0;padding-top:3px;
+}
+.tc-dot{
+  width:10px;height:10px;border-radius:50%;flex-shrink:0;
+}
+.tc-dot-line{
+  width:1.5px;height:28px;
+  background:linear-gradient(to bottom,rgba(245,158,11,.5),rgba(22,163,74,.5));
+  margin:4px 0;
+  border-radius:1px;
+}
+.tc-dot.pickup{background:#f59e0b;box-shadow:0 0 8px rgba(245,158,11,.5);}
+.tc-dot.dropoff{background:#00e676;box-shadow:0 0 10px rgba(0,230,118,.5);}
+.tc-nav-addrs{flex:1;display:flex;flex-direction:column;gap:16px;}
+.tc-nav-addr-block{}
+.tc-nav-addr-lbl{
+  font-size:9px;font-weight:800;letter-spacing:.8px;
+  text-transform:uppercase;margin-bottom:3px;
+}
+.tc-nav-addr-lbl.pickup{color:#f59e0b;}
+.tc-nav-addr-lbl.dropoff{color:#00e676;}
+.tc-nav-addr-text{
+  font-size:13px;font-weight:700;color:#fff;
+  line-height:1.35;
+}
+.tc-nav-addr-meta{
+  font-size:11px;color:rgba(255,255,255,.35);
+  margin-top:2px;font-weight:500;
+}
+
+/* ── Stats row ── */
+.tc-nav-stats{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  gap:8px;margin:12px 20px 0;
+}
+.tc-nav-stat{
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;
+  padding:12px 8px;text-align:center;
+}
+.tc-nav-stat-num{
+  font-size:17px;font-weight:900;color:#fff;
+  letter-spacing:-.4px;line-height:1;
+}
+.tc-nav-stat-lbl{
+  font-size:9px;color:rgba(255,255,255,.35);
+  text-transform:uppercase;letter-spacing:.6px;
+  margin-top:4px;font-weight:700;
+}
+
+/* ── Status badge ── */
+.tc-nav-status-row{
+  display:flex;align-items:center;justify-content:space-between;
+  margin:12px 20px 0;
+}
+.tc-nav-status-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:7px 14px;
+  border-radius:30px;
+  font-size:11px;font-weight:800;letter-spacing:.2px;
+}
+.tc-nav-status-badge.accepted{
+  background:rgba(0,230,118,.12);
+  color:#00e676;
+  border:1px solid rgba(0,230,118,.25);
+}
+.tc-nav-status-badge.in_progress{
+  background:rgba(59,130,246,.12);
+  color:#60a5fa;
+  border:1px solid rgba(59,130,246,.25);
+}
+.tc-nav-earn-pill{
+  font-size:16px;font-weight:900;color:#fff;
+  letter-spacing:-.3px;
+}
+
+/* ── Divider ── */
+.tc-nav-divider{
+  height:1px;background:rgba(255,255,255,.07);
+  margin:14px 20px 0;
+}
+
+/* ── Section label ── */
+.tc-nav-section-lbl{
+  font-size:10px;font-weight:800;color:rgba(255,255,255,.3);
+  text-transform:uppercase;letter-spacing:.8px;
+  margin:14px 20px 10px;
+}
+
+/* ── Navigation app buttons ── */
+.tc-nav-app-btns{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:10px;margin:0 20px;
+}
+.tc-nav-app-btn{
+  display:flex;align-items:center;gap:11px;
+  padding:14px 16px;
+  border-radius:16px;
+  border:none;cursor:pointer;
+  font-family:'Sora',sans-serif;
+  text-decoration:none;
+  transition:transform .15s,opacity .15s;
+  position:relative;
+  overflow:hidden;
+}
+.tc-nav-app-btn::before{
+  content:'';position:absolute;inset:0;
+  background:rgba(255,255,255,0);
+  transition:background .15s;
+}
+.tc-nav-app-btn:active{transform:scale(.96);}
+.tc-nav-app-btn:active::before{background:rgba(255,255,255,.08);}
+.tc-nav-app-btn.gmaps{
+  background:linear-gradient(135deg,#1a56db,#4285F4);
+  box-shadow:0 4px 20px rgba(66,133,244,.35);
+}
+.tc-nav-app-btn.waze{
+  background:linear-gradient(135deg,#0060d1,#0082ff);
+  box-shadow:0 4px 20px rgba(0,130,255,.35);
+}
+.tc-nav-app-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:rgba(255,255,255,.15);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.tc-nav-app-info{flex:1;}
+.tc-nav-app-name{font-size:13px;font-weight:800;color:#fff;letter-spacing:-.1px;}
+.tc-nav-app-sub{font-size:10px;color:rgba(255,255,255,.55);margin-top:1px;font-weight:500;}
+
+/* ── Trip quick controls ── */
+.tc-nav-trip-controls{
+  display:flex;gap:10px;margin:12px 20px 0;
+}
+.tc-nav-ctrl-btn{
+  flex:1;border:none;border-radius:14px;padding:14px 8px;
+  font-family:'Sora',sans-serif;font-size:12px;font-weight:800;
+  cursor:pointer;transition:all .18s;letter-spacing:.1px;
+}
+.tc-nav-ctrl-btn:active{transform:scale(.97);}
+.tc-nav-ctrl-primary{
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.12);
+}
+.tc-nav-ctrl-start{
+  background:linear-gradient(135deg,#00b248,#00e676);
+  color:#000;
+  box-shadow:0 4px 18px rgba(0,230,118,.3);
+}
+.tc-nav-ctrl-complete{
+  background:linear-gradient(135deg,#1a56db,#4285F4);
+  color:#fff;
+  box-shadow:0 4px 18px rgba(66,133,244,.3);
+}
+.tc-nav-ctrl-danger{
+  background:rgba(220,38,38,.12);
+  color:#ef4444;
+  border:1px solid rgba(220,38,38,.2);
+}
+
+/* ── Customer info row ── */
+.tc-nav-customer{
+  display:flex;align-items:center;gap:12px;
+  margin:0 20px;
+  padding:12px 14px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:14px;
+}
+.tc-nav-cust-av{
+  width:38px;height:38px;border-radius:50%;
+  background:rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:800;color:#fff;
+  flex-shrink:0;
+}
+.tc-nav-cust-name{font-size:13px;font-weight:700;color:#fff;}
+.tc-nav-cust-sub{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px;}
+.tc-nav-cust-phone{
+  margin-left:auto;
+  background:rgba(0,230,118,.12);
+  border:1px solid rgba(0,230,118,.2);
+  border-radius:10px;
+  padding:8px 12px;
+  font-size:12px;font-weight:700;
+  color:#00e676;cursor:pointer;
+  text-decoration:none;
+  flex-shrink:0;
+}
+
+/* ── Progress bar ── */
+.tc-nav-progress-wrap{
+  margin:14px 20px 0;
+}
+.tc-nav-progress-lbl{
+  display:flex;justify-content:space-between;
+  font-size:10px;font-weight:700;color:rgba(255,255,255,.35);
+  margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;
+}
+.tc-nav-progress-bar{
+  height:4px;background:rgba(255,255,255,.08);
+  border-radius:2px;overflow:hidden;
+}
+.tc-nav-progress-fill{
+  height:100%;border-radius:2px;
+  background:linear-gradient(to right,#00b248,#00e676);
+  transition:width .6s ease;
+  box-shadow:0 0 8px rgba(0,230,118,.4);
+}
+
+/* ── Floating Return Pill — top left when app is open ── */
+#tc-nav-return-btn{
+  position:fixed;
+  top:calc(env(safe-area-inset-top,0px) + 60px);
+  left:14px;
+  z-index:3050;
+  display:none;
+  align-items:center;gap:8px;
+  background:rgba(7,7,20,.95);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:30px;
+  padding:9px 16px;
+  box-shadow:0 4px 20px rgba(0,0,0,.5);
+  backdrop-filter:blur(20px);
+  cursor:pointer;
+  font-size:12px;font-weight:700;color:#fff;
+  letter-spacing:-.1px;
+  animation:returnBounce 0.4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes returnBounce{
+  from{transform:scale(.5);opacity:0;}
+  to{transform:scale(1);opacity:1;}
+}
+#tc-nav-return-btn .return-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:#00e676;
+  box-shadow:0 0 6px rgba(0,230,118,.6);
+}
+
 
 /* ════════════════════════════════════
    GOOGLE BUTTON
@@ -1740,6 +1898,24 @@ window._FB = {auth,db,createUserWithEmailAndPassword,signInWithEmailAndPassword,
   <!-- FULL-SCREEN MAP -->
   <div id="driver-map"></div>
 
+  <!-- ACTIVE JOB STRIP — shown after accepting a job -->
+  <div id="active-job-strip" style="display:none;position:absolute;bottom:0;left:0;right:0;z-index:50;background:var(--card);border-top:2px solid var(--green);padding:14px 16px 20px;box-shadow:0 -4px 20px rgba(0,0,0,.25);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div>
+        <div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Active Job</div>
+        <div style="font-size:13px;font-weight:800;color:var(--text);margin-top:2px;" id="ajs-route">— → —</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:20px;font-weight:900;color:var(--green);" id="ajs-earn">—</div>
+        <div style="font-size:11px;color:var(--muted);" id="ajs-dist">—</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button id="ajs-nav-btn" style="flex:1;padding:13px;background:var(--green);color:#fff;border:none;border-radius:14px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Sora',sans-serif;">🧭 Start Navigation</button>
+      <button id="ajs-cancel-btn" style="padding:13px 16px;background:var(--bg);color:var(--muted);border:1.5px solid var(--border);border-radius:14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;">✕</button>
+    </div>
+  </div>
+
 
 
   <!-- 2D / 3D toggle (top-right under topbar) -->
@@ -2095,9 +2271,9 @@ window._FB = {auth,db,createUserWithEmailAndPassword,signInWithEmailAndPassword,
       <img class="pod-preview" id="pod-preview" src="" alt="Proof"/>
       <div class="pod-upload-box" id="pod-upload-box">
         <div style="font-size:36px;margin-bottom:10px;">📸</div>
-        <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Tap to take photo</div>
-        <div style="font-size:11px;color:var(--muted);">Camera or gallery · Required for delivery confirmation</div>
-        <input type="file" id="pod-file" accept="image/*" capture="environment"/>
+        <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Tap to upload</div>
+        <div style="font-size:11px;color:var(--muted);">Camera · Gallery · Browse Files</div>
+        <input type="file" id="pod-file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif"/>
       </div>
       <div class="fg">
         <span class="fl">Delivery Note (optional)</span>
@@ -2131,64 +2307,8 @@ window._FB = {auth,db,createUserWithEmailAndPassword,signInWithEmailAndPassword,
 
 </div>
 
-<!-- ══ IN-APP ROUTE MAP OVERLAY ══ -->
-<div id="route-map-overlay">
-  <div id="route-map-container">
-    <div id="route-map-tiles"></div>
-    <!-- Header -->
-    <div class="route-map-header">
-      <button class="route-map-close" onclick="closeRouteMap()">←</button>
-      <div>
-        <div class="route-map-title" id="rmo-title">Full Route</div>
-        <div class="route-map-sub" id="rmo-sub">Loading route...</div>
-      </div>
-    </div>
-    <!-- Bottom info panel -->
-    <div class="route-info-panel" id="route-info-panel">
-      <div class="route-info-handle"></div>
-      <!-- Stats -->
-      <div class="route-stats-row">
-        <div class="route-stat"><div class="route-stat-num" id="rmo-total-dist">—</div><div class="route-stat-lbl">Total km</div></div>
-        <div class="route-stat"><div class="route-stat-num" id="rmo-total-time">—</div><div class="route-stat-lbl">Est. Time</div></div>
-        <div class="route-stat"><div class="route-stat-num" id="rmo-stops">3</div><div class="route-stat-lbl">Stops</div></div>
-      </div>
-      <!-- Legs -->
-      <div class="route-legs-wrap" id="rmo-legs">
-        <div class="route-leg">
-          <div style="display:flex;flex-direction:column;align-items:center;gap:0;flex-shrink:0;">
-            <div class="route-leg-dot you"></div>
-            <div class="route-leg-connector"></div>
-          </div>
-          <div><div class="route-leg-label">You</div><div class="route-leg-addr">Your location</div><div class="route-leg-meta" id="rmo-leg1-meta">—</div></div>
-        </div>
-        <div class="route-leg">
-          <div style="display:flex;flex-direction:column;align-items:center;gap:0;flex-shrink:0;">
-            <div class="route-leg-dot pickup"></div>
-            <div class="route-leg-connector"></div>
-          </div>
-          <div><div class="route-leg-label">Pickup</div><div class="route-leg-addr" id="rmo-pickup-addr">—</div><div class="route-leg-meta" id="rmo-leg2-meta">—</div></div>
-        </div>
-        <div class="route-leg">
-          <div style="flex-shrink:0;margin-top:4px;">
-            <div class="route-leg-dot dropoff"></div>
-          </div>
-          <div><div class="route-leg-label">Drop-off</div><div class="route-leg-addr" id="rmo-dropoff-addr">—</div></div>
-        </div>
-      </div>
-      <!-- Nav buttons -->
-      <div class="route-nav-btns">
-        <a id="rmo-gmaps-btn" href="#" target="_blank" class="route-nav-btn gmaps">
-          <svg width="14" height="14" viewBox="0 0 18 18" fill="white"><path d="M9 0C5.687 0 3 2.687 3 6c0 4.5 6 12 6 12s6-7.5 6-12c0-3.313-2.687-6-6-6zm0 8.25A2.25 2.25 0 1 1 9 3.75 2.25 2.25 0 0 1 9 8.25z"/></svg>
-          Google Maps
-        </a>
-        <a id="rmo-waze-btn" href="#" target="_blank" class="route-nav-btn waze">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
-          Waze
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
+
+
 
 <!-- PAYMENT OVERLAY -->
 <div class="payment-overlay" id="payment-overlay">
@@ -2230,102 +2350,156 @@ window._FB = {auth,db,createUserWithEmailAndPassword,signInWithEmailAndPassword,
   <button class="btn" style="margin-top:24px;background:rgba(255,255,255,.1);color:#fff;border:1.5px solid rgba(255,255,255,.2);max-width:320px;display:none;" id="search-continue-btn" onclick="window._finishSubscription()">Continue to Dashboard →</button>
 </div>
 
-<!-- NAV OVERLAY — Improved -->
-<div id="ov-navigation">
 
-  <!-- FULL-SCREEN MAP -->
-  <div id="nav-map-tiles"></div>
+<!-- ══════════════════════════════════════════════════════════
+     FLOATING NAVIGATION OVERLAY — TruckConnect v6
+     TruckConnect stays active underneath.
+     Google Maps / Waze handle actual routing.
+══════════════════════════════════════════════════════════ -->
 
-  <!-- TOP instruction bar -->
-  <div class="nav-top-bar">
-    <div class="nav-turn-box">
-      <div class="nav-turn-arrow" id="nav-turn-icon">⬆</div>
-    </div>
-    <div class="nav-top-info">
-      <div class="nav-dist" id="nav-distance-next">-- <span>m</span></div>
-      <div class="nav-street-name" id="nav-instruction">Starting navigation...</div>
-    </div>
-  </div>
-
-  <!-- NEXT STEP STRIP -->
-  <div class="nav-next-strip" id="nav-next-strip" style="display:none;">
-    <span class="nav-next-label">Then</span>
-    <span class="nav-next-text" id="nav-next-instruction">—</span>
-    <span class="nav-next-dist" id="nav-next-dist"></span>
-  </div>
-
-  <!-- Open in Waze / GMaps (bottom-left stack) -->
-  <div class="nav-open-btns" id="nav-open-btns">
-    <a id="nav-waze-link" href="#" target="_blank" class="nav-open-btn waze">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
-      Waze
-    </a>
-    <a id="nav-gmaps-link" href="#" target="_blank" class="nav-open-btn gmaps">
-      <svg width="13" height="13" viewBox="0 0 18 18" fill="white"><path d="M9 0C5.687 0 3 2.687 3 6c0 4.5 6 12 6 12s6-7.5 6-12c0-3.313-2.687-6-6-6zm0 8.25A2.25 2.25 0 1 1 9 3.75 2.25 2.25 0 0 1 9 8.25z"/></svg>
-      Google Maps
-    </a>
-  </div>
-
-  <!-- RIGHT floating buttons -->
-  <div class="nav-right-btns">
-    <button class="nav-fab" onclick="toggleNavSound()" title="Toggle voice">
-      <svg id="nav-sound-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-      </svg>
-    </button>
-    <button class="nav-fab" onclick="toggleNavNightMode()" title="Toggle day/night">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-      </svg>
-    </button>
-    <button class="nav-fab" onclick="navVoiceReport()" title="Voice report">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4fc3f7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-        <line x1="12" y1="19" x2="12" y2="23"/>
-        <line x1="8" y1="23" x2="16" y2="23"/>
-      </svg>
-    </button>
-  </div>
-
-  <!-- Current street name pill -->
-  <div class="nav-street-pill" id="nav-street-pill">Calculating route...</div>
-
-  <!-- Speed badge — bottom left -->
-  <div class="nav-speed-badge">
-    <div class="nav-speed-num" id="nav-speed">0</div>
-    <div class="nav-speed-unit">km/h</div>
-  </div>
-
-  <!-- Hazard button — bottom right -->
-  <button class="nav-hazard-btn" onclick="reportHazard()" title="Report hazard">
-    <div class="nav-hazard-shape">
-      <span style="font-size:24px;">⚠️</span>
-      <span style="font-size:9px;font-weight:800;color:#f5a623;letter-spacing:.5px;">REPORT</span>
-    </div>
-  </button>
-
-  <!-- BOTTOM bar -->
-  <div class="nav-bottom-bar">
-    <button class="nav-bottom-icon" onclick="stopNav()" title="Exit navigation">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
-    </button>
-    <div class="nav-bottom-center">
-      <div class="nav-eta-time" id="nav-clock">--:--</div>
-      <div class="nav-eta-detail" id="nav-eta">-- min · -- km</div>
-    </div>
-    <button class="nav-bottom-icon" onclick="_recenterNav()" title="Re-centre map">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
-      </svg>
-    </button>
-  </div>
-
+<!-- Floating status pill (visible when panel is minimized) -->
+<div id="tc-nav-pill" onclick="window._tcNavRestore()">
+  <div class="pill-pulse"></div>
+  <div class="pill-text" id="tc-pill-text">Active Trip</div>
+  <div class="pill-eta" id="tc-pill-eta">—</div>
+  <div class="pill-arrow">›</div>
 </div>
+
+<!-- Return button (shown when user goes to external app) -->
+<div id="tc-nav-return-btn" onclick="window._tcNavRestore()">
+  <div class="return-dot"></div>
+  Return to Trip
+</div>
+
+<!-- Main overlay -->
+<div id="tc-nav-overlay">
+  <div id="tc-nav-panel">
+
+    <!-- Drag handle -->
+    <div class="tc-nav-handle"></div>
+
+    <!-- Header -->
+    <div class="tc-nav-header">
+      <div class="tc-nav-brand">
+        <div class="tc-nav-brand-dot"></div>
+        TruckConnect · Active Trip
+      </div>
+      <div class="tc-nav-header-btns">
+        <div class="tc-nav-icon-btn" onclick="window._tcNavMinimize()" title="Minimize">−</div>
+        <div class="tc-nav-icon-btn" onclick="window._tcNavClose()" title="Close trip" style="color:rgba(255,100,100,.7);">✕</div>
+      </div>
+    </div>
+
+    <!-- Customer info row -->
+    <div class="tc-nav-customer" id="tc-nav-customer">
+      <div class="tc-nav-cust-av" id="tc-nav-cust-av">C</div>
+      <div>
+        <div class="tc-nav-cust-name" id="tc-nav-cust-name">Customer</div>
+        <div class="tc-nav-cust-sub" id="tc-nav-cust-sub">Cargo · Loading...</div>
+      </div>
+      <a class="tc-nav-cust-phone" id="tc-nav-cust-phone" href="#">📞</a>
+    </div>
+
+    <!-- Route strip -->
+    <div class="tc-nav-route-strip">
+      <div class="tc-nav-route-row">
+        <div class="tc-nav-dots">
+          <div class="tc-dot pickup"></div>
+          <div class="tc-dot-line"></div>
+          <div class="tc-dot dropoff"></div>
+        </div>
+        <div class="tc-nav-addrs">
+          <div class="tc-nav-addr-block">
+            <div class="tc-nav-addr-lbl pickup">Pickup</div>
+            <div class="tc-nav-addr-text" id="tc-nav-from">—</div>
+            <div class="tc-nav-addr-meta" id="tc-nav-from-meta">—</div>
+          </div>
+          <div class="tc-nav-addr-block">
+            <div class="tc-nav-addr-lbl dropoff">Drop-off</div>
+            <div class="tc-nav-addr-text" id="tc-nav-to">—</div>
+            <div class="tc-nav-addr-meta" id="tc-nav-to-meta">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="tc-nav-stats">
+      <div class="tc-nav-stat">
+        <div class="tc-nav-stat-num" id="tc-nav-dist">—</div>
+        <div class="tc-nav-stat-lbl">Distance</div>
+      </div>
+      <div class="tc-nav-stat">
+        <div class="tc-nav-stat-num" id="tc-nav-eta">—</div>
+        <div class="tc-nav-stat-lbl">ETA</div>
+      </div>
+      <div class="tc-nav-stat">
+        <div class="tc-nav-stat-num" id="tc-nav-earn">—</div>
+        <div class="tc-nav-stat-lbl">Earnings</div>
+      </div>
+    </div>
+
+    <!-- Status + earnings row -->
+    <div class="tc-nav-status-row">
+      <div class="tc-nav-status-badge accepted" id="tc-nav-status-badge">
+        <div class="pill-pulse" style="width:6px;height:6px;"></div>
+        <span id="tc-nav-status-label">Accepted</span>
+      </div>
+      <div class="tc-nav-earn-pill" id="tc-nav-earn-large">—</div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="tc-nav-progress-wrap">
+      <div class="tc-nav-progress-lbl">
+        <span>Pickup</span>
+        <span id="tc-nav-prog-pct">0%</span>
+        <span>Drop-off</span>
+      </div>
+      <div class="tc-nav-progress-bar">
+        <div class="tc-nav-progress-fill" id="tc-nav-prog-fill" style="width:0%;"></div>
+      </div>
+    </div>
+
+    <div class="tc-nav-divider"></div>
+
+    <!-- Nav app section -->
+    <div class="tc-nav-section-lbl">Navigate with</div>
+    <div class="tc-nav-app-btns">
+      <button class="tc-nav-app-btn gmaps" id="tc-nav-gmaps-btn" onclick="window._tcNavOpenGMaps()">
+        <div class="tc-nav-app-icon">
+          <svg width="20" height="20" viewBox="0 0 18 18" fill="white"><path d="M9 0C5.687 0 3 2.687 3 6c0 4.5 6 12 6 12s6-7.5 6-12c0-3.313-2.687-6-6-6zm0 8.25A2.25 2.25 0 1 1 9 3.75 2.25 2.25 0 0 1 9 8.25z"/></svg>
+        </div>
+        <div class="tc-nav-app-info">
+          <div class="tc-nav-app-name">Google Maps</div>
+          <div class="tc-nav-app-sub">Full 3-stop route</div>
+        </div>
+      </button>
+      <button class="tc-nav-app-btn waze" id="tc-nav-waze-btn" onclick="window._tcNavOpenWaze()">
+        <div class="tc-nav-app-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+        </div>
+        <div class="tc-nav-app-info">
+          <div class="tc-nav-app-name">Waze</div>
+          <div class="tc-nav-app-sub">Live traffic alerts</div>
+        </div>
+      </button>
+    </div>
+
+    <div class="tc-nav-divider" style="margin-top:14px;"></div>
+
+    <!-- Trip quick controls -->
+    <div class="tc-nav-section-lbl">Trip Controls</div>
+    <div class="tc-nav-trip-controls" id="tc-nav-controls">
+      <button class="tc-nav-ctrl-btn tc-nav-ctrl-primary" id="tc-nav-start-btn" onclick="window._tcNavStartTrip()">🚛 Start Trip</button>
+      <button class="tc-nav-ctrl-btn tc-nav-ctrl-complete" id="tc-nav-complete-btn" onclick="window._tcNavCompleteTrip()" style="display:none;">✅ Delivered</button>
+      <button class="tc-nav-ctrl-btn tc-nav-ctrl-danger" id="tc-nav-cancel-btn" onclick="window._tcNavCancelTrip()">✕ Cancel</button>
+    </div>
+
+    <div style="height:8px;"></div>
+
+  </div>
+</div>
+
 
 
 
@@ -2726,7 +2900,7 @@ window.setDriverMapView=function(mode){
   // 3D/satellite view not supported in Leaflet — UI toggle only
 };
 var driverMap=null,driverMarker=null,driverLat=null,driverLng=null;
-var navMap=null,navWatchId=null,isSat=false;
+var navMap=null,navWatchId=null,isSat=false; // navMap/navWatchId kept for compat; not used by new overlay
 var acceptedJobs=[],declinedIds=[],pendingJob=null;
 var dTodayEarn=0,dWeekEarn=0,dTrips=0,currentUid=null;
 var _jobsUnsub=null; // holds the Firestore snapshot unsubscribe function
@@ -2748,18 +2922,13 @@ window.acceptJob=function(){acceptJob();};
 window.hideJobPopup=function(){hideJobPopup();};
 window.searchAvailJobs=function(){searchAvailJobs();};
 window.choosePlan=function(p){choosePlan(p);};
-window.startNav=function(a,b){startNav(a,b);};
-window.stopNav=function(){stopNav();};
-window.toggleNavSound=function(){toggleNavSound();};
-window.toggleNavNightMode=function(){toggleNavNightMode();};
-window.reportHazard=function(){reportHazard();};
-window.navVoiceReport=function(){navVoiceReport();};
+// Removed: startNav, stopNav, toggleNavSound, toggleNavNightMode, reportHazard, navVoiceReport
+// These were part of the old in-app navigation system, replaced by the floating overlay.
 window.openProfileSheet=function(){openProfileSheet();};
 window.openFeatOverlay=function(id){openFeatOverlay(id);};
 window.closeFeatOverlay=function(id){closeFeatOverlay(id);};
 window.showRatingModal=function(a,b){showRatingModal(a,b);};
 window.renderJobs=function(){renderJobs();};
-window.closeRouteMap=function(){closeRouteMap();};
 window.handleGoogleAuth=function(m){handleGoogleAuth(m);};
 window.startTrip=window.startTrip||function(id){startTrip(id);};
 window.completeTrip=window.completeTrip||function(id){completeTrip(id);};
@@ -2875,8 +3044,8 @@ function renderStep(){
       '<div class="fg"><span class="fl">Truck Make & Model</span><input class="fi" id="d-truck" placeholder="e.g. Mercedes-Benz Actros 2645" value="'+(dData.truck||'')+'"/><div class="err-msg" id="d-etk"></div></div>'+
       '<div class="fg"><span class="fl">Truck Type / Capacity</span><input class="fi" id="d-trucktype" placeholder="e.g. 34 Ton Semi, 5 Ton Rigid, 1 Ton Bakkie" value="'+(dData.truckType||'')+'"/><div class="err-msg" id="d-ett"></div></div>'+
       '<div class="frow"><div class="fg"><span class="fl">Registration Number</span><input class="fi" id="d-plate" placeholder="e.g. GP 123-456" value="'+(dData.plate||'')+'"/><div class="err-msg" id="d-epl"></div></div><div class="fg"><span class="fl">Province</span><select class="fs" id="d-prov"><option value="">Select...</option>'+provOpts+'</select></div></div>'+
-      '<div class="upload-box" id="prdp-box" style="border-color:'+(dData.prdpPhoto?'#4ade80':'')+'"><div style="font-size:28px;margin-bottom:8px;" id="prdp-icon">'+(dData.prdpPhoto?'✅':'📤')+'</div><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Upload <strong>PrDP / Licence</strong></div><div style="font-size:11px;color:var(--muted);" id="prdp-status">'+(dData.prdpPhoto?'<span style="color:#166534;">Document uploaded ✓</span>':'Photo only — JPG or PNG required')+'</div><input type="file" id="prdp-file" accept="image/*" capture="environment"/></div>'+
-      '<div class="upload-box" id="disc-box" style="border-color:'+(dData.discPhoto?'#4ade80':'')+'"><div style="font-size:28px;margin-bottom:8px;" id="disc-icon">'+(dData.discPhoto?'✅':'📤')+'</div><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Upload <strong>Licence Disc</strong></div><div style="font-size:11px;color:var(--muted);" id="disc-status">'+(dData.discPhoto?'<span style="color:#166534;">Document uploaded ✓</span>':'Photo only — JPG or PNG required')+'</div><input type="file" id="disc-file" accept="image/*" capture="environment"/></div>'+
+      '<div class="upload-box" id="prdp-box" style="border-color:'+(dData.prdpPhoto?'#4ade80':'')+'"><div style="font-size:28px;margin-bottom:8px;" id="prdp-icon">'+(dData.prdpPhoto?'✅':'📤')+'</div><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Upload <strong>PrDP / Licence</strong></div><div style="font-size:11px;color:var(--muted);" id="prdp-status">'+(dData.prdpPhoto?'<span style="color:#166534;">Document uploaded ✓</span>':'Camera, gallery or files · JPG or PNG')+'</div><input type="file" id="prdp-file" accept="image/*"/></div>'+
+      '<div class="upload-box" id="disc-box" style="border-color:'+(dData.discPhoto?'#4ade80':'')+'"><div style="font-size:28px;margin-bottom:8px;" id="disc-icon">'+(dData.discPhoto?'✅':'📤')+'</div><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Upload <strong>Licence Disc</strong></div><div style="font-size:11px;color:var(--muted);" id="disc-status">'+(dData.discPhoto?'<span style="color:#166534;">Document uploaded ✓</span>':'Camera, gallery or files · JPG or PNG')+'</div><input type="file" id="disc-file" accept="image/*"/></div>'+
       '<button class="btn btn-dark" id="d-next-btn">Continue →</button><button class="btn btn-outline" id="d-back-btn">← Back</button>';
     on('d-next-btn','click',dNext);on('d-back-btn','click',function(){dStep=1;renderStep();});
     setTimeout(function(){
@@ -3258,9 +3427,9 @@ function initDriverMap(){
   var el=document.getElementById('driver-map');
   if(!el)return;
   var dmTileUrl=_isDarkMode
-    ?'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
-    :'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-  driverMap=L.map('driver-map',{zoomControl:false,attributionControl:false}).setView([-26.2041,28.0473],12);
+    ?'https://{s}.basemaps.cartocdn.com/dark_matter/{z}/{x}/{y}.png'
+    :'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png';
+  driverMap=L.map('driver-map',{zoomControl:false,attributionControl:false}).setView([-26.2041,28.0473],14);
   driverMap._dmTileLayer=L.tileLayer(dmTileUrl,{maxZoom:20,attribution:''}).addTo(driverMap);
   setTimeout(function(){if(driverMap)driverMap.invalidateSize();},200);
 
@@ -3335,14 +3504,11 @@ window._toggleTheme=function(){
   if(driverMap&&driverMap._dmTileLayer){
     driverMap.removeLayer(driverMap._dmTileLayer);
     var _newDmTile=_isDarkMode
-      ?'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
-      :'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+      ?'https://{s}.basemaps.cartocdn.com/dark_matter/{z}/{x}/{y}.png'
+      :'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png';
     driverMap._dmTileLayer=L.tileLayer(_newDmTile,{maxZoom:20,attribution:''}).addTo(driverMap);
   }
-  // Update nav map if active
-  if(navMap&&navMap._leaflet_id){
-    // Leaflet nav map — tile layer update not needed for dark/light toggle
-  }
+  // Nav overlay uses no internal map; dark mode handled by overlay CSS
   toast(_isDarkMode?'🌙 Dark mode on':'☀️ Light mode on');
 };
 
@@ -3702,7 +3868,7 @@ function _drawJobRequestRoute(b){
   }
   if(pickupCoords&&pickupCoords[0]&&dropoffCoords&&dropoffCoords[0]){
     // Leg 2: pickup → dropoff (solid bold dark)
-    fetchAndDraw(pickupCoords,dropoffCoords,'#1c1c1e','leg2',false);
+    fetchAndDraw(pickupCoords,dropoffCoords,'#16a34a','leg2',false);
   }
 
   // Fit map to show all points, with delay for popup animation
@@ -3774,16 +3940,15 @@ function showJobPopup(b){
     });
   }
 }
-function hideJobPopup(){
+function hideJobPopup(keepRoute){
   $('job-popup').style.transform='translateY(100%)';
   pendingJob=null;
   if(_jpClockInterval){clearInterval(_jpClockInterval);_jpClockInterval=null;}
-  _clearJobRequestRoute();
-  // Re-centre on driver after dismissing
-  if(driverMap&&driverLat&&driverLng){
-    setTimeout(function(){
-      driverMap.setView([driverLat,driverLng],14);
-    },400);
+  if(!keepRoute){
+    _clearJobRequestRoute();
+    if(driverMap&&driverLat&&driverLng){
+      setTimeout(function(){driverMap.setView([driverLat,driverLng],14);},400);
+    }
   }
 }
 
@@ -3812,7 +3977,9 @@ function acceptJob(){
       dTrips++;dTodayEarn+=(b.priceNum||0);dWeekEarn+=(b.priceNum||0);
       txt('earn-today','R'+dTodayEarn.toLocaleString());txt('earn-week','R'+dWeekEarn.toLocaleString());txt('earn-trips',dTrips);
       acceptedJobs.push(Object.assign({},b,{at:new Date().toLocaleTimeString()}));
-      renderJobs();hideJobPopup();toast('Job accepted! 🎉 Open My Jobs to start.');
+      renderJobs();hideJobPopup(true);toast('Job accepted! 🎉');
+      // Show active job strip on map
+      _showActiveJobStrip(b);
       // ── Resolve coords then broadcast ETA ──
       var _accepted=acceptedJobs[acceptedJobs.length-1];
       _resolveJobCoords(_accepted).then(function(){
@@ -3832,7 +3999,9 @@ function acceptJob(){
     dTrips++;dTodayEarn+=(b.priceNum||0);dWeekEarn+=(b.priceNum||0);
     txt('earn-today','R'+dTodayEarn.toLocaleString());txt('earn-week','R'+dWeekEarn.toLocaleString());txt('earn-trips',dTrips);
     acceptedJobs.push(Object.assign({},b,{at:new Date().toLocaleTimeString()}));
-    renderJobs();hideJobPopup();toast('Job accepted! 🎉');
+    renderJobs();hideJobPopup(true);toast('Job accepted! 🎉');
+    // Show active job strip on map
+    _showActiveJobStrip(b);
   }
 }
 
@@ -3882,6 +4051,75 @@ window.cancelTrip=function(jobId){
     acceptedJobs=acceptedJobs.filter(function(x){return x.id!==jobId;});
     renderJobs();toast('Job cancelled.');
   }
+};
+
+// ── Active job strip ──────────────────────────────────────────
+var _activeJobStripData=null;
+
+function _showActiveJobStrip(b){
+  _activeJobStripData=b;
+  var strip=document.getElementById('active-job-strip');
+  if(!strip)return;
+  // Hide bottom panel, show strip
+  var bp=document.querySelector('.driver-bottom');
+  if(bp)bp.style.display='none';
+
+  var from=(b.from||'—').split(',')[0]; // short version
+  var to=(b.to||'—').split(',')[0];
+  var routeEl=document.getElementById('ajs-route');
+  var earnEl=document.getElementById('ajs-earn');
+  var distEl=document.getElementById('ajs-dist');
+  if(routeEl)routeEl.textContent=from+' → '+to;
+  if(earnEl)earnEl.textContent=b.price||'—';
+  if(distEl)distEl.textContent=b.dist||'—';
+  strip.style.display='block';
+
+  // Nav button — opens the new floating navigation overlay
+  var navBtn=document.getElementById('ajs-nav-btn');
+  if(navBtn){
+    navBtn.textContent='🧭 Open Navigation';
+    navBtn.onclick=function(){
+      window.openNavOverlay(b);
+    };
+  }
+
+  // Cancel button — clear strip, restore panel, clear route, close overlay
+  var cancelBtn=document.getElementById('ajs-cancel-btn');
+  if(cancelBtn){
+    cancelBtn.onclick=function(){
+      _hideActiveJobStrip();
+      _clearJobRequestRoute();
+      window._tcNavClose();
+      if(driverMap&&driverLat&&driverLng)driverMap.setView([driverLat,driverLng],14);
+    };
+  }
+
+  // Auto-open the overlay when a job is accepted
+  setTimeout(function(){
+    window.openNavOverlay(b);
+  }, 600);
+}
+
+function _hideActiveJobStrip(){
+  var strip=document.getElementById('active-job-strip');
+  if(strip)strip.style.display='none';
+  var bp=document.querySelector('.driver-bottom');
+  if(bp)bp.style.display='block';
+  _activeJobStripData=null;
+}
+
+// ── Clear active strip when trip completes/cancels ──
+var _origCompleteTrip=window.completeTrip;
+window.completeTrip=function(jobId){
+  _hideActiveJobStrip();_clearJobRequestRoute();
+  if(window._tcNavClose)window._tcNavClose();
+  if(_origCompleteTrip)_origCompleteTrip(jobId);
+};
+var _origCancelTrip=window.cancelTrip;
+window.cancelTrip=function(jobId){
+  _hideActiveJobStrip();_clearJobRequestRoute();
+  if(window._tcNavClose)window._tcNavClose();
+  if(_origCancelTrip)_origCancelTrip(jobId);
 };
 
 function renderJobs(){
@@ -4164,347 +4402,414 @@ function checkApprovalStatus(){
   });
 }
 
-// (music panel removed — replaced by Waze-style nav UI)
-var _navSoundOn=true;
-var _lastSpoken='';
+// ═══════════════════════════════════════════════════════════════
+// FLOATING NAVIGATION OVERLAY — TruckConnect v6
+// TruckConnect handles logistics. External apps handle routing.
+// ═══════════════════════════════════════════════════════════════
 
-function _speak(text){
-  if(!_navSoundOn)return;
-  if(!window.speechSynthesis)return;
-  if(text===_lastSpoken)return; // don't repeat same instruction
-  _lastSpoken=text;
-  window.speechSynthesis.cancel(); // stop any current speech
-  var u=new SpeechSynthesisUtterance(text);
-  u.lang='en-ZA'; // South African English
-  u.rate=0.95;
-  u.pitch=1;
-  u.volume=1;
-  window.speechSynthesis.speak(u);
-}
-
-function toggleNavSound(){
-  _navSoundOn=!_navSoundOn;
-  var icon=document.getElementById('nav-sound-icon');
-  if(icon){
-    icon.innerHTML=_navSoundOn
-      ?'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>'
-      :'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
-  }
-  if(!_navSoundOn)window.speechSynthesis&&window.speechSynthesis.cancel();
-  else _speak('Sound on');
-}
-
-// ── Hazard reporting ──
-function reportHazard(){
-  toast('⚠️ Hazard reported! Thanks for keeping roads safe.');
-  if(navMap){
-    var c=navMap.getCenter();
-    var hi=L.divIcon({
-      className:'',
-      html:'<div style="font-size:26px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))">⚠️</div>',
-      iconSize:[30,30],iconAnchor:[15,15]
-    });
-    L.marker([c.lat,c.lng],{icon:hi}).addTo(navMap);
-    _speak('Hazard reported ahead. Drive carefully.');
-  }
-}
-
-// ── Voice report (mic button) ──
-function navVoiceReport(){
-  if(!('SpeechRecognition' in window||'webkitSpeechRecognition' in window)){
-    toast('Voice not supported on this device.');return;
-  }
-  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  var r=new SR();r.lang='en-ZA';r.interimResults=false;r.maxAlternatives=1;
-  r.onresult=function(e){
-    var said=(e.results[0][0].transcript||'').toLowerCase();
-    if(said.indexOf('hazard')>-1||said.indexOf('accident')>-1||said.indexOf('danger')>-1){reportHazard();}
-    else{toast('Heard: "'+e.results[0][0].transcript+'"');}
-  };
-  r.onerror=function(){toast('Could not hear you. Try again.');};
-  r.start();
-  toast('🎤 Listening...');
-}
-
-// ── Night / Day mode toggle ──
-var _navNightMode=true;
-var _navDarkTile='https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
-var _navLightTile='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-function toggleNavNightMode(){
-  _navNightMode=!_navNightMode;
-  var ov=document.getElementById('ov-navigation');
-  if(ov){
-    if(_navNightMode){ov.classList.remove('nav-day');}
-    else{ov.classList.add('nav-day');}
-  }
-  if(navMap){
-    navMap.eachLayer(function(l){if(l instanceof L.TileLayer)navMap.removeLayer(l);});
-    L.tileLayer(_navNightMode?_navDarkTile:_navLightTile,{maxZoom:20,attribution:''}).addTo(navMap);
-  }
-}
-
-// ── Clock ticker ──
-var _navClockInterval=null;
-function startNavClock(){
-  function tick(){
-    var now=new Date();
-    var h=now.getHours(),m=now.getMinutes();
-    var ampm=h>=12?'PM':'AM';
-    h=h%12||12;
-    var el=document.getElementById('nav-clock');
-    if(el)el.textContent=h+':'+(m<10?'0'+m:m)+' '+ampm;
-  }
-  tick();
-  _navClockInterval=setInterval(tick,10000);
-}
-function stopNavClock(){
-  if(_navClockInterval){clearInterval(_navClockInterval);_navClockInterval=null;}
-}
-
-function startNav(from,to){
-  var url='https://router.project-osrm.org/route/v1/driving/'+from[0]+','+from[1]+';'+to[0]+','+to[1]+'?overview=full&geometries=geojson&steps=true';
-  fetch(url).then(function(r){return r.json();}).then(function(d){
-    if(!d.routes||!d.routes.length){toast('Could not load navigation route.');return;}
-    var route=d.routes[0];
-    var steps=(route.legs[0]||{}).steps||[];
-    var currentStepIdx=0;
-    var routeCoords=route.geometry.coordinates;
-
-    $('ov-navigation').style.display='flex';
-    _navNightMode=true; // always start in night mode
-    document.getElementById('ov-navigation').classList.remove('nav-day');
-    startNavClock();
-
-    // Distance between two [lng,lat] points in metres
-    function mDist(a,b){
-      var R=6371000,toR=Math.PI/180;
-      var dLat=(b[1]-a[1])*toR,dLng=(b[0]-a[0])*toR;
-      var aa=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(a[1]*toR)*Math.cos(b[1]*toR)*Math.sin(dLng/2)*Math.sin(dLng/2);
-      return R*2*Math.atan2(Math.sqrt(aa),Math.sqrt(1-aa));
-    }
-    // Bearing between two [lng,lat] points in degrees
-    function bearing(a,b){
-      var toR=Math.PI/180;
-      var dLng=(b[0]-a[0])*toR;
-      var lat1=a[1]*toR,lat2=b[1]*toR;
-      var y=Math.sin(dLng)*Math.cos(lat2);
-      var x=Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLng);
-      return (Math.atan2(y,x)*180/Math.PI+360)%360;
-    }
-    // Find nearest route coord index to driver position
-    function nearestIdx(pos){
-      var best=0,bestD=Infinity;
-      for(var i=0;i<routeCoords.length;i++){
-        var dd=mDist(pos,routeCoords[i]);
-        if(dd<bestD){bestD=dd;best=i;}
-      }
-      return best;
-    }
-    // Remaining distance from a coord index to end
-    function remainingDist(fromIdx){
-      var total=0;
-      for(var i=fromIdx;i<routeCoords.length-1;i++) total+=mDist(routeCoords[i],routeCoords[i+1]);
-      return total;
-    }
-    // Reverse geocode current position to get street name
-    function updateStreetPill(lat,lng){
-      fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng)
-        .then(function(r){return r.json();})
-        .then(function(res){
-          var road=res.address&&(res.address.road||res.address.pedestrian||res.address.street||res.address.suburb||'');
-          var pill=document.getElementById('nav-street-pill');
-          if(pill&&road)pill.textContent=road;
-        }).catch(function(){});
-    }
-    // Turn arrow SVGs keyed by maneuver
-    function getTurnSvg(manType,manMod){
-      var key=(manType+' '+manMod).trim().toLowerCase();
-      var arrows={
-        'turn left':   '↰',
-        'turn right':  '↱',
-        'turn sharp left':'↰',
-        'turn sharp right':'↱',
-        'turn slight left':'↖',
-        'turn slight right':'↗',
-        'new name slight left':'↖',
-        'new name slight right':'↗',
-        'continue':    '⬆',
-        'merge':       '⬆',
-        'roundabout':  '↻',
-        'rotary':      '↻',
-        'exit roundabout':'↗',
-        'u-turn':      '↩',
-        'arrive':      '📍',
-        'depart':      '⬆'
-      };
-      return arrows[key]||arrows[manType]||'⬆';
-    }
-    // Show turn instruction for step
-    function showStep(idx){
-      if(!steps[idx])return;
-      var s=steps[idx];
-      var road=s.name||'';
-      var manType=s.maneuver?s.maneuver.type:'';
-      var manMod=s.maneuver?s.maneuver.modifier:'';
-      // Build human instruction
-      var instr='Continue';
-      if(manType==='turn'&&manMod){instr='Turn '+manMod+(road?' onto '+road:'');}
-      else if(manType==='depart'){instr='Head '+(manMod||'forward')+(road?' on '+road:'');}
-      else if(manType==='arrive'){instr='Arriving at destination';}
-      else if(manType==='roundabout'||manType==='rotary'){instr='Take the roundabout';}
-      else if(manType==='u-turn'){instr='Make a U-turn';}
-      else if(road){instr='Continue on '+road;}
-      var d2=s.distance;
-      var distNum=d2>=1000?(d2/1000).toFixed(1):Math.round(d2);
-      var distUnit=d2>=1000?'km':'m';
-      // Update distance with unit span
-      var distEl=document.getElementById('nav-distance-next');
-      if(distEl)distEl.innerHTML=distNum+'<span> '+distUnit+'</span>';
-      txt('nav-instruction',instr);
-      _speak('In '+(d2>=1000?(d2/1000).toFixed(1)+' kilometres':Math.round(d2)+' metres')+', '+instr);
-      var el=document.getElementById('nav-turn-icon');
-      if(el)el.textContent=getTurnSvg(manType,manMod);
-      // Show next step strip
-      var nextStep=steps[idx+1];
-      var strip=document.getElementById('nav-next-strip');
-      if(nextStep&&strip){
-        strip.style.display='flex';
-        var nm=nextStep.maneuver?nextStep.maneuver.type:'';
-        var nmod=nextStep.maneuver?nextStep.maneuver.modifier:'';
-        var nroad=nextStep.name||'';
-        var ni='Continue';
-        if(nm==='turn'&&nmod){ni='Turn '+nmod+(nroad?' onto '+nroad:'');}
-        else if(nm==='arrive'){ni='Arrive at destination';}
-        else if(nroad){ni='Continue on '+nroad;}
-        txt('nav-next-instruction',ni);
-        var nd=nextStep.distance;
-        txt('nav-next-dist',nd>=1000?(nd/1000).toFixed(1)+' km':Math.round(nd)+' m');
-      } else if(strip){
-        strip.style.display='none';
-      }
-    }
-
-    // ── Driver triangle marker ──
-    var _driverMarker=null;
-    function createDriverIcon(deg){
-      return L.divIcon({
-        className:'',
-        html:'<div style="width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-bottom:28px solid #00c8ff;filter:drop-shadow(0 0 8px rgba(0,200,255,.75));transform:rotate('+deg+'deg);transform-origin:center bottom;"></div>',
-        iconSize:[26,28],iconAnchor:[13,28]
-      });
-    }
-
-    // Draw route polyline
-    var _navPolyline=null,_navPolylineBg=null;
-    var _navMarkers=[];
-    function drawRoute(){
-      if(!navMap)return;
-      if(_navPolylineBg){navMap.removeLayer(_navPolylineBg);}
-      if(_navPolyline){navMap.removeLayer(_navPolyline);}
-      _navMarkers.forEach(function(m){navMap.removeLayer(m);});
-      _navMarkers=[];
-      var latlngs=routeCoords.map(function(c){return[c[1],c[0]];});
-      // Glow layer (thicker, semi-transparent)
-      _navPolylineBg=L.polyline(latlngs,{color:'#00c8ff',weight:14,opacity:.25}).addTo(navMap);
-      // Main cyan route line
-      _navPolyline=L.polyline(latlngs,{color:'#00c8ff',weight:7,opacity:.95}).addTo(navMap);
-      // Destination pin
-      var endIcon=L.divIcon({
-        className:'',
-        html:'<div style="font-size:28px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))">📍</div>',
-        iconSize:[30,30],iconAnchor:[15,30]
-      });
-      var endMark=L.marker([to[1],to[0]],{icon:endIcon}).addTo(navMap);
-      _navMarkers.push(endMark);
-      // Driver marker at start
-      _driverMarker=L.marker([from[1],from[0]],{icon:createDriverIcon(0),zIndexOffset:1000}).addTo(navMap);
-      _navMarkers.push(_driverMarker);
-      navMap.setView([from[1],from[0]],16);
-    }
-
-    if(!navMap){
-      var navTileEl=document.getElementById('nav-map-tiles');
-      if(!navTileEl){toast('Map container not found.');return;}
-      navMap=L.map('nav-map-tiles',{zoomControl:false,attributionControl:false}).setView([from[1],from[0]],16);
-      L.tileLayer(_navDarkTile,{maxZoom:20,attribution:''}).addTo(navMap);
-      drawRoute();
-      setTimeout(function(){if(navMap)navMap.invalidateSize();},200);
-    } else {
-      navMap.invalidateSize();
-      navMap.setView([from[1],from[0]],16);
-      drawRoute();
-    }
-
-    showStep(0);
-    var startDist=route.distance>=1000?(route.distance/1000).toFixed(1)+' km':Math.round(route.distance)+' m';
-    _speak('Navigation started. Your destination is '+startDist+' away.');
-    var initDist=route.distance/1000,initDur=route.duration;
-    var initMins=Math.round(initDur/60);
-    var initHrs=Math.floor(initMins/60);
-    txt('nav-eta',(initHrs>0?initHrs+'h '+(initMins%60)+'m':initMins+' min')+' · '+initDist.toFixed(1)+' km');
-
-    // Populate Open-in-app links
-    var orig=from[1]+','+from[0];
-    var dest=to[1]+','+to[0];
-    var wLink=document.getElementById('nav-waze-link');
-    var gLink=document.getElementById('nav-gmaps-link');
-    if(wLink)wLink.href='https://waze.com/ul?ll='+dest+'&navigate=yes&from='+encodeURIComponent(orig);
-    if(gLink)gLink.href='https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(orig)+'&destination='+encodeURIComponent(dest)+'&travelmode=driving';
-
-    // Set initial street pill from start location
-    updateStreetPill(from[1],from[0]);
-
-    var _lastStreetUpdate=0;
-    if(navigator.geolocation)navWatchId=navigator.geolocation.watchPosition(function(pos){
-      var speed=Math.round((pos.coords.speed||0)*3.6);
-      txt('nav-speed',speed);
-      var lat=pos.coords.latitude,lng=pos.coords.longitude;
-      var driverPos=[lng,lat];
-
-      // Update driver marker position + bearing
-      var ni=nearestIdx(driverPos);
-      var bear=0;
-      if(ni<routeCoords.length-1){bear=bearing(routeCoords[ni],routeCoords[ni+1]);}
-      if(_driverMarker){
-        _driverMarker.setLatLng([lat,lng]);
-        _driverMarker.setIcon(createDriverIcon(bear));
-      }
-      // Pan map keeping driver at lower-center
-      if(navMap)navMap.panTo([lat,lng],{animate:true,duration:0.5});
-
-      // Update street name pill every 8 s
-      var now=Date.now();
-      if(now-_lastStreetUpdate>8000){_lastStreetUpdate=now;updateStreetPill(lat,lng);}
-
-      var remKm=remainingDist(ni)/1000;
-      var avgKmh=speed>5?speed:40;
-      var etaMins=Math.round((remKm/avgKmh)*60);
-      var etaHrs=Math.floor(etaMins/60);
-      txt('nav-eta',(etaHrs>0?etaHrs+'h '+(etaMins%60)+'m':etaMins+' min')+' · '+remKm.toFixed(1)+' km');
-
-      // Advance to next step when close to next maneuver
-      if(steps[currentStepIdx+1]){
-        var nextManLoc=steps[currentStepIdx+1].maneuver.location;
-        if(mDist(driverPos,nextManLoc)<30){currentStepIdx++;showStep(currentStepIdx);}
-      }
-      // Destination arrival check
-      if(mDist(driverPos,[to[0],to[1]])<50){
-        _speak('You have arrived at your destination.');
-        toast('📍 You have arrived!');
-        stopNav();
-      }
-    },{enableHighAccuracy:true,maximumAge:2000,timeout:10000});
-  }).catch(function(e){toast('Navigation error: '+e.message);});
-}
-function stopNav(){
-  if(navWatchId){navigator.geolocation.clearWatch(navWatchId);navWatchId=null;}
-  stopNavClock();
-  if(navMap){navMap.remove();navMap=null;}
-  $('ov-navigation').style.display='none';
-}
-window._recenterNav=function(){
-  if(navMap&&driverLat&&driverLng){navMap.setView([driverLat,driverLng],17,{animate:true});}
+var _tcNavState = {
+  active: false,
+  minimized: false,
+  job: null,
+  tripStatus: 'accepted', // accepted | in_progress
+  etaInterval: null,
+  visibilityListener: null
 };
+
+// ── Build navigation URLs ──
+function _tcBuildNavUrls(job) {
+  var driverOrig = (driverLat && driverLng) ? (driverLat + ',' + driverLng) : '';
+  var pickupStr = '', dropoffStr = '';
+
+  if (job.fromCoords && job.fromCoords[0] && job.fromCoords[1]) {
+    pickupStr = job.fromCoords[1] + ',' + job.fromCoords[0];
+  } else if (job.from) {
+    pickupStr = job.from + ', South Africa';
+  }
+  if (job.toCoords && job.toCoords[0] && job.toCoords[1]) {
+    dropoffStr = job.toCoords[1] + ',' + job.toCoords[0];
+  } else if (job.to) {
+    dropoffStr = job.to + ', South Africa';
+  }
+
+  // Google Maps: 3-stop (driver → pickup → dropoff)
+  var gUrl = 'https://www.google.com/maps/dir/?api=1&travelmode=driving';
+  if (driverOrig) gUrl += '&origin=' + encodeURIComponent(driverOrig);
+  if (pickupStr) gUrl += '&waypoints=' + encodeURIComponent(pickupStr);
+  if (dropoffStr) gUrl += '&destination=' + encodeURIComponent(dropoffStr);
+  else if (pickupStr) gUrl += '&destination=' + encodeURIComponent(pickupStr);
+
+  // Waze: navigate to pickup first, then dropoff (Waze doesn't support waypoints easily)
+  var wUrl = '';
+  if (job.fromCoords && job.fromCoords[0] && job.fromCoords[1]) {
+    wUrl = 'https://waze.com/ul?ll=' + job.fromCoords[1] + ',' + job.fromCoords[0] + '&navigate=yes';
+    if (driverOrig) wUrl += '&from=' + encodeURIComponent(driverOrig);
+  } else if (job.from) {
+    wUrl = 'https://waze.com/ul?q=' + encodeURIComponent(job.from + ', South Africa') + '&navigate=yes';
+  }
+
+  return { gUrl: gUrl, wUrl: wUrl };
+}
+
+// ── Fetch ETA from OSRM (free, no API key) ──
+function _tcFetchETA(job, cb) {
+  if (!driverLat || !driverLng) { if (cb) cb(null); return; }
+  var dest = job.fromCoords || job.toCoords;
+  if (!dest || !dest[0] || !dest[1]) { if (cb) cb(null); return; }
+  var url = 'https://router.project-osrm.org/route/v1/driving/' +
+    driverLng + ',' + driverLat + ';' + dest[0] + ',' + dest[1] +
+    '?overview=false';
+  fetch(url)
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.routes && d.routes[0]) {
+        var r = d.routes[0];
+        var km = (r.distance / 1000).toFixed(1);
+        var mins = Math.round(r.duration / 60);
+        var etaStr = mins < 60 ? mins + ' min' : Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm';
+        if (cb) cb({ km: km, mins: mins, etaStr: etaStr, distStr: km + ' km' });
+      } else {
+        if (cb) cb(null);
+      }
+    })
+    .catch(function() { if (cb) cb(null); });
+}
+
+// ── Populate overlay with job data ──
+function _tcNavPopulate(job) {
+  var s = _tcNavState.job = job;
+  // Addresses
+  var fromShort = (s.from || '—').split(',')[0];
+  var toShort = (s.to || '—').split(',')[0];
+  txt('tc-nav-from', s.from || '—');
+  txt('tc-nav-to', s.to || '—');
+  txt('tc-nav-from-meta', 'Pickup location');
+  txt('tc-nav-to-meta', 'Drop-off location');
+  // Customer
+  var custName = s.customerName || s.cname || 'Customer';
+  var custInit = custName.charAt(0).toUpperCase();
+  txt('tc-nav-cust-av', custInit);
+  txt('tc-nav-cust-name', custName);
+  var cargoLbl = (s.cargo || s.truckType || 'Cargo') + ' · ' + (s.weight || '');
+  txt('tc-nav-cust-sub', cargoLbl.replace(/\s·\s$/, ''));
+  var phone = s.customerPhone || s.phone || '';
+  var phoneEl = document.getElementById('tc-nav-cust-phone');
+  if (phoneEl) {
+    if (phone) { phoneEl.href = 'tel:' + phone; phoneEl.textContent = '📞'; }
+    else { phoneEl.style.display = 'none'; }
+  }
+  // Stats
+  txt('tc-nav-dist', s.dist || '—');
+  txt('tc-nav-earn', s.price || '—');
+  txt('tc-nav-earn-large', s.price || '—');
+  // Pill
+  txt('tc-pill-text', fromShort + ' → ' + toShort);
+  // ETA async
+  _tcFetchETA(job, function(eta) {
+    if (eta) {
+      txt('tc-nav-eta', eta.etaStr);
+      txt('tc-nav-dist', eta.distStr);
+      txt('tc-nav-from-meta', eta.distStr + ' to pickup · via GPS');
+      txt('tc-pill-eta', eta.etaStr);
+    }
+  });
+  // Status
+  _tcNavSetStatus(s.ds || 'accepted');
+  // Controls: show start if accepted, complete if in_progress
+  _tcNavUpdateControls(s.ds || 'accepted');
+  // Progress
+  _tcNavSetProgress(s.ds === 'in_progress' ? 50 : 10);
+}
+
+function _tcNavSetStatus(status) {
+  _tcNavState.tripStatus = status;
+  var badge = document.getElementById('tc-nav-status-badge');
+  var label = document.getElementById('tc-nav-status-label');
+  if (!badge || !label) return;
+  badge.className = 'tc-nav-status-badge ' + status;
+  label.textContent = status === 'in_progress' ? '🚛 In Progress' : '✅ Accepted';
+}
+
+function _tcNavUpdateControls(status) {
+  var startBtn = document.getElementById('tc-nav-start-btn');
+  var completeBtn = document.getElementById('tc-nav-complete-btn');
+  if (!startBtn || !completeBtn) return;
+  if (status === 'in_progress') {
+    startBtn.style.display = 'none';
+    completeBtn.style.display = '';
+  } else {
+    startBtn.style.display = '';
+    completeBtn.style.display = 'none';
+  }
+}
+
+function _tcNavSetProgress(pct) {
+  var fill = document.getElementById('tc-nav-prog-fill');
+  var lbl = document.getElementById('tc-nav-prog-pct');
+  if (fill) fill.style.width = Math.min(100, Math.max(0, pct)) + '%';
+  if (lbl) lbl.textContent = Math.round(pct) + '%';
+}
+
+// ── Open the overlay ──
+window.openNavOverlay = function(job) {
+  if (!job) return;
+  _tcNavState.active = true;
+  _tcNavState.minimized = false;
+  _tcNavState.job = job;
+  _tcNavPopulate(job);
+
+  var overlay = document.getElementById('tc-nav-overlay');
+  var panel = document.getElementById('tc-nav-panel');
+  var pill = document.getElementById('tc-nav-pill');
+  var returnBtn = document.getElementById('tc-nav-return-btn');
+  if (overlay) overlay.classList.add('active');
+  if (pill) pill.classList.remove('visible');
+  if (returnBtn) returnBtn.style.display = 'none';
+  // Animate panel in after a tiny delay
+  setTimeout(function() {
+    if (panel) panel.classList.add('open');
+  }, 30);
+
+  // Start periodic ETA refresh
+  if (_tcNavState.etaInterval) clearInterval(_tcNavState.etaInterval);
+  _tcNavState.etaInterval = setInterval(function() {
+    if (_tcNavState.active && _tcNavState.job) {
+      _tcFetchETA(_tcNavState.job, function(eta) {
+        if (eta) {
+          txt('tc-nav-eta', eta.etaStr);
+          txt('tc-nav-dist', eta.distStr);
+          txt('tc-pill-eta', eta.etaStr);
+        }
+      });
+    }
+  }, 45000); // refresh every 45s
+
+  // Page visibility API — show return btn when user switches apps
+  if (_tcNavState.visibilityListener) {
+    document.removeEventListener('visibilitychange', _tcNavState.visibilityListener);
+  }
+  _tcNavState.visibilityListener = function() {
+    var returnBtn2 = document.getElementById('tc-nav-return-btn');
+    if (document.hidden) {
+      // User left the app
+      if (returnBtn2) returnBtn2.style.display = 'none';
+    } else {
+      // User came back — show return button briefly
+      if (_tcNavState.active && returnBtn2) {
+        returnBtn2.style.display = 'flex';
+        setTimeout(function() {
+          if (returnBtn2 && !_tcNavState.minimized) returnBtn2.style.display = 'none';
+        }, 6000);
+      }
+    }
+  };
+  document.addEventListener('visibilitychange', _tcNavState.visibilityListener);
+};
+
+// ── Minimize: hide panel, show pill ──
+window._tcNavMinimize = function() {
+  _tcNavState.minimized = true;
+  var panel = document.getElementById('tc-nav-panel');
+  var pill = document.getElementById('tc-nav-pill');
+  var returnBtn = document.getElementById('tc-nav-return-btn');
+  if (panel) panel.classList.remove('open');
+  if (pill) pill.classList.add('visible');
+  if (returnBtn) returnBtn.style.display = 'flex';
+};
+
+// ── Restore: hide pill, show panel ──
+window._tcNavRestore = function() {
+  _tcNavState.minimized = false;
+  var panel = document.getElementById('tc-nav-panel');
+  var pill = document.getElementById('tc-nav-pill');
+  var returnBtn = document.getElementById('tc-nav-return-btn');
+  if (pill) pill.classList.remove('visible');
+  if (returnBtn) returnBtn.style.display = 'none';
+  setTimeout(function() {
+    if (panel) panel.classList.add('open');
+  }, 20);
+};
+
+// ── Close: full cleanup ──
+window._tcNavClose = function() {
+  _tcNavState.active = false;
+  _tcNavState.minimized = false;
+  if (_tcNavState.etaInterval) { clearInterval(_tcNavState.etaInterval); _tcNavState.etaInterval = null; }
+  if (_tcNavState.visibilityListener) {
+    document.removeEventListener('visibilitychange', _tcNavState.visibilityListener);
+    _tcNavState.visibilityListener = null;
+  }
+  var overlay = document.getElementById('tc-nav-overlay');
+  var panel = document.getElementById('tc-nav-panel');
+  var pill = document.getElementById('tc-nav-pill');
+  var returnBtn = document.getElementById('tc-nav-return-btn');
+  if (panel) panel.classList.remove('open');
+  if (pill) pill.classList.remove('visible');
+  if (returnBtn) returnBtn.style.display = 'none';
+  setTimeout(function() {
+    if (overlay) overlay.classList.remove('active');
+  }, 420);
+};
+
+// ── Open Google Maps (full 3-stop route) ──
+window._tcNavOpenGMaps = function() {
+  var job = _tcNavState.job;
+  if (!job) { toast('No active trip.'); return; }
+  var urls = _tcBuildNavUrls(job);
+  window.open(urls.gUrl, '_blank');
+  window._tcNavMinimize();
+  toast('🗺️ Opening Google Maps...');
+};
+
+// ── Open Waze ──
+window._tcNavOpenWaze = function() {
+  var job = _tcNavState.job;
+  if (!job) { toast('No active trip.'); return; }
+  var urls = _tcBuildNavUrls(job);
+  if (!urls.wUrl) { toast('Could not build Waze URL. Try Google Maps.'); return; }
+  window.open(urls.wUrl, '_blank');
+  window._tcNavMinimize();
+  toast('🚗 Opening Waze...');
+};
+
+// ── Trip controls wired to TruckConnect trip management ──
+window._tcNavStartTrip = function() {
+  var job = _tcNavState.job;
+  if (!job) return;
+  window.startTrip(job.id);
+  _tcNavSetStatus('in_progress');
+  _tcNavUpdateControls('in_progress');
+  _tcNavSetProgress(50);
+  toast('🚛 Trip started! Navigate with Google Maps or Waze above.');
+};
+
+window._tcNavCompleteTrip = function() {
+  var job = _tcNavState.job;
+  if (!job) return;
+  _tcNavSetProgress(100);
+  setTimeout(function() {
+    window.completeTrip(job.id);
+    window._tcNavClose();
+    toast('✅ Delivery complete! Great work.');
+  }, 500);
+};
+
+window._tcNavCancelTrip = function() {
+  var job = _tcNavState.job;
+  if (!job) return;
+  if (!confirm('Cancel this trip? The job will return to the available pool.')) return;
+  window.cancelTrip(job.id);
+  window._tcNavClose();
+};
+
+// ── Legacy compat: _showNavPicker redirects to new overlay ──
+window._showNavPicker = function(gUrl, wUrl) {
+  // Show a minimal picker if called outside overlay context
+  var existing = document.getElementById('nav-app-picker');
+  if (existing) existing.remove();
+  var sheet = document.createElement('div');
+  sheet.id = 'nav-app-picker';
+  sheet.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:flex-end;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);';
+  sheet.innerHTML =
+    '<div style="width:100%;background:#0d0d1a;border-radius:24px 24px 0 0;padding:24px 20px 44px;border-top:1px solid rgba(255,255,255,.08);">' +
+      '<div style="width:36px;height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin:0 auto 22px;"></div>' +
+      '<div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:6px;">Navigate with</div>' +
+      '<div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:20px;">TruckConnect stays active underneath</div>' +
+      '<div style="display:flex;flex-direction:column;gap:10px;">' +
+        '<a href="' + gUrl + '" target="_blank" onclick="document.getElementById(\'nav-app-picker\').remove()" style="display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#1a56db,#4285F4);border-radius:16px;padding:16px;text-decoration:none;box-shadow:0 4px 20px rgba(66,133,244,.3);">' +
+          '<div style="width:40px;height:40px;background:rgba(255,255,255,.15);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
+            '<svg width="20" height="20" viewBox="0 0 18 18" fill="white"><path d="M9 0C5.687 0 3 2.687 3 6c0 4.5 6 12 6 12s6-7.5 6-12c0-3.313-2.687-6-6-6zm0 8.25A2.25 2.25 0 1 1 9 3.75 2.25 2.25 0 0 1 9 8.25z"/></svg>' +
+          '</div>' +
+          '<div><div style="font-size:15px;font-weight:800;color:#fff;">Google Maps</div><div style="font-size:11px;color:rgba(255,255,255,.55);margin-top:2px;">Full 3-stop route · Pickup → Drop-off</div></div>' +
+        '</a>' +
+        (wUrl ?
+        '<a href="' + wUrl + '" target="_blank" onclick="document.getElementById(\'nav-app-picker\').remove()" style="display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#0060d1,#0082ff);border-radius:16px;padding:16px;text-decoration:none;box-shadow:0 4px 20px rgba(0,130,255,.3);">' +
+          '<div style="width:40px;height:40px;background:rgba(255,255,255,.15);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
+            '<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>' +
+          '</div>' +
+          '<div><div style="font-size:15px;font-weight:800;color:#fff;">Waze</div><div style="font-size:11px;color:rgba(255,255,255,.55);margin-top:2px;">Live traffic & community alerts</div></div>' +
+        '</a>' : '') +
+      '</div>' +
+      '<button onclick="document.getElementById(\'nav-app-picker\').remove()" style="width:100%;margin-top:14px;background:transparent;border:none;padding:12px;font-size:14px;font-weight:600;color:rgba(255,255,255,.3);cursor:pointer;font-family:\'Sora\',sans-serif;">Cancel</button>' +
+    '</div>';
+  sheet.addEventListener('click', function(e) { if (e.target === sheet) sheet.remove(); });
+  document.body.appendChild(sheet);
+};
+
+// ── navigateTo: uses new overlay if a trip is active, otherwise legacy picker ──
+window.navigateTo = function(toCoords, toAddress) {
+  if (_tcNavState.active && _tcNavState.job) {
+    window._tcNavRestore();
+    return;
+  }
+  function _buildAndShow(fromLng, fromLat) {
+    var orig = fromLat + ',' + fromLng;
+    var gUrl = '', wUrl = '';
+    if (toCoords && toCoords[0] && toCoords[1]) {
+      var dest = toCoords[1] + ',' + toCoords[0];
+      gUrl = 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(orig) +
+        '&destination=' + encodeURIComponent(dest) + '&travelmode=driving';
+      wUrl = 'https://waze.com/ul?ll=' + dest + '&navigate=yes&from=' + encodeURIComponent(orig);
+    } else if (toAddress) {
+      gUrl = 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(orig) +
+        '&destination=' + encodeURIComponent(toAddress + ', South Africa') + '&travelmode=driving';
+      wUrl = 'https://waze.com/ul?q=' + encodeURIComponent(toAddress + ', South Africa') + '&navigate=yes&from=' + encodeURIComponent(orig);
+    } else {
+      toast('No destination available'); return;
+    }
+    _showNavPicker(gUrl, wUrl);
+  }
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function(pos) { driverLat = pos.coords.latitude; driverLng = pos.coords.longitude; _buildAndShow(driverLng, driverLat); },
+      function() {
+        if (driverLat && driverLng) { toast('⚠️ Using last known location'); _buildAndShow(driverLng, driverLat); }
+        else toast('❌ Could not get your location. Enable GPS and try again.');
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 5000 }
+    );
+  } else if (driverLat && driverLng) {
+    _buildAndShow(driverLng, driverLat);
+  } else {
+    toast('❌ GPS not available on this device');
+  }
+};
+
+// ── _showFullRouteMap: shows new overlay if active, otherwise legacy picker ──
+window._showFullRouteMap = function(encodedJob) {
+  var job = JSON.parse(decodeURIComponent(encodedJob));
+  if (_tcNavState.active) {
+    window._tcNavRestore();
+    return;
+  }
+  // Build and show nav picker
+  var orig = (driverLat && driverLng) ? (driverLat + ',' + driverLng) : '';
+  var gUrl = 'https://www.google.com/maps/dir/?api=1&travelmode=driving';
+  if (orig) gUrl += '&origin=' + encodeURIComponent(orig);
+  var pickupStr = '';
+  if (job.fromCoords && job.fromCoords[0] && job.fromCoords[1]) {
+    pickupStr = job.fromCoords[1] + ',' + job.fromCoords[0];
+  } else if (job.from) {
+    pickupStr = job.from + ', South Africa';
+  }
+  if (pickupStr) gUrl += '&waypoints=' + encodeURIComponent(pickupStr);
+  var dropoffStr = '';
+  if (job.toCoords && job.toCoords[0] && job.toCoords[1]) {
+    dropoffStr = job.toCoords[1] + ',' + job.toCoords[0];
+  } else if (job.to) {
+    dropoffStr = job.to + ', South Africa';
+  }
+  if (dropoffStr) gUrl += '&destination=' + encodeURIComponent(dropoffStr);
+  var wUrl = '';
+  if (job.fromCoords && job.fromCoords[0] && job.fromCoords[1]) {
+    wUrl = 'https://waze.com/ul?ll=' + job.fromCoords[1] + ',' + job.fromCoords[0] + '&navigate=yes' + (orig ? '&from=' + encodeURIComponent(orig) : '');
+  } else if (job.to) {
+    wUrl = 'https://waze.com/ul?q=' + encodeURIComponent(job.to + ', South Africa') + '&navigate=yes' + (orig ? '&from=' + encodeURIComponent(orig) : '');
+  }
+  _showNavPicker(gUrl, wUrl);
+};
+
+
 
 // ═══════════════════════════════════════════════════════════════
 // NEW FEATURES — v5
@@ -5343,12 +5648,14 @@ _seedEarningsHistory();
 
 
 
-  // ── IN-APP ROUTE MAP ──
-  var _routeMap = null;
+  // ── ROUTE MAP (redirected to floating nav overlay) ──
+  // The old in-app route map overlay has been removed.
+  // openRouteMap now opens the floating nav overlay instead.
+  var _routeMap = null;       // kept for compat refs
   var _routeMapLayers = [];
 
   function _clearRouteMapLayers(){
-    _routeMapLayers.forEach(function(l){ try{ _routeMap.removeLayer(l); }catch(e){} });
+    _routeMapLayers.forEach(function(l){ try{ if(_routeMap)_routeMap.removeLayer(l); }catch(e){} });
     _routeMapLayers = [];
   }
 
@@ -5362,132 +5669,39 @@ _seedEarningsHistory();
     return m<60?m+' min':Math.floor(m/60)+'h '+(m%60)+'m';
   }
 
-  // Draw a single route leg and return promise of {distance,duration}
+  // Draw a single route leg — used by driver home map only
   function _drawLeg(coordA, coordB, color, glowColor){
+    if(!_routeMap) return Promise.resolve({distance:0,duration:0});
     var url='https://router.project-osrm.org/route/v1/driving/'+coordA[0]+','+coordA[1]+';'+coordB[0]+','+coordB[1]+'?overview=full&geometries=geojson';
     return fetch(url).then(function(r){return r.json();}).then(function(d){
       if(!d.routes||!d.routes.length) return {distance:0,duration:0};
       var route=d.routes[0];
       var latlngs=route.geometry.coordinates.map(function(c){return[c[1],c[0]];});
-      // Glow layer
       var glow=L.polyline(latlngs,{color:glowColor||color,weight:16,opacity:.18}).addTo(_routeMap);
-      // Main line
       var line=L.polyline(latlngs,{color:color,weight:6,opacity:.95,lineJoin:'round',lineCap:'round'}).addTo(_routeMap);
       _routeMapLayers.push(glow,line);
       return {distance:route.distance,duration:route.duration,bounds:line.getBounds()};
     }).catch(function(){ return {distance:0,duration:0}; });
   }
 
+  // openRouteMap — opens floating nav overlay with job context
   window.openRouteMap = function(jobData){
     var job = typeof jobData==='string' ? JSON.parse(decodeURIComponent(jobData)) : jobData;
-    var overlay = document.getElementById('route-map-overlay');
-    overlay.classList.add('open');
-
-    // Populate addresses in panel
-    var pickupAddr = job.from || 'Pickup location';
-    var dropoffAddr = job.to || 'Drop-off location';
-    document.getElementById('rmo-pickup-addr').textContent = pickupAddr;
-    document.getElementById('rmo-dropoff-addr').textContent = dropoffAddr;
-    document.getElementById('rmo-title').textContent = pickupAddr.split(',')[0] + ' → ' + (dropoffAddr.split(',')[0]);
-    document.getElementById('rmo-sub').textContent = 'Loading route...';
-    document.getElementById('rmo-total-dist').textContent = '...';
-    document.getElementById('rmo-total-time').textContent = '...';
-    document.getElementById('rmo-leg1-meta').textContent = 'Calculating...';
-    document.getElementById('rmo-leg2-meta').textContent = 'Calculating...';
-
-    // Init map
-    setTimeout(function(){
-      var container = document.getElementById('route-map-tiles');
-      if(!_routeMap){
-        _routeMap = L.map('route-map-tiles', {zoomControl:false, attributionControl:false}).setView([-29.0, 25.0], 6);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',{maxZoom:20}).addTo(_routeMap);
-      } else {
-        _routeMap.invalidateSize();
-        _clearRouteMapLayers();
-      }
-
-      _getDriverPosition().then(function(driverPos){
-        // Resolve coords if missing
-        var tasks=[];
-        if(!job.fromCoords && job.from) tasks.push(_geocodeAddress(job.from).then(function(c){if(c)job.fromCoords=c;}));
-        if(!job.toCoords && job.to)   tasks.push(_geocodeAddress(job.to).then(function(c){if(c)job.toCoords=c;}));
-        return Promise.all(tasks).then(function(){ return driverPos; });
-      }).then(function(driverPos){
-        var hasDriver = driverPos && driverPos[0] && driverPos[1];
-        var hasPickup = job.fromCoords && job.fromCoords[0] && job.fromCoords[1];
-        var hasDropoff = job.toCoords && job.toCoords[0] && job.toCoords[1];
-
-        // Place markers
-        if(hasDriver){
-          var dIcon = '<div style="width:14px;height:14px;background:#00c8ff;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 3px rgba(0,200,255,.35),0 0 16px rgba(0,200,255,.6);"></div>';
-          var dm = L.marker([driverPos[1],driverPos[0]],{icon:_divMarker(dIcon,[14,14],[7,7]),zIndexOffset:1000}).addTo(_routeMap);
-          _routeMapLayers.push(dm);
-        }
-        if(hasPickup){
-          var pIcon = '<div style="width:26px;height:26px;background:#f59e0b;border-radius:50%;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 2px 10px rgba(0,0,0,.4);">📦</div>';
-          var pm = L.marker([job.fromCoords[1],job.fromCoords[0]],{icon:_divMarker(pIcon,[26,26],[13,13]),zIndexOffset:900}).addTo(_routeMap);
-          _routeMapLayers.push(pm);
-        }
-        if(hasDropoff){
-          var dIcon2 = '<div style="width:26px;height:26px;background:#16a34a;border-radius:50%;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 2px 10px rgba(0,0,0,.4);">📍</div>';
-          var dpm = L.marker([job.toCoords[1],job.toCoords[0]],{icon:_divMarker(dIcon2,[26,26],[13,13]),zIndexOffset:800}).addTo(_routeMap);
-          _routeMapLayers.push(dpm);
-        }
-
-        // Draw legs
-        var leg1Promise = (hasDriver && hasPickup)
-          ? _drawLeg(driverPos, job.fromCoords, '#00c8ff', '#00c8ff')
-          : Promise.resolve({distance:0,duration:0});
-
-        var leg2Promise = (hasPickup && hasDropoff)
-          ? _drawLeg(job.fromCoords, job.toCoords, '#16a34a', '#16a34a')
-          : Promise.resolve({distance:0,duration:0});
-
-        Promise.all([leg1Promise, leg2Promise]).then(function(results){
-          var leg1=results[0], leg2=results[1];
-          var totalDist=leg1.distance+leg2.distance;
-          var totalTime=leg1.duration+leg2.duration;
-
-          document.getElementById('rmo-total-dist').textContent = totalDist>0 ? _routeFmtDist(totalDist) : '—';
-          document.getElementById('rmo-total-time').textContent = totalTime>0 ? _routeFmtTime(totalTime) : '—';
-          document.getElementById('rmo-sub').textContent = totalDist>0 ? _routeFmtDist(totalDist)+' total · '+_routeFmtTime(totalTime) : '3-stop route';
-          document.getElementById('rmo-leg1-meta').textContent = (leg1.distance>0 ? _routeFmtDist(leg1.distance)+' · '+_routeFmtTime(leg1.duration) : '—') + ' to pickup';
-          document.getElementById('rmo-leg2-meta').textContent = (leg2.distance>0 ? _routeFmtDist(leg2.distance)+' · '+_routeFmtTime(leg2.duration) : '—') + ' to drop-off';
-
-          // Fit map to all layers
-          var allLayers = _routeMapLayers.filter(function(l){ return l.getBounds; });
-          if(allLayers.length){
-            var bounds = allLayers.reduce(function(b,l){
-              try{ return b ? b.extend(l.getBounds()) : l.getBounds(); }catch(e){ return b; }
-            }, null);
-            if(bounds) _routeMap.fitBounds(bounds, {padding:[60,60]});
-          } else if(hasPickup){
-            _routeMap.setView([job.fromCoords[1],job.fromCoords[0]],12);
-          }
-          setTimeout(function(){_routeMap.invalidateSize();},200);
-        });
-
-        // Update nav buttons
-        var orig = (driverPos&&driverPos[1]&&driverPos[0]) ? driverPos[1]+','+driverPos[0] : '';
-        var pickup = hasPickup ? job.fromCoords[1]+','+job.fromCoords[0] : (job.from?job.from+', South Africa':'');
-        var dropoff = hasDropoff ? job.toCoords[1]+','+job.toCoords[0] : (job.to?job.to+', South Africa':'');
-        var gUrl = 'https://www.google.com/maps/dir/?api=1&travelmode=driving'
-          + (orig ? '&origin='+encodeURIComponent(orig) : '')
-          + (pickup ? '&waypoints='+encodeURIComponent(hasPickup?pickup:pickup) : '')
-          + (dropoff ? '&destination='+encodeURIComponent(hasDropoff?dropoff:dropoff) : '');
-        var wUrl = hasDropoff
-          ? 'https://waze.com/ul?ll='+job.toCoords[1]+','+job.toCoords[0]+'&navigate=yes'+(orig?'&from='+encodeURIComponent(orig):'')
-          : (job.to ? 'https://waze.com/ul?q='+encodeURIComponent(job.to+', South Africa')+'&navigate=yes' : '#');
-        document.getElementById('rmo-gmaps-btn').href = gUrl;
-        document.getElementById('rmo-waze-btn').href = wUrl;
-      }).catch(function(e){ document.getElementById('rmo-sub').textContent='Could not load route'; });
-    }, 100);
+    // If this is an active trip, reopen the overlay
+    if(_tcNavState && _tcNavState.active){
+      window._tcNavRestore();
+      return;
+    }
+    // Otherwise open overlay freshly
+    window.openNavOverlay(job);
   };
 
   window.closeRouteMap = function(){
-    document.getElementById('route-map-overlay').classList.remove('open');
-    if(_routeMap){ _routeMap.invalidateSize(); }
+    // No-op: old overlay removed. Minimize nav overlay if open.
+    if(_tcNavState && _tcNavState.active) window._tcNavMinimize();
   };
+
+
 
   // Simple 2-point route on main driver map (used internally)
   function _showRoute(from, to){
@@ -5633,181 +5847,133 @@ _seedEarningsHistory();
   on('d-sat-btn','click',function(){isSat=!isSat;txt('d-sat-btn',isSat?'🗺️':'🛰️');});
   on('jp-accept-btn','click',acceptJob);
   on('jp-decline-btn','click',function(){if(pendingJob)declinedIds.push(pendingJob.id);hideJobPopup();});
-  on('nav-close-btn','click',stopNav);
+  // nav-close-btn no longer exists; kept for safety
+  // on('nav-close-btn','click', function(){});
 
-  // ── Nav app picker ──
-  // Shows a small bottom sheet letting driver choose Google Maps or Waze
-  window._showNavPicker=function(gUrl, wUrl){
-    var existing=document.getElementById('nav-app-picker');
-    if(existing)existing.remove();
-    var sheet=document.createElement('div');
-    sheet.id='nav-app-picker';
-    sheet.style.cssText='position:fixed;inset:0;z-index:9999;display:flex;align-items:flex-end;background:rgba(0,0,0,.5);';
-    sheet.innerHTML=
-      '<div style="width:100%;background:var(--card);border-radius:22px 22px 0 0;padding:24px 20px 40px;font-family:\'Sora\',sans-serif;">'+
-        '<div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px;"></div>'+
-        '<div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:6px;">Open Navigation In</div>'+
-        '<div style="font-size:13px;color:var(--muted);margin-bottom:20px;">Choose your preferred app</div>'+
-        '<div style="display:flex;flex-direction:column;gap:10px;">'+
-          '<a href="'+gUrl+'" target="_blank" onclick="document.getElementById(\'nav-app-picker\').remove()" style="display:flex;align-items:center;gap:14px;background:#f8f8f8;border:1.5px solid var(--border);border-radius:14px;padding:16px;text-decoration:none;">'+
-            '<div style="width:40px;height:40px;background:#4285F4;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+
-              '<svg width="20" height="20" viewBox="0 0 18 18" fill="white"><path d="M9 0C5.687 0 3 2.687 3 6c0 4.5 6 12 6 12s6-7.5 6-12c0-3.313-2.687-6-6-6zm0 8.25A2.25 2.25 0 1 1 9 3.75 2.25 2.25 0 0 1 9 8.25z"/></svg>'+
-            '</div>'+
-            '<div><div style="font-size:15px;font-weight:700;color:var(--text);">Google Maps</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">Turn-by-turn navigation</div></div>'+
-          '</a>'+
-          '<a href="'+wUrl+'" target="_blank" onclick="document.getElementById(\'nav-app-picker\').remove()" style="display:flex;align-items:center;gap:14px;background:#f8f8f8;border:1.5px solid var(--border);border-radius:14px;padding:16px;text-decoration:none;">'+
-            '<div style="width:40px;height:40px;background:#0082ff;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+
-              '<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>'+
-            '</div>'+
-            '<div><div style="font-size:15px;font-weight:700;color:var(--text);">Waze</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">Live traffic & alerts</div></div>'+
-          '</a>'+
-        '</div>'+
-        '<button onclick="document.getElementById(\'nav-app-picker\').remove()" style="width:100%;margin-top:14px;background:transparent;border:none;padding:12px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;font-family:\'Sora\',sans-serif;">Cancel</button>'+
-      '</div>';
-    sheet.addEventListener('click',function(e){if(e.target===sheet)sheet.remove();});
-    document.body.appendChild(sheet);
-  };
+  // ══ UPLOAD ACTION SHEET ══
+  // Intercepts .upload-box and doc upload triggers to show Camera / Gallery / Files chooser
+  (function(){
+    var _uasCb = null; // callback(file) when user picks
 
-  // Navigation helper — shows nav app picker
-  window._navBtn=function(btn){
-    var toCoords=JSON.parse(decodeURIComponent(btn.dataset.navTo||'null'));
-    var toAddr=decodeURIComponent(btn.dataset.navAddr||'');
-    // If in-app coords available, use startNav
-    if(toCoords&&toCoords[0]&&toCoords[1]&&driverLat&&driverLng){
-      startNav([driverLng,driverLat],toCoords);
-      return;
-    }
-    var orig=(driverLat&&driverLng)?(driverLat+','+driverLng):'';
-    var gUrl='',wUrl='';
-    if(toCoords&&toCoords[0]&&toCoords[1]){
-      var dest=toCoords[1]+','+toCoords[0];
-      gUrl='https://www.google.com/maps/dir/?api=1'+(orig?'&origin='+encodeURIComponent(orig):'')+
-        '&destination='+encodeURIComponent(dest)+'&travelmode=driving';
-      wUrl='https://waze.com/ul?ll='+dest+'&navigate=yes'+(orig?'&from='+encodeURIComponent(orig):'');
-    } else if(toAddr){
-      gUrl='https://www.google.com/maps/dir/?api=1'+(orig?'&origin='+encodeURIComponent(orig):'')+
-        '&destination='+encodeURIComponent(toAddr+', South Africa')+'&travelmode=driving';
-      wUrl='https://waze.com/ul?q='+encodeURIComponent(toAddr+', South Africa')+'&navigate=yes'+(orig?'&from='+encodeURIComponent(orig):'');
-    } else {
-      toast('No destination available');return;
-    }
-    _showNavPicker(gUrl,wUrl);
-  };
+    window._uasOpen = function(title, callback){
+      _uasCb = callback;
+      var sheet = document.getElementById('upload-action-sheet');
+      var titleEl = document.getElementById('uas-title');
+      if(titleEl) titleEl.textContent = title || 'Upload Document';
+      if(sheet) sheet.classList.add('open');
+    };
 
-  // ── Full 3-stop route map (driver → pickup → dropoff) ──
-  window._showFullRouteMap = function(encodedJob) {
-    var job = JSON.parse(decodeURIComponent(encodedJob));
-    var orig = (driverLat && driverLng) ? (driverLat + ',' + driverLng) : '';
+    window._uasClose = function(){
+      var sheet = document.getElementById('upload-action-sheet');
+      if(sheet) sheet.classList.remove('open');
+      _uasCb = null;
+    };
 
-    // Google Maps: multi-stop origin → waypoint(pickup) → destination(dropoff)
-    var gUrl = 'https://www.google.com/maps/dir/?api=1&travelmode=driving';
-    if (orig) gUrl += '&origin=' + encodeURIComponent(orig);
-
-    // Pickup waypoint
-    var pickupStr = '';
-    if (job.fromCoords && job.fromCoords[0] && job.fromCoords[1]) {
-      pickupStr = job.fromCoords[1] + ',' + job.fromCoords[0];
-    } else if (job.from) {
-      pickupStr = job.from + ', South Africa';
-    }
-    if (pickupStr) gUrl += '&waypoints=' + encodeURIComponent(pickupStr);
-
-    // Dropoff destination
-    var dropoffStr = '';
-    if (job.toCoords && job.toCoords[0] && job.toCoords[1]) {
-      dropoffStr = job.toCoords[1] + ',' + job.toCoords[0];
-    } else if (job.to) {
-      dropoffStr = job.to + ', South Africa';
-    }
-    if (dropoffStr) gUrl += '&destination=' + encodeURIComponent(dropoffStr);
-
-    // Waze: navigate to dropoff (multi-stop not supported in Waze deep link)
-    var wUrl = '';
-    if (job.toCoords && job.toCoords[0] && job.toCoords[1]) {
-      wUrl = 'https://waze.com/ul?ll=' + job.toCoords[1] + ',' + job.toCoords[0] + '&navigate=yes' + (orig ? '&from=' + encodeURIComponent(orig) : '');
-    } else if (job.to) {
-      wUrl = 'https://waze.com/ul?q=' + encodeURIComponent(job.to + ', South Africa') + '&navigate=yes' + (orig ? '&from=' + encodeURIComponent(orig) : '');
+    // Close when tapping backdrop
+    var sheet = document.getElementById('upload-action-sheet');
+    if(sheet){
+      sheet.addEventListener('click', function(e){
+        if(e.target === sheet) window._uasClose();
+      });
     }
 
-    // Show custom picker with note about 3-stop route
-    var existing = document.getElementById('nav-app-picker');
-    if (existing) existing.remove();
-    var sheet = document.createElement('div');
-    sheet.id = 'nav-app-picker';
-    sheet.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:flex-end;background:rgba(0,0,0,.5);';
-    sheet.innerHTML =
-      '<div style="width:100%;background:var(--card);border-radius:22px 22px 0 0;padding:24px 20px 40px;font-family:\'Sora\',sans-serif;">' +
-        '<div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px;"></div>' +
-        '<div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:4px;">View Full Route</div>' +
-        '<div style="font-size:12px;color:var(--muted);margin-bottom:6px;">📍 Your Location → 🟡 Pickup → 🟢 Drop-off</div>' +
-        '<div style="background:#f5f5f5;border-radius:10px;padding:10px 14px;margin-bottom:18px;font-size:12px;color:#666;line-height:1.6;">' +
-          '<strong style="color:var(--text);">Note:</strong> Google Maps shows the full 3-stop route. Waze navigates directly to the drop-off.' +
-        '</div>' +
-        '<div style="display:flex;flex-direction:column;gap:10px;">' +
-          '<a href="' + gUrl + '" target="_blank" onclick="document.getElementById(\'nav-app-picker\').remove()" style="display:flex;align-items:center;gap:14px;background:#f8f8f8;border:1.5px solid var(--border);border-radius:14px;padding:16px;text-decoration:none;">' +
-            '<div style="width:40px;height:40px;background:#4285F4;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
-              '<svg width="20" height="20" viewBox="0 0 18 18" fill="white"><path d="M9 0C5.687 0 3 2.687 3 6c0 4.5 6 12 6 12s6-7.5 6-12c0-3.313-2.687-6-6-6zm0 8.25A2.25 2.25 0 1 1 9 3.75 2.25 2.25 0 0 1 9 8.25z"/></svg>' +
-            '</div>' +
-            '<div><div style="font-size:15px;font-weight:700;color:var(--text);">Google Maps</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">Full 3-stop route · Your Location → Pickup → Drop-off</div></div>' +
-          '</a>' +
-          (wUrl ?
-          '<a href="' + wUrl + '" target="_blank" onclick="document.getElementById(\'nav-app-picker\').remove()" style="display:flex;align-items:center;gap:14px;background:#f8f8f8;border:1.5px solid var(--border);border-radius:14px;padding:16px;text-decoration:none;">' +
-            '<div style="width:40px;height:40px;background:#0082ff;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
-              '<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>' +
-            '</div>' +
-            '<div><div style="font-size:15px;font-weight:700;color:var(--text);">Waze</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">Live traffic · Navigates to Drop-off</div></div>' +
-          '</a>' : '') +
-        '</div>' +
-        '<button onclick="document.getElementById(\'nav-app-picker\').remove()" style="width:100%;margin-top:14px;background:transparent;border:none;padding:12px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;font-family:\'Sora\',sans-serif;">Cancel</button>' +
-      '</div>';
-    sheet.addEventListener('click', function(e) { if (e.target === sheet) sheet.remove(); });
-    document.body.appendChild(sheet);
-  };
+    // Wire each of the three inputs to the callback
+    ['uas-cam-input','uas-gal-input','uas-fil-input'].forEach(function(id){
+      var inp = document.getElementById(id);
+      if(!inp) return;
+      inp.addEventListener('change', function(){
+        var file = inp.files && inp.files[0];
+        if(!file){ window._uasClose(); return; }
+        window._uasClose();
+        if(_uasCb){ _uasCb(file); }
+        inp.value = ''; // reset so same file can be re-selected
+      });
+    });
 
-  // navigateTo — always uses driver's live GPS as origin, then shows picker
-  window.navigateTo=function(toCoords, toAddress){
-    function _buildAndShow(fromLng, fromLat){
-      var orig=fromLat+','+fromLng;
-      var gUrl='',wUrl='';
-      if(toCoords&&toCoords[0]&&toCoords[1]){
-        var dest=toCoords[1]+','+toCoords[0];
-        gUrl='https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(orig)+
-          '&destination='+encodeURIComponent(dest)+'&travelmode=driving';
-        wUrl='https://waze.com/ul?ll='+dest+'&navigate=yes&from='+encodeURIComponent(orig);
-      } else if(toAddress){
-        gUrl='https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(orig)+
-          '&destination='+encodeURIComponent(toAddress+', South Africa')+'&travelmode=driving';
-        wUrl='https://waze.com/ul?q='+encodeURIComponent(toAddress+', South Africa')+'&navigate=yes&from='+encodeURIComponent(orig);
-      } else {
-        toast('No destination available');return;
-      }
-      _showNavPicker(gUrl,wUrl);
-    }
-    if(navigator.geolocation){
-      navigator.geolocation.getCurrentPosition(
-        function(pos){driverLat=pos.coords.latitude;driverLng=pos.coords.longitude;_buildAndShow(driverLng,driverLat);},
-        function(){
-          if(driverLat&&driverLng){toast('⚠️ Using last known location');_buildAndShow(driverLng,driverLat);}
-          else toast('❌ Could not get your location. Enable GPS and try again.');
-        },
-        {enableHighAccuracy:true,timeout:8000,maximumAge:5000}
-      );
-    } else if(driverLat&&driverLng){
-      _buildAndShow(driverLng,driverLat);
-    } else {
-      toast('❌ GPS not available on this device');
-    }
-  };
+    // ── Helper: open UAS and return a promise that resolves with a dataUrl ──
+    window._uasPickDataUrl = function(title){
+      return new Promise(function(resolve, reject){
+        window._uasOpen(title, function(file){
+          var reader = new FileReader();
+          reader.onload = function(e){ resolve({ dataUrl: e.target.result, file: file }); };
+          reader.onerror = function(){ reject(new Error('Could not read file')); };
+          reader.readAsDataURL(file);
+        });
+      });
+    };
+
+    // ── Intercept .upload-box clicks to use action sheet ──
+    // This handles prdp-box and disc-box which are built dynamically
+    document.addEventListener('click', function(e){
+      var box = e.target.closest('.upload-box');
+      if(!box) return;
+      // Don't intercept if the box has no UAS data attribute (not a doc upload)
+      var inputInBox = box.querySelector('input[type=file]');
+      if(!inputInBox) return;
+      // Prevent the native input from opening directly
+      e.preventDefault();
+      e.stopPropagation();
+
+      var boxId = box.id;
+      var title = boxId === 'prdp-box' ? 'Upload PrDP / Licence' :
+                  boxId === 'disc-box' ? 'Upload Licence Disc' :
+                  boxId === 'pod-upload-box' ? 'Proof of Delivery' : 'Upload Document';
+
+      window._uasOpen(title, function(file){
+        // Inject the selected file into the original input so existing onChange handlers fire
+        var dt = new DataTransfer();
+        dt.items.add(file);
+        inputInBox.files = dt.files;
+        inputInBox.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+    }, true); // capture phase so we intercept before native input
+
+  })();
 
   document.addEventListener('click',function(e){
-    if(e.target.classList.contains('nav-start-btn')){
-      var from=JSON.parse(decodeURIComponent(e.target.dataset.from||'null'));
-      var to=JSON.parse(decodeURIComponent(e.target.dataset.to||'null'));
-      if(from&&to)startNav(from,to);
-    }
+    // Legacy nav-start-btn handler removed; new overlay handles navigation
   });
 })();
 </script>
+<!-- ══ UPLOAD ACTION SHEET ══ -->
+<div id="upload-action-sheet">
+  <div class="uas-panel">
+    <div class="uas-handle"></div>
+    <div class="uas-title" id="uas-title">Upload Document</div>
+
+    <!-- Camera -->
+    <button class="uas-btn" id="uas-cam-btn">
+      <div class="uas-btn-icon cam">📷</div>
+      <div class="uas-btn-label">
+        <div>Take a Photo</div>
+        <div class="uas-btn-sub">Use your camera right now</div>
+      </div>
+      <input type="file" id="uas-cam-input" accept="image/*" capture="environment"/>
+    </button>
+
+    <!-- Gallery -->
+    <button class="uas-btn" id="uas-gal-btn">
+      <div class="uas-btn-icon gal">🖼️</div>
+      <div class="uas-btn-label">
+        <div>Choose an Image</div>
+        <div class="uas-btn-sub">Pick from your gallery or photos</div>
+      </div>
+      <input type="file" id="uas-gal-input" accept="image/jpeg,image/png,image/webp,image/heic,image/heif"/>
+    </button>
+
+    <!-- Files -->
+    <button class="uas-btn" id="uas-fil-btn">
+      <div class="uas-btn-icon fil">📁</div>
+      <div class="uas-btn-label">
+        <div>Browse Files</div>
+        <div class="uas-btn-sub">PDF, JPG, PNG from your storage</div>
+      </div>
+      <input type="file" id="uas-fil-input" accept=".jpg,.jpeg,.png,.pdf,.heic,.heif,.webp"/>
+    </button>
+
+    <button class="uas-cancel" onclick="window._uasClose()">Cancel</button>
+  </div>
+</div>
 
 </body>
 </html>
