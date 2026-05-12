@@ -952,75 +952,76 @@ body.dark-mode .job-card{background:var(--card); border-color:var(--border); box
 /* ════════════════════════════════════
    WAZE-STYLE NAVIGATION OVERLAY
 ════════════════════════════════════ */
-#tc-nav-pill{position:fixed;top:calc(env(safe-area-inset-top,0px)+10px);left:50%;transform:translateX(-50%) translateY(-80px);z-index:3100;display:none;align-items:center;gap:8px;background:rgba(10,10,28,0.97);border:1px solid rgba(255,255,255,0.14);border-radius:40px;padding:10px 20px 10px 14px;box-shadow:0 4px 28px rgba(0,0,0,0.55);backdrop-filter:blur(24px);cursor:pointer;transition:transform 0.36s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;max-width:calc(100vw - 32px);}
-#tc-nav-pill.visible{display:flex;transform:translateX(-50%) translateY(0);}
-.pill-pulse{width:9px;height:9px;border-radius:50%;background:#00e676;flex-shrink:0;animation:pillPulse 2s ease infinite;}
-@keyframes pillPulse{0%{box-shadow:0 0 0 0 rgba(0,230,118,.45);}70%{box-shadow:0 0 0 8px rgba(0,230,118,0);}100%{box-shadow:0 0 0 0 rgba(0,230,118,0);}}
-.pill-text{font-size:12px;font-weight:700;color:#fff;flex:1;overflow:hidden;text-overflow:ellipsis;}
-.pill-eta{font-size:12px;font-weight:900;color:#00e676;flex-shrink:0;margin-left:4px;}
-.pill-arrow{font-size:14px;color:rgba(255,255,255,.35);flex-shrink:0;}
+/* ════════════════════════════════════
+   FLOATING NAVIGATION OVERLAY — Waze style v2
+════════════════════════════════════ */
+@keyframes livePulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
+@keyframes returnBounce{0%{transform:scale(.6);opacity:0;}100%{transform:scale(1);opacity:1;}}
+#tc-nav-pill{position:fixed;bottom:0;left:0;right:0;z-index:3100;display:none;align-items:center;gap:14px;background:#111827;border-top:1.5px solid rgba(255,255,255,.1);padding:14px 20px max(24px,env(safe-area-inset-bottom,16px));cursor:pointer;}
+#tc-nav-pill.visible{display:flex;}
+.pill-truck{font-size:28px;flex-shrink:0;}
+.pill-info{flex:1;min-width:0;}
+.pill-brand{font-size:13px;font-weight:800;color:#fff;line-height:1;}
+.pill-brand-nav{color:#00e676;font-weight:800;}
+.pill-detail{font-size:12px;color:rgba(255,255,255,.45);margin-top:3px;}
+.pill-up{font-size:20px;color:rgba(255,255,255,.35);}
 #tc-nav-return-btn{position:fixed;top:calc(env(safe-area-inset-top,0px)+60px);left:14px;z-index:3050;display:none;align-items:center;gap:8px;background:rgba(7,7,20,.95);border:1px solid rgba(255,255,255,.14);border-radius:30px;padding:9px 16px;box-shadow:0 4px 20px rgba(0,0,0,.5);backdrop-filter:blur(20px);cursor:pointer;font-size:12px;font-weight:700;color:#fff;animation:returnBounce 0.4s cubic-bezier(.34,1.56,.64,1);}
-@keyframes returnBounce{from{transform:scale(.5);opacity:0;}to{transform:scale(1);opacity:1;}}
-#tc-nav-return-btn .return-dot{width:7px;height:7px;border-radius:50%;background:#00e676;box-shadow:0 0 6px rgba(0,230,118,.6);}
+.return-dot{width:7px;height:7px;border-radius:50%;background:#00e676;box-shadow:0 0 6px rgba(0,230,118,.6);}
 #tc-nav-overlay{position:fixed;inset:0;z-index:3000;pointer-events:none;display:none;}
 #tc-nav-overlay.active{display:block;}
-#tc-nav-panel{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 0.3s ease;}
+#tc-nav-panel{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .3s ease;}
 #tc-nav-panel.open{opacity:1;pointer-events:all;}
-.tc-waze-topbar{position:absolute;top:0;left:0;right:0;background:linear-gradient(180deg,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.7) 80%,transparent 100%);padding:calc(env(safe-area-inset-top,0px)+12px) 16px 32px;display:flex;align-items:center;gap:14px;pointer-events:all;}
-.tc-waze-turn-icon{width:54px;height:54px;border-radius:16px;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;}
-.tc-waze-turn-info{flex:1;}
-.tc-waze-turn-dist{font-size:28px;font-weight:900;color:#fff;line-height:1;letter-spacing:-1px;}
-.tc-waze-turn-street{font-size:13px;font-weight:600;color:rgba(255,255,255,0.75);margin-top:3px;}
-.tc-waze-minimize{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;color:rgba(255,255,255,0.7);cursor:pointer;flex-shrink:0;}
-.tc-waze-right{position:absolute;right:12px;top:130px;display:flex;flex-direction:column;gap:8px;pointer-events:all;}
-.tc-waze-speed-box{background:#fff;border-radius:12px;padding:10px 12px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.3);min-width:60px;}
-.tc-waze-speed-num{font-size:24px;font-weight:900;color:#111;line-height:1;}
-.tc-waze-speed-lbl{font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
-.tc-waze-eta-box{background:rgba(0,0,0,0.75);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 12px;text-align:center;backdrop-filter:blur(10px);min-width:60px;}
-.tc-waze-eta-num{font-size:18px;font-weight:900;color:#fff;line-height:1;}
-.tc-waze-eta-lbl{font-size:9px;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
-.tc-waze-bottom{position:absolute;bottom:0;left:0;right:0;background:rgba(7,7,22,0.97);border-radius:24px 24px 0 0;padding:0 0 max(24px,env(safe-area-inset-bottom));box-shadow:0 -8px 40px rgba(0,0,0,.6);backdrop-filter:blur(30px);border-top:1px solid rgba(255,255,255,.08);pointer-events:all;}
-.tc-waze-handle{width:36px;height:4px;background:rgba(255,255,255,.18);border-radius:2px;margin:14px auto 0;}
-.tc-waze-route-bar{display:flex;align-items:center;gap:0;padding:14px 18px 12px;border-bottom:1px solid rgba(255,255,255,.07);}
-.tc-waze-route-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.tc-waze-route-dot.pickup{background:#f59e0b;box-shadow:0 0 8px rgba(245,158,11,.5);}
-.tc-waze-route-dot.dropoff{background:#00e676;box-shadow:0 0 8px rgba(0,230,118,.5);}
-.tc-waze-route-line{width:1.5px;height:22px;background:rgba(255,255,255,.15);margin:0 4.25px;}
-.tc-waze-route-addrs{flex:1;margin-left:12px;display:flex;flex-direction:column;gap:10px;}
-.tc-waze-addr{font-size:12px;font-weight:700;color:rgba(255,255,255,.85);}
-.tc-waze-addr-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;margin-bottom:2px;}
-.tc-waze-addr-lbl.pickup{color:#f59e0b;}
-.tc-waze-addr-lbl.dropoff{color:#00e676;}
-.tc-waze-stats{display:grid;grid-template-columns:1fr 1fr 1fr;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07);}
-.tc-waze-stat{text-align:center;padding:6px 0;}
-.tc-waze-stat-num{font-size:18px;font-weight:900;color:#fff;letter-spacing:-.4px;line-height:1;}
-.tc-waze-stat-lbl{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.6px;margin-top:3px;font-weight:700;}
-.tc-waze-customer{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,.07);}
-.tc-waze-cust-av{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;}
-.tc-waze-cust-name{font-size:13px;font-weight:700;color:#fff;flex:1;}
-.tc-waze-cust-sub{font-size:11px;color:rgba(255,255,255,.35);}
-.tc-waze-call-btn{background:rgba(0,230,118,.12);border:1px solid rgba(0,230,118,.2);border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;color:#00e676;cursor:pointer;text-decoration:none;flex-shrink:0;}
-.tc-waze-nav-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px 0;}
-.tc-waze-nav-btn{display:flex;align-items:center;gap:10px;padding:13px 14px;border-radius:16px;border:none;cursor:pointer;font-family:'Sora',sans-serif;text-decoration:none;transition:transform .15s;}
-.tc-waze-nav-btn:active{transform:scale(.96);}
-.tc-waze-nav-btn.gmaps{background:linear-gradient(135deg,#1a56db,#4285F4);box-shadow:0 4px 18px rgba(66,133,244,.35);}
-.tc-waze-nav-btn.waze{background:linear-gradient(135deg,#0060d1,#0082ff);box-shadow:0 4px 18px rgba(0,130,255,.35);}
-.tc-waze-nav-icon{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.tc-waze-nav-name{font-size:13px;font-weight:800;color:#fff;}
-.tc-waze-nav-sub{font-size:10px;color:rgba(255,255,255,.55);margin-top:1px;}
-.tc-waze-controls{display:flex;gap:10px;padding:10px 16px 0;}
-.tc-waze-ctrl{flex:1;border:none;border-radius:14px;padding:14px 8px;font-family:'Sora',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:all .18s;}
-.tc-waze-ctrl:active{transform:scale(.97);}
-.tc-waze-ctrl-start{background:linear-gradient(135deg,#00b248,#00e676);color:#000;box-shadow:0 4px 16px rgba(0,230,118,.3);}
-.tc-waze-ctrl-complete{background:linear-gradient(135deg,#1a56db,#4285F4);color:#fff;box-shadow:0 4px 16px rgba(66,133,244,.3);}
-.tc-waze-ctrl-cancel{background:rgba(220,38,38,.12);color:#ef4444;border:1px solid rgba(220,38,38,.2);}
-.tc-waze-progress{padding:10px 16px 0;}
-.tc-waze-progress-track{height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;}
-.tc-waze-progress-fill{height:100%;border-radius:2px;background:linear-gradient(to right,#00b248,#00e676);transition:width .6s ease;box-shadow:0 0 8px rgba(0,230,118,.4);}
-.tc-waze-progress-lbls{display:flex;justify-content:space-between;font-size:9px;font-weight:700;color:rgba(255,255,255,.3);margin-top:5px;text-transform:uppercase;letter-spacing:.5px;}
-.tc-waze-status{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:30px;font-size:10px;font-weight:800;margin:8px 16px 0;}
-.tc-waze-status.accepted{background:rgba(0,230,118,.12);color:#00e676;border:1px solid rgba(0,230,118,.25);}
-.tc-waze-status.in_progress{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.25);}
+#tc-nav-brand-bar{position:absolute;top:0;left:0;right:0;background:rgba(8,10,22,.96);backdrop-filter:blur(24px);padding:calc(env(safe-area-inset-top,0px)+10px) 16px 12px;display:flex;align-items:center;gap:12px;pointer-events:all;border-bottom:1px solid rgba(255,255,255,.08);}
+.nav-brand-logo{font-size:32px;flex-shrink:0;}
+.nav-brand-info{flex:1;}
+.nav-brand-title{font-size:14px;font-weight:800;color:#fff;line-height:1;}
+.nav-brand-live{display:flex;align-items:center;gap:5px;margin-top:3px;}
+.nav-live-dot{width:6px;height:6px;border-radius:50%;background:#00e676;box-shadow:0 0 8px rgba(0,230,118,.8);animation:livePulse 1.6s ease-in-out infinite;}
+.nav-live-text{font-size:11px;font-weight:700;color:#00e676;}
+.nav-open-maps{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:8px 14px;font-size:11px;font-weight:700;color:#fff;cursor:pointer;font-family:'Sora',sans-serif;white-space:nowrap;flex-shrink:0;transition:all .15s;}
+.nav-open-maps:active{background:rgba(255,255,255,.18);}
+#tc-nav-turn-card{position:absolute;left:14px;right:14px;top:calc(env(safe-area-inset-top,0px)+72px);background:rgba(8,10,22,.92);backdrop-filter:blur(20px);border-radius:20px;padding:14px 16px;display:flex;align-items:center;gap:14px;pointer-events:all;border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.55);}
+.nav-turn-arrow{width:54px;height:54px;border-radius:14px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;}
+.nav-turn-info{flex:1;min-width:0;}
+.nav-turn-dist{font-size:30px;font-weight:900;color:#fff;line-height:1;letter-spacing:-1.5px;}
+.nav-turn-street{font-size:13px;font-weight:600;color:rgba(255,255,255,.6);margin-top:4px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.nav-speed-ring{width:58px;height:58px;border-radius:50%;border:3px solid #3b82f6;background:rgba(59,130,246,.12);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 16px rgba(59,130,246,.3);}
+.nav-speed-num{font-size:22px;font-weight:900;color:#fff;line-height:1;}
+.nav-speed-unit{font-size:8px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-top:1px;}
+#tc-nav-fabs{position:absolute;right:12px;top:50%;transform:translateY(-40%);display:flex;flex-direction:column;gap:10px;pointer-events:all;}
+.nav-fab{width:46px;height:46px;border-radius:14px;background:rgba(8,10,22,.88);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.45);transition:all .15s;color:#fff;}
+.nav-fab:active{transform:scale(.9);}
+#tc-nav-bottom{position:absolute;bottom:0;left:0;right:0;background:#0a0c16;border-radius:26px 26px 0 0;padding:0 0 max(20px,env(safe-area-inset-bottom,16px));box-shadow:0 -10px 50px rgba(0,0,0,.7);border-top:1px solid rgba(255,255,255,.08);pointer-events:all;}
+.nav-bottom-handle{width:38px;height:4px;background:rgba(255,255,255,.14);border-radius:2px;margin:12px auto 0;}
+.nav-route-row{display:grid;grid-template-columns:1fr 1px 1fr;padding:14px 18px 12px;border-bottom:1px solid rgba(255,255,255,.07);}
+.nav-route-divider{background:rgba(255,255,255,.08);}
+.nav-route-point{padding:0 6px;}
+.nav-route-point:first-child{padding-left:0;}
+.nav-route-point:last-child{padding-right:0;}
+.nav-point-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px;}
+.nav-point-badge.pickup{color:#4ade80;}
+.nav-point-badge.dropoff{color:#f87171;}
+.nav-badge-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.nav-badge-dot.pickup{background:#4ade80;box-shadow:0 0 6px rgba(74,222,128,.6);}
+.nav-badge-dot.dropoff{background:#f87171;box-shadow:0 0 6px rgba(248,113,113,.6);}
+.nav-point-addr{font-size:13px;font-weight:700;color:#fff;line-height:1.3;}
+.nav-point-city{font-size:11px;color:rgba(255,255,255,.3);margin-top:2px;}
+.nav-stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;padding:12px 0 10px;border-bottom:1px solid rgba(255,255,255,.07);}
+.nav-stat{text-align:center;}
+.nav-stat-icon{font-size:18px;line-height:1;margin-bottom:4px;}
+.nav-stat-val{font-size:19px;font-weight:900;color:#fff;letter-spacing:-.5px;line-height:1;}
+.nav-stat-lbl{font-size:9px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.6px;margin-top:3px;}
+.nav-primary-row{padding:12px 16px 0;}
+.nav-primary-btn{width:100%;border:none;border-radius:16px;padding:16px;font-family:'Sora',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all .15s;}
+.nav-primary-btn:active{transform:scale(.98);}
+.nav-btn-start{background:linear-gradient(135deg,#15803d,#22c55e);color:#fff;box-shadow:0 4px 20px rgba(34,197,94,.35);}
+.nav-btn-complete{background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:#fff;box-shadow:0 4px 20px rgba(59,130,246,.35);}
+.nav-actions-row{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:10px;padding:10px 16px 0;}
+.nav-act{border:none;border-radius:14px;padding:14px 6px;font-family:'Sora',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.nav-act:active{transform:scale(.96);}
+.nav-act-mute{background:rgba(255,255,255,.07);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.1);}
+.nav-act-end{background:#7f1d1d;color:#fca5a5;border:1px solid rgba(220,38,38,.3);font-size:13px;}
+.nav-act-min{background:rgba(255,255,255,.07);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.1);}
 
 
 /* ════════════════════════════════════
@@ -2098,144 +2099,133 @@ window._FB = {auth,db,createUserWithEmailAndPassword,signInWithEmailAndPassword,
 
 
 <!-- ══════════════════════════════════════════════════════════
-     FLOATING NAVIGATION OVERLAY — TruckConnect v6
-     TruckConnect stays active underneath.
-     Google Maps / Waze handle actual routing.
+     NAVIGATION OVERLAY — Waze-style v2
 ══════════════════════════════════════════════════════════ -->
 
-<!-- Floating status pill -->
+<!-- Minimised bottom pill -->
 <div id="tc-nav-pill" onclick="window._tcNavRestore()">
-  <div class="pill-pulse"></div>
-  <div class="pill-text" id="tc-pill-text">Active Trip</div>
-  <div class="pill-eta" id="tc-pill-eta">—</div>
-  <div class="pill-arrow">›</div>
+  <div class="pill-truck">🚛</div>
+  <div class="pill-info">
+    <div class="pill-brand">TruckConnect <span class="pill-brand-nav">• Navigating</span></div>
+    <div class="pill-detail" id="tc-pill-text">Active trip</div>
+  </div>
+  <div class="pill-up">↑</div>
 </div>
 
-<!-- Return to trip button -->
+<!-- Return-to-trip button -->
 <div id="tc-nav-return-btn" onclick="window._tcNavRestore()">
-  <div class="return-dot"></div>
-  Return to Trip
+  <div class="return-dot"></div>Return to Trip
 </div>
 
-<!-- WAZE-STYLE NAVIGATION OVERLAY -->
+<!-- MAIN OVERLAY -->
 <div id="tc-nav-overlay">
   <div id="tc-nav-panel">
 
-    <!-- TOP BAR: turn instruction -->
-    <div class="tc-waze-topbar">
-      <div class="tc-waze-turn-icon" id="tc-waze-turn-icon">🛣️</div>
-      <div class="tc-waze-turn-info">
-        <div class="tc-waze-turn-dist" id="tc-waze-turn-dist">—</div>
-        <div class="tc-waze-turn-street" id="tc-waze-turn-street">Tap Google Maps or Waze to navigate</div>
+    <!-- ① BRAND BAR -->
+    <div id="tc-nav-brand-bar">
+      <div class="nav-brand-logo">🚛</div>
+      <div class="nav-brand-info">
+        <div class="nav-brand-title">TruckConnect Navigation</div>
+        <div class="nav-brand-live">
+          <div class="nav-live-dot"></div>
+          <span class="nav-live-text">Live navigation</span>
+        </div>
       </div>
-      <div class="tc-waze-minimize" onclick="window._tcNavMinimize()">−</div>
+      <button class="nav-open-maps" onclick="window._tcNavOpenGMaps()">Open in Maps ↗</button>
     </div>
 
-    <!-- Speed + ETA (right side) -->
-    <div class="tc-waze-right">
-      <div class="tc-waze-speed-box">
-        <div class="tc-waze-speed-num" id="tc-waze-speed">—</div>
-        <div class="tc-waze-speed-lbl">km/h</div>
+    <!-- ② TURN INSTRUCTION CARD -->
+    <div id="tc-nav-turn-card">
+      <div class="nav-turn-arrow" id="tc-waze-turn-icon">↑</div>
+      <div class="nav-turn-info">
+        <div class="nav-turn-dist" id="tc-waze-turn-dist">—</div>
+        <div class="nav-turn-street" id="tc-waze-turn-street">Calculating route...</div>
       </div>
-      <div class="tc-waze-eta-box">
-        <div class="tc-waze-eta-num" id="tc-waze-eta-clock">—</div>
-        <div class="tc-waze-eta-lbl">ETA</div>
+      <div class="nav-speed-ring">
+        <div class="nav-speed-num" id="tc-waze-speed">0</div>
+        <div class="nav-speed-unit">km/h</div>
       </div>
     </div>
 
-    <!-- BOTTOM SHEET -->
-    <div class="tc-waze-bottom">
-      <div class="tc-waze-handle"></div>
-
-      <!-- Status + earnings -->
-      <div class="tc-waze-status accepted" id="tc-nav-status-badge">
-        <div class="pill-pulse" style="width:6px;height:6px;flex-shrink:0;"></div>
-        <span id="tc-nav-status-label">Accepted</span>
-        <span style="margin-left:auto;font-size:16px;font-weight:900;color:#fff;" id="tc-nav-earn-large">—</span>
-      </div>
-
-      <!-- Route addresses -->
-      <div class="tc-waze-route-bar">
-        <div style="display:flex;flex-direction:column;align-items:center;">
-          <div class="tc-waze-route-dot pickup"></div>
-          <div class="tc-waze-route-line"></div>
-          <div class="tc-waze-route-dot dropoff"></div>
-        </div>
-        <div class="tc-waze-route-addrs">
-          <div>
-            <div class="tc-waze-addr-lbl pickup">Pickup</div>
-            <div class="tc-waze-addr" id="tc-nav-from">—</div>
-          </div>
-          <div>
-            <div class="tc-waze-addr-lbl dropoff">Drop-off</div>
-            <div class="tc-waze-addr" id="tc-nav-to">—</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Stats -->
-      <div class="tc-waze-stats">
-        <div class="tc-waze-stat">
-          <div class="tc-waze-stat-num" id="tc-nav-dist">—</div>
-          <div class="tc-waze-stat-lbl">Distance</div>
-        </div>
-        <div class="tc-waze-stat">
-          <div class="tc-waze-stat-num" id="tc-nav-eta">—</div>
-          <div class="tc-waze-stat-lbl">ETA</div>
-        </div>
-        <div class="tc-waze-stat">
-          <div class="tc-waze-stat-num" id="tc-nav-earn">—</div>
-          <div class="tc-waze-stat-lbl">Earnings</div>
-        </div>
-      </div>
-
-      <!-- Progress bar -->
-      <div class="tc-waze-progress">
-        <div class="tc-waze-progress-track">
-          <div class="tc-waze-progress-fill" id="tc-nav-prog-fill" style="width:0%;"></div>
-        </div>
-        <div class="tc-waze-progress-lbls">
-          <span>Pickup</span>
-          <span id="tc-nav-prog-pct">0%</span>
-          <span>Drop-off</span>
-        </div>
-      </div>
-
-      <!-- Customer -->
-      <div class="tc-waze-customer" id="tc-nav-customer">
-        <div class="tc-waze-cust-av" id="tc-nav-cust-av">C</div>
-        <div style="flex:1;min-width:0;">
-          <div class="tc-waze-cust-name" id="tc-nav-cust-name">Customer</div>
-          <div class="tc-waze-cust-sub" id="tc-nav-cust-sub">Loading...</div>
-        </div>
-        <a class="tc-waze-call-btn" id="tc-nav-cust-phone" href="#">📞 Call</a>
-      </div>
-
-      <!-- Navigate with -->
-      <div class="tc-waze-nav-btns">
-        <button class="tc-waze-nav-btn gmaps" onclick="window._tcNavOpenGMaps()">
-          <div class="tc-waze-nav-icon"><svg width="20" height="20" viewBox="0 0 18 18" fill="white"><path d="M9 0C5.687 0 3 2.687 3 6c0 4.5 6 12 6 12s6-7.5 6-12c0-3.313-2.687-6-6-6zm0 8.25A2.25 2.25 0 1 1 9 3.75 2.25 2.25 0 0 1 9 8.25z"/></svg></div>
-          <div><div class="tc-waze-nav-name">Google Maps</div><div class="tc-waze-nav-sub">3-stop route</div></div>
-        </button>
-        <button class="tc-waze-nav-btn waze" onclick="window._tcNavOpenWaze()">
-          <div class="tc-waze-nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg></div>
-          <div><div class="tc-waze-nav-name">Waze</div><div class="tc-waze-nav-sub">Live traffic</div></div>
-        </button>
-      </div>
-
-      <!-- Controls -->
-      <div class="tc-waze-controls" id="tc-nav-controls">
-        <button class="tc-waze-ctrl tc-waze-ctrl-start" id="tc-nav-start-btn" onclick="window._tcNavStartTrip()">🚛 Start Trip</button>
-        <button class="tc-waze-ctrl tc-waze-ctrl-complete" id="tc-nav-complete-btn" onclick="window._tcNavCompleteTrip()" style="display:none;">✅ Delivered</button>
-        <button class="tc-waze-ctrl tc-waze-ctrl-cancel" id="tc-nav-cancel-btn" onclick="window._tcNavCancelTrip()">✕ Cancel</button>
-      </div>
-
-      <div style="height:6px;"></div>
+    <!-- ③ RIGHT FABs -->
+    <div id="tc-nav-fabs">
+      <button class="nav-fab" id="tc-nav-mute-fab" onclick="window._tcNavMuteToggle()">🔊</button>
+      <button class="nav-fab" onclick="window._tcNavOpenWaze()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+      </button>
+      <button class="nav-fab" onclick="window._tcNavOpenGMaps()">
+        <svg width="22" height="22" viewBox="0 0 18 18" fill="white"><path d="M9 0C5.687 0 3 2.687 3 6c0 4.5 6 12 6 12s6-7.5 6-12c0-3.313-2.687-6-6-6zm0 8.25A2.25 2.25 0 1 1 9 3.75 2.25 2.25 0 0 1 9 8.25z"/></svg>
+      </button>
     </div>
+
+    <!-- ④ BOTTOM PANEL -->
+    <div id="tc-nav-bottom">
+      <div class="nav-bottom-handle"></div>
+
+      <!-- Pickup / Drop-off -->
+      <div class="nav-route-row">
+        <div class="nav-route-point">
+          <div class="nav-point-badge pickup"><span class="nav-badge-dot pickup"></span>Pickup</div>
+          <div class="nav-point-addr" id="tc-nav-from">—</div>
+          <div class="nav-point-city" id="tc-nav-from-city">South Africa</div>
+        </div>
+        <div class="nav-route-divider"></div>
+        <div class="nav-route-point">
+          <div class="nav-point-badge dropoff"><span class="nav-badge-dot dropoff"></span>Drop-off</div>
+          <div class="nav-point-addr" id="tc-nav-to">—</div>
+          <div class="nav-point-city" id="tc-nav-to-city">South Africa</div>
+        </div>
+      </div>
+
+      <!-- Stats: ETA · Distance · Arrival -->
+      <div class="nav-stats-row">
+        <div class="nav-stat">
+          <div class="nav-stat-icon">🕐</div>
+          <div class="nav-stat-val" id="tc-nav-eta">—</div>
+          <div class="nav-stat-lbl">ETA</div>
+        </div>
+        <div class="nav-stat">
+          <div class="nav-stat-icon">🛣️</div>
+          <div class="nav-stat-val" id="tc-nav-dist">—</div>
+          <div class="nav-stat-lbl">Remaining</div>
+        </div>
+        <div class="nav-stat">
+          <div class="nav-stat-icon">🕰️</div>
+          <div class="nav-stat-val" id="tc-waze-eta-clock">—</div>
+          <div class="nav-stat-lbl">Arrival</div>
+        </div>
+      </div>
+
+      <!-- Primary action (Start Trip / Mark Delivered) -->
+      <div class="nav-primary-row" id="tc-nav-primary-row">
+        <button class="nav-primary-btn nav-btn-start" id="tc-nav-start-btn" onclick="window._tcNavStartTrip()">🚛 Start Trip</button>
+        <button class="nav-primary-btn nav-btn-complete" id="tc-nav-complete-btn" onclick="window._tcNavCompleteTrip()" style="display:none;">✅ Mark as Delivered</button>
+      </div>
+
+      <!-- Mute · End Trip · Minimize -->
+      <div class="nav-actions-row">
+        <button class="nav-act nav-act-mute" id="tc-nav-mute-btn" onclick="window._tcNavMuteToggle()">🔊 Mute</button>
+        <button class="nav-act nav-act-end" id="tc-nav-cancel-btn" onclick="window._tcNavCancelTrip()">✕ End Trip</button>
+        <button class="nav-act nav-act-min" onclick="window._tcNavMinimize()">≡ Minimize</button>
+      </div>
+
+      <!-- Hidden compat IDs used by JS populate -->
+      <span id="tc-nav-earn" style="display:none;"></span>
+      <span id="tc-nav-earn-large" style="display:none;"></span>
+      <span id="tc-nav-status-badge" style="display:none;"></span>
+      <span id="tc-nav-status-label" style="display:none;"></span>
+      <span id="tc-nav-cust-av" style="display:none;"></span>
+      <span id="tc-nav-cust-name" style="display:none;"></span>
+      <span id="tc-nav-cust-sub" style="display:none;"></span>
+      <span id="tc-nav-from-meta" style="display:none;"></span>
+      <span id="tc-nav-to-meta" style="display:none;"></span>
+      <a id="tc-nav-cust-phone" style="display:none;" href="#"></a>
+      <div id="tc-nav-prog-fill" style="display:none;"></div>
+      <div id="tc-nav-prog-pct" style="display:none;"></div>
+    </div>
+
   </div>
 </div>
-
-
 
 
 <script>
@@ -4143,7 +4133,7 @@ function _tcFetchETA(job, cb) {
   if (!dest || !dest[0] || !dest[1]) { if (cb) cb(null); return; }
   var url = 'https://router.project-osrm.org/route/v1/driving/' +
     driverLng + ',' + driverLat + ';' + dest[0] + ',' + dest[1] +
-    '?overview=false';
+    '?overview=false&steps=true';
   fetch(url)
     .then(function(r) { return r.json(); })
     .then(function(d) {
@@ -4151,8 +4141,31 @@ function _tcFetchETA(job, cb) {
         var r = d.routes[0];
         var km = (r.distance / 1000).toFixed(1);
         var mins = Math.round(r.duration / 60);
-        var etaStr = mins < 60 ? mins + ' min' : Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm';
-        if (cb) cb({ km: km, mins: mins, etaStr: etaStr, distStr: km + ' km' });
+        var etaStr = mins < 60 ? mins + ' min' : Math.floor(mins/60) + 'h ' + (mins%60) + 'm';
+        // Parse first meaningful step for turn instruction
+        var turnIcon = '↑', turnDist = '—', turnStreet = 'Head towards pickup';
+        try {
+          var steps = r.legs[0].steps;
+          for (var i = 0; i < steps.length; i++) {
+            var step = steps[i];
+            if (step.maneuver && step.maneuver.type !== 'arrive' && step.distance > 10) {
+              var mod = step.maneuver.modifier || '';
+              var type = step.maneuver.type || '';
+              if (type === 'depart') { turnIcon = '↑'; turnStreet = 'Head ' + (mod||'straight'); }
+              else if (mod === 'right' || mod === 'sharp right') { turnIcon = '↱'; turnStreet = 'Turn right'; }
+              else if (mod === 'left' || mod === 'sharp left') { turnIcon = '↰'; turnStreet = 'Turn left'; }
+              else if (mod === 'slight right') { turnIcon = '↗'; turnStreet = 'Keep right'; }
+              else if (mod === 'slight left') { turnIcon = '↖'; turnStreet = 'Keep left'; }
+              else if (mod === 'uturn') { turnIcon = '↩'; turnStreet = 'Make a U-turn'; }
+              else { turnIcon = '↑'; turnStreet = type === 'continue' ? 'Continue straight' : 'Head straight'; }
+              if (step.name) turnStreet += ' onto ' + step.name;
+              var d2 = step.distance;
+              turnDist = d2 >= 1000 ? (d2/1000).toFixed(1) + ' km' : Math.round(d2) + ' m';
+              break;
+            }
+          }
+        } catch(e){}
+        if (cb) cb({ km:km, mins:mins, etaStr:etaStr, distStr:km+' km', turnIcon:turnIcon, turnDist:turnDist, turnStreet:turnStreet });
       } else {
         if (cb) cb(null);
       }
@@ -4163,63 +4176,62 @@ function _tcFetchETA(job, cb) {
 // ── Populate overlay with job data ──
 function _tcNavPopulate(job) {
   var s = _tcNavState.job = job;
-  // Addresses
-  var fromShort = (s.from || '—').split(',')[0];
-  var toShort = (s.to || '—').split(',')[0];
-  txt('tc-nav-from', s.from || '—');
-  txt('tc-nav-to', s.to || '—');
+  // Addresses — split city from address
+  var fromFull = s.from || '—';
+  var toFull = s.to || '—';
+  var fromAddr = fromFull.split(',')[0];
+  var fromCity = fromFull.indexOf(',') > -1 ? fromFull.split(',').slice(1).join(',').trim() : 'South Africa';
+  var toAddr = toFull.split(',')[0];
+  var toCity = toFull.indexOf(',') > -1 ? toFull.split(',').slice(1).join(',').trim() : 'South Africa';
+  txt('tc-nav-from', fromAddr);
+  txt('tc-nav-to', toAddr);
+  txt('tc-nav-from-city', fromCity || 'South Africa');
+  txt('tc-nav-to-city', toCity || 'South Africa');
+  // Compat
   txt('tc-nav-from-meta', 'Pickup location');
   txt('tc-nav-to-meta', 'Drop-off location');
-  // Customer
+  // Customer (hidden compat)
   var custName = s.customerName || s.cname || 'Customer';
-  var custInit = custName.charAt(0).toUpperCase();
-  txt('tc-nav-cust-av', custInit);
+  txt('tc-nav-cust-av', custName.charAt(0).toUpperCase());
   txt('tc-nav-cust-name', custName);
-  // Cargo/sub label
-  var cargoLabel = s.cargo || s.truckType || 'General cargo';
-  var weightLabel = s.weight ? ' · ' + s.weight : '';
-  txt('tc-nav-cust-sub', cargoLabel + weightLabel);
-  // Phone
-  var phone = s.customerPhone || s.phone || '';
-  var phoneEl = document.getElementById('tc-nav-cust-phone');
-  if (phoneEl) {
-    if (phone) { phoneEl.href = 'tel:' + phone; phoneEl.textContent = '📞 Call'; phoneEl.style.display = ''; }
-    else { phoneEl.style.display = 'none'; }
-  }
-  // Price — try multiple field names
+  txt('tc-nav-cust-sub', (s.cargo || s.truckType || 'General cargo') + (s.weight ? ' · ' + s.weight : ''));
+  // Pill detail
+  txt('tc-pill-text', fromAddr + ' → ' + toAddr);
+  // Price
   var priceStr = s.price || (s.priceNum ? 'R' + Number(s.priceNum).toLocaleString() : '—');
   txt('tc-nav-earn', priceStr);
   txt('tc-nav-earn-large', priceStr);
-  // Distance — try multiple field names, show "Calculating..." if missing
+  // Distance — show Calculating... until OSRM resolves
   var distStr = s.dist || (s.distKm ? s.distKm + ' km' : null);
-  txt('tc-nav-dist', distStr || 'Calculating...');
-  // ETA — show "Calculating..." until async fetch resolves
-  txt('tc-nav-eta', 'Calculating...');
-  // Pill
-  txt('tc-pill-text', fromShort + ' → ' + toShort);
-  txt('tc-pill-eta', priceStr !== '—' ? priceStr : '');
-  // ETA async + Waze top bar
+  txt('tc-nav-dist', distStr || 'Calc...');
+  txt('tc-nav-eta', 'Calc...');
+  txt('tc-waze-eta-clock', '—');
+  // Turn card placeholder while fetching
+  txt('tc-waze-turn-dist', '—');
+  txt('tc-waze-turn-street', 'Calculating route...');
+  // ETA async
   _tcFetchETA(job, function(eta) {
     if (eta) {
       txt('tc-nav-eta', eta.etaStr);
-      if (!distStr) txt('tc-nav-dist', eta.distStr); // only overwrite if we didn't have it
-      txt('tc-pill-eta', eta.etaStr);
-      txt('tc-waze-turn-dist', eta.distStr);
-      txt('tc-waze-turn-street', 'To pickup: ' + (job.from||'').split(',')[0]);
-      var d=new Date(Date.now()+(eta.mins||0)*60000);
-      var h=d.getHours(),m=d.getMinutes(),ap=h>=12?'PM':'AM';
-      h=h%12||12;
-      txt('tc-waze-eta-clock', h+':'+(m<10?'0'+m:m)+' '+ap);
+      if (!distStr) txt('tc-nav-dist', eta.distStr);
+      // Arrival time
+      var d = new Date(Date.now() + (eta.mins||0) * 60000);
+      var h = d.getHours(), m = d.getMinutes(), ap = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      txt('tc-waze-eta-clock', h + ':' + (m < 10 ? '0' + m : m) + ' ' + ap);
+      // Turn card
+      if (eta.turnDist) txt('tc-waze-turn-dist', eta.turnDist);
+      if (eta.turnStreet) txt('tc-waze-turn-street', eta.turnStreet);
+      if (eta.turnIcon) txt('tc-waze-turn-icon', eta.turnIcon);
     } else {
       txt('tc-nav-eta', '—');
       if (!distStr) txt('tc-nav-dist', '—');
+      txt('tc-waze-turn-street', 'Head to pickup: ' + fromAddr);
     }
   });
-  // Status
+  // Status and controls
   _tcNavSetStatus(s.ds || 'accepted');
-  // Controls: show start if accepted, complete if in_progress
   _tcNavUpdateControls(s.ds || 'accepted');
-  // Progress
   _tcNavSetProgress(s.ds === 'in_progress' ? 50 : 10);
 }
 
@@ -4242,6 +4254,29 @@ function _tcNavUpdateControls(status) {
   } else {
     startBtn.style.display = '';
     completeBtn.style.display = 'none';
+  }
+}
+
+window._tcNavMuteToggle = function() {
+  _tcNavState.muted = !_tcNavState.muted;
+  var fabBtn = document.getElementById('tc-nav-mute-fab');
+  var rowBtn = document.getElementById('tc-nav-mute-btn');
+  var icon = _tcNavState.muted ? '🔇' : '🔊';
+  var label = _tcNavState.muted ? '🔇 Unmute' : '🔊 Mute';
+  if (fabBtn) fabBtn.textContent = icon;
+  if (rowBtn) rowBtn.textContent = label;
+};
+
+// Update pill detail with live ETA + distance
+function _tcNavUpdatePill(eta) {
+  var detail = document.getElementById('tc-pill-text');
+  if (!detail) return;
+  var job = _tcNavState.job;
+  var from = job ? (job.from||'').split(',')[0] : 'Trip';
+  if (eta && eta.etaStr && eta.distStr) {
+    detail.textContent = eta.etaStr + ' · ' + eta.distStr + ' remaining';
+  } else if (job) {
+    detail.textContent = from + ' → ' + ((job.to||'').split(',')[0]);
   }
 }
 
