@@ -3944,7 +3944,7 @@ function renderJobs(){
       }
       tripButtons=
         // ── View Full Route Map button (in-app) ──
-        '<button class="nav-start-btn" style="background:#00c8ff;color:#000;margin-top:12px;font-weight:800;" onclick="window.openRouteMap(\''+encodeURIComponent(JSON.stringify({fromCoords:j.fromCoords,toCoords:j.toCoords,from:j.from,to:j.to}))+'\')">🗺️ View Route on Map</button>'+
+        '<button class="nav-start-btn" style="background:#00c8ff;color:#000;margin-top:12px;font-weight:800;" onclick="window.openRouteMap(\''+encodeURIComponent(JSON.stringify({id:j.id,fromCoords:j.fromCoords,toCoords:j.toCoords,from:j.from,to:j.to,price:j.price,dist:j.dist,distKm:j.distKm,customerName:j.customerName,customerPhone:j.customerPhone,cargo:j.cargo,truckType:j.truckType,weight:j.weight,ds:j.ds}))+'\')">🗺️ View Route on Map</button>'+
         '<button class="nav-start-btn" style="background:#16a34a;margin-top:8px;" onclick="completeTrip(\''+j.id+'\')">✅ Mark as Delivered</button>'+
         '<div style="margin-top:12px;background:var(--bg);border:1.5px solid var(--border);border-radius:14px;padding:12px;">'+
           '<div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Route to Drop-off</div>'+
@@ -5450,12 +5450,18 @@ _seedEarningsHistory();
   // openRouteMap — opens floating nav overlay with job context
   window.openRouteMap = function(jobData){
     var job = typeof jobData==='string' ? JSON.parse(decodeURIComponent(jobData)) : jobData;
-    // If this is an active trip, reopen the overlay
+    // Always close all sheets first so the map and nav overlay are visible
+    var sheets = ['jobs-sheet','avail-jobs-sheet','earnings-sheet','profile-sheet','history-sheet','wallet-sheet','notif-sheet'];
+    sheets.forEach(function(id){ var s=document.getElementById(id); if(s) s.style.transform='translateY(100%)'; });
+    // Close side menu if open
+    var menu=document.getElementById('d-sidemenu'); if(menu) menu.style.left='-290px';
+    var menuOvl=document.getElementById('d-menu-overlay'); if(menuOvl) menuOvl.style.display='none';
+    // If this is an active trip, restore the overlay (it's already populated)
     if(_tcNavState && _tcNavState.active){
       window._tcNavRestore();
       return;
     }
-    // Otherwise open overlay freshly
+    // Otherwise open overlay freshly with whatever job data we have
     window.openNavOverlay(job);
   };
 
