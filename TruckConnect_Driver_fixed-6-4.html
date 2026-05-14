@@ -1352,7 +1352,7 @@ body.dark-mode .profile-avatar-big{background:#222;border-color:#333;}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signInWithCredential, GoogleAuthProvider, signOut, onAuthStateChanged, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signInWithCredential, GoogleAuthProvider, signOut, onAuthStateChanged, EmailAuthProvider, reauthenticateWithCredential, updatePassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, getDocs, collection, addDoc, updateDoc, onSnapshot, query, where, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
 const firebaseConfig = {
@@ -1366,6 +1366,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+// Force session to survive page reloads and app switches
+setPersistence(auth, browserLocalPersistence).catch(function(){});
 // Messaging instance — may fail gracefully on unsupported browsers
 let _messaging = null;
 try { _messaging = getMessaging(app); } catch(e) {}
@@ -2924,7 +2926,6 @@ function dNext(){
 function handleGoogleAuth(mode){
   var FB=window._FB;if(!FB){toast('Firebase not ready. Please refresh.');return;}
   if(typeof google==='undefined'||!google.accounts){toast('Google loading, please try again.');return;}
-  // Use login_hint if we have a remembered Google account so it auto-selects
   var loginHint='';
   try{
     var rem=JSON.parse(localStorage.getItem('tc_remembered_account')||'null');
@@ -2945,7 +2946,6 @@ function handleGoogleAuth(mode){
           FB.signOut(FB.auth); return;
         }
         currentUid=gUser.uid;
-        // Persist Google account hint so next sign-in auto-selects this account
         try{
           var existing=JSON.parse(localStorage.getItem('tc_remembered_account')||'{}');
           existing.isGoogle=true;
@@ -2954,31 +2954,37 @@ function handleGoogleAuth(mode){
           existing.photo=gUser.photoURL||existing.photo||'';
           localStorage.setItem('tc_remembered_account',JSON.stringify(existing));
         }catch(e){}
+
+        // Check Firestore by UID first, then by email
         return FB.getDoc(FB.doc(FB.db,'drivers',currentUid)).then(function(snap){
           if(snap.exists()){
-            dData=snap.data();
-            dData._wasGoogle=true;
+            // ✅ Registered driver found — sign in
+            dData=snap.data();dData._wasGoogle=true;
             saveSession();
             if(dData.status==='approved')goToDriverHome();
             else{goTo('s-pending');txt('pend-sub-val','✅ TruckConnect Plan (R300/mo)');}
           } else {
-            // Fallback: search by email
+            // Try email lookup (driver may have registered with email, now using Google)
             return FB.getDocs(FB.query(FB.collection(FB.db,'drivers'),FB.where('email','==',gUser.email||''))).then(function(qsnap){
               if(!qsnap.empty){
-                dData=qsnap.docs[0].data();
-                dData._wasGoogle=true;
+                // ✅ Found by email — link Google to this account
+                dData=qsnap.docs[0].data();dData._wasGoogle=true;
                 saveSession();
                 if(dData.status==='approved')goToDriverHome();
                 else{goTo('s-pending');txt('pend-sub-val','✅ TruckConnect Plan (R300/mo)');}
+              } else if(mode==='signin'){
+                // ❌ Sign-in mode: no account found — reject with clear message
+                FB.signOut(FB.auth).catch(function(){});
+                currentUid=null;
+                toast('❌ No driver account found for this Google account. Please register first.');
+                showErr('si-err','No driver account found for this Google account.');
               } else {
+                // Register mode: start registration with Google details pre-filled
                 dData.email=gUser.email||'';
                 dData.name=gUser.displayName||'';
-                dData._googleAuth=true;
-                dData._wasGoogle=true;
-                dStep=1;
-                goTo('s-auth');
-                renderStep();
-                toast('Google account connected! Complete your ID details.');
+                dData._googleAuth=true;dData._wasGoogle=true;
+                dStep=1;goTo('s-auth');renderStep();
+                toast('Google connected! Complete your driver details.');
               }
             });
           }
@@ -2991,7 +2997,6 @@ function handleGoogleAuth(mode){
       });
     }
   });
-  // 'none' prompt = silent if hint matches; 'select_account' if no hint
   tokenClient.requestAccessToken({prompt: loginHint ? 'none' : 'select_account'});
 }
 
@@ -4327,6 +4332,110 @@ var _navHeadingWatchId = null;  // geolocation watch for heading/speed
 var _navCurrentBearing = 0;     // last known compass bearing (degrees)
 var _navRouteSourceAdded = false;
 
+// ── Waze-style dark navy map style (no API key needed) ──────────────────────
+var WAZE_NAV_STYLE = {
+  version: 8,
+  name: 'TruckConnect Nav',
+  glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
+  sources: {
+    ofm: {
+      type: 'vector',
+      url: 'https://tiles.openfreemap.org/planet'
+    }
+  },
+  layers: [
+    // Sky / background
+    { id:'bg', type:'background', paint:{ 'background-color':'#1b2333' } },
+
+    // Water
+    { id:'water', type:'fill', source:'ofm', 'source-layer':'water',
+      paint:{ 'fill-color':'#16263d' } },
+    { id:'waterway', type:'line', source:'ofm', 'source-layer':'waterway',
+      paint:{ 'line-color':'#1a3050', 'line-width':1.5 } },
+
+    // Land cover & use
+    { id:'landcover', type:'fill', source:'ofm', 'source-layer':'landcover',
+      paint:{ 'fill-color':'#1d2c3f', 'fill-opacity':0.7 } },
+    { id:'landuse', type:'fill', source:'ofm', 'source-layer':'landuse',
+      paint:{ 'fill-color':'#1d2c3f' } },
+    { id:'park', type:'fill', source:'ofm', 'source-layer':'park',
+      paint:{ 'fill-color':'#1e3040', 'fill-opacity':0.8 } },
+
+    // Buildings (flat, Waze doesn't show 3D buildings)
+    { id:'building', type:'fill', source:'ofm', 'source-layer':'building',
+      minzoom:14,
+      paint:{ 'fill-color':'#1e2b3e', 'fill-outline-color':'#24364f' } },
+
+    // ── Roads: casing (border) ──────────────────────────────────────────────
+    { id:'road-case-motorway', type:'line', source:'ofm', 'source-layer':'transportation',
+      filter:['in',['get','class'],['literal',['motorway','trunk']]],
+      layout:{ 'line-join':'round','line-cap':'round' },
+      paint:{ 'line-color':'#1a3054',
+              'line-width':['interpolate',['linear'],['zoom'],10,6,18,28] } },
+    { id:'road-case-primary', type:'line', source:'ofm', 'source-layer':'transportation',
+      filter:['in',['get','class'],['literal',['primary','secondary']]],
+      layout:{ 'line-join':'round','line-cap':'round' },
+      paint:{ 'line-color':'#1a2e50',
+              'line-width':['interpolate',['linear'],['zoom'],10,4,18,20] } },
+    { id:'road-case-minor', type:'line', source:'ofm', 'source-layer':'transportation',
+      filter:['in',['get','class'],['literal',['tertiary','street','service','track']]],
+      layout:{ 'line-join':'round','line-cap':'round' },
+      paint:{ 'line-color':'#1a2840',
+              'line-width':['interpolate',['linear'],['zoom'],12,2,18,14] } },
+
+    // ── Roads: fill ─────────────────────────────────────────────────────────
+    { id:'road-motorway', type:'line', source:'ofm', 'source-layer':'transportation',
+      filter:['in',['get','class'],['literal',['motorway','trunk']]],
+      layout:{ 'line-join':'round','line-cap':'round' },
+      paint:{ 'line-color':'#3a5f8c',
+              'line-width':['interpolate',['linear'],['zoom'],10,3,18,18] } },
+    { id:'road-primary', type:'line', source:'ofm', 'source-layer':'transportation',
+      filter:['in',['get','class'],['literal',['primary','secondary']]],
+      layout:{ 'line-join':'round','line-cap':'round' },
+      paint:{ 'line-color':'#2e4d7a',
+              'line-width':['interpolate',['linear'],['zoom'],10,2,18,12] } },
+    { id:'road-minor', type:'line', source:'ofm', 'source-layer':'transportation',
+      filter:['in',['get','class'],['literal',['tertiary','street','service']]],
+      layout:{ 'line-join':'round','line-cap':'round' },
+      paint:{ 'line-color':'#253d60',
+              'line-width':['interpolate',['linear'],['zoom'],12,0.8,18,7] } },
+
+    // ── Road labels ─────────────────────────────────────────────────────────
+    { id:'road-label', type:'symbol', source:'ofm', 'source-layer':'transportation_name',
+      minzoom:14,
+      layout:{
+        'text-field':['get','name'],
+        'text-font':['Noto Sans Regular'],
+        'text-size':['interpolate',['linear'],['zoom'],14,10,18,13],
+        'symbol-placement':'line',
+        'text-max-angle':30,
+        'text-padding':5
+      },
+      paint:{ 'text-color':'#7a9ec8', 'text-halo-color':'#1b2333', 'text-halo-width':1.5 } },
+
+    // ── Place labels ────────────────────────────────────────────────────────
+    { id:'place-suburb', type:'symbol', source:'ofm', 'source-layer':'place',
+      filter:['in',['get','class'],['literal',['suburb','neighbourhood','village']]],
+      minzoom:13,
+      layout:{
+        'text-field':['get','name'],
+        'text-font':['Noto Sans Regular'],
+        'text-size':11,
+        'text-max-width':8
+      },
+      paint:{ 'text-color':'#607fa8', 'text-halo-color':'#1b2333', 'text-halo-width':1.5 } },
+    { id:'place-city', type:'symbol', source:'ofm', 'source-layer':'place',
+      filter:['in',['get','class'],['literal',['city','town']]],
+      layout:{
+        'text-field':['get','name'],
+        'text-font':['Noto Sans Bold'],
+        'text-size':['interpolate',['linear'],['zoom'],8,12,14,16],
+        'text-max-width':10
+      },
+      paint:{ 'text-color':'#8aadd4', 'text-halo-color':'#1b2333', 'text-halo-width':2 } }
+  ]
+};
+
 function _initNavScreenMap(centerLng, centerLat, bearing) {
   var mapEl = document.getElementById('tc-nav-screen-map');
   if (!mapEl) return;
@@ -4339,14 +4448,14 @@ function _initNavScreenMap(centerLng, centerLat, bearing) {
     _navRouteSourceAdded = false;
   }
 
-  var centerCoord = (centerLng && centerLat) ? [centerLng, centerLat] : [28.0473, -26.2041]; // Default: Joburg
+  var centerCoord = (centerLng && centerLat) ? [centerLng, centerLat] : [28.0473, -26.2041];
 
   _navScreenMap = new maplibregl.Map({
     container: mapEl,
-    style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+    style: WAZE_NAV_STYLE,   // ← Custom Waze-like dark navy style
     center: centerCoord,
     zoom: 17,
-    pitch: 60,           // Waze-style 3D tilt
+    pitch: 60,
     bearing: bearing || 0,
     attributionControl: false,
     logoPosition: 'bottom-left'
@@ -4355,10 +4464,18 @@ function _initNavScreenMap(centerLng, centerLat, bearing) {
   _navScreenMap.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-left');
 
   _navScreenMap.on('load', function() {
-    // Draw the route polyline on the nav map
+    // Draw the route line once tiles are ready
     _navDrawRouteOnNavMap();
-    // Place the driver truck marker
+    // Place the driver arrow marker
+    var startLng = centerCoord[0], startLat = centerCoord[1];
     _navPlaceDriverMarker(centerCoord, bearing || 0);
+  });
+
+  // Also retry route drawing if the style takes a moment
+  _navScreenMap.once('styledata', function() {
+    setTimeout(function() {
+      if (_navScreenMap && _tcNavState.job) _navDrawRouteOnNavMap();
+    }, 500);
   });
 
   // If user pans the map manually, stop auto-follow until they re-center
@@ -4370,64 +4487,113 @@ function _initNavScreenMap(centerLng, centerLat, bearing) {
 // Draw pickup → dropoff route on the nav map
 function _navDrawRouteOnNavMap() {
   var job = _tcNavState.job;
-  if (!job || !_navScreenMap || !_navScreenMap.loaded()) return;
+  if (!job || !_navScreenMap) return;
 
-  var dLng = driverLng, dLat = driverLat;
-  var pCoords = job.fromCoords; // [lng, lat]
-  var dCoords = job.toCoords;   // [lng, lat]
+  // Helper: draw once we have coords
+  function _doDrawRoute(pCoords, dCoords) {
+    var waypoints = [];
+    if (driverLng && driverLat) waypoints.push([driverLng, driverLat]);
+    if (pCoords && pCoords[0]) waypoints.push(pCoords);
+    if (dCoords && dCoords[0]) waypoints.push(dCoords);
+    if (waypoints.length < 2) return;
 
-  if (!pCoords && !dCoords) return;
+    var osrmCoords = waypoints.map(function(w){ return w[0]+','+w[1]; }).join(';');
+    var url = 'https://router.project-osrm.org/route/v1/driving/' + osrmCoords +
+              '?overview=full&geometries=geojson';
 
-  var waypoints = [];
-  if (dLng && dLat) waypoints.push([dLng, dLat]);
-  if (pCoords && pCoords[0]) waypoints.push(pCoords);
-  if (dCoords && dCoords[0]) waypoints.push(dCoords);
+    fetch(url)
+      .then(function(r){ return r.json(); })
+      .then(function(data) {
+        if (!data.routes || !data.routes[0]) return;
+        if (!_navScreenMap) return;
+        var geom = data.routes[0].geometry;
 
-  if (waypoints.length < 2) return;
+        // Wait until map is fully loaded
+        function applyRoute() {
+          if (!_navScreenMap) return;
+          try { if (_navScreenMap.getLayer('nav-route-line'))   _navScreenMap.removeLayer('nav-route-line');   } catch(e){}
+          try { if (_navScreenMap.getLayer('nav-route-border')) _navScreenMap.removeLayer('nav-route-border'); } catch(e){}
+          try { if (_navScreenMap.getSource('nav-route'))       _navScreenMap.removeSource('nav-route');       } catch(e){}
 
-  var osrmCoords = waypoints.map(function(w){return w[0]+','+w[1];}).join(';');
-  var url = 'https://router.project-osrm.org/route/v1/driving/' + osrmCoords +
-            '?overview=full&geometries=geojson';
+          _navScreenMap.addSource('nav-route', {
+            type: 'geojson',
+            data: { type: 'Feature', geometry: geom }
+          });
+          // Dark border
+          _navScreenMap.addLayer({
+            id: 'nav-route-border', type: 'line', source: 'nav-route',
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: { 'line-color': '#003755', 'line-width': 14, 'line-opacity': 0.9 }
+          });
+          // Cyan main line (Waze style)
+          _navScreenMap.addLayer({
+            id: 'nav-route-line', type: 'line', source: 'nav-route',
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: { 'line-color': '#00d4ff', 'line-width': 8, 'line-opacity': 1 }
+          });
 
-  fetch(url)
-    .then(function(r){return r.json();})
-    .then(function(data){
-      if (!data.routes || !data.routes[0]) return;
-      var geom = data.routes[0].geometry;
-      if (!_navScreenMap || !_navScreenMap.loaded()) return;
+          // Green pickup pin
+          if (pCoords && pCoords[0]) {
+            var pEl = document.createElement('div');
+            pEl.style.cssText = 'width:32px;height:32px;background:#22c55e;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;color:#fff;box-shadow:0 0 14px rgba(34,197,94,.7);';
+            pEl.textContent = 'P';
+            new maplibregl.Marker({ element: pEl }).setLngLat(pCoords).addTo(_navScreenMap);
+          }
+          // Red dropoff pin
+          if (dCoords && dCoords[0]) {
+            var dEl = document.createElement('div');
+            dEl.style.cssText = 'width:32px;height:32px;background:#ef4444;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;color:#fff;box-shadow:0 0 14px rgba(239,68,68,.7);';
+            dEl.textContent = 'D';
+            new maplibregl.Marker({ element: dEl }).setLngLat(dCoords).addTo(_navScreenMap);
+          }
 
-      // Remove old layers/sources if they exist
-      try { if (_navScreenMap.getLayer('nav-route-line')) _navScreenMap.removeLayer('nav-route-line'); } catch(e){}
-      try { if (_navScreenMap.getLayer('nav-route-border')) _navScreenMap.removeLayer('nav-route-border'); } catch(e){}
-      try { if (_navScreenMap.getSource('nav-route')) _navScreenMap.removeSource('nav-route'); } catch(e){}
+          // Fit map to show full route briefly, then snap back to driver
+          if (waypoints.length >= 2) {
+            var lngs = waypoints.map(function(p){ return p[0]; });
+            var lats = waypoints.map(function(p){ return p[1]; });
+            _navScreenMap.fitBounds(
+              [[Math.min.apply(null,lngs), Math.min.apply(null,lats)],
+               [Math.max.apply(null,lngs), Math.max.apply(null,lats)]],
+              { padding: { top:180, bottom:400, left:60, right:60 }, maxZoom:15, duration:1200 }
+            );
+            // After 3s, snap back to driver with 3D heading view
+            setTimeout(function() {
+              if (_navScreenMap && driverLng && driverLat) {
+                _navScreenMap.easeTo({ center:[driverLng,driverLat], zoom:17, pitch:60, bearing:_navCurrentBearing, duration:1000 });
+              }
+            }, 3000);
+          }
+        }
 
-      _navScreenMap.addSource('nav-route', { type: 'geojson', data: { type: 'Feature', geometry: geom } });
-      // Border (thicker dark)
-      _navScreenMap.addLayer({ id: 'nav-route-border', type: 'line', source: 'nav-route',
-        layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: { 'line-color': '#0a2a4a', 'line-width': 12, 'line-opacity': 0.8 }
-      });
-      // Main route (cyan, Waze-style)
-      _navScreenMap.addLayer({ id: 'nav-route-line', type: 'line', source: 'nav-route',
-        layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: { 'line-color': '#00d4ff', 'line-width': 8, 'line-opacity': 0.95 }
-      });
+        if (_navScreenMap.loaded()) {
+          applyRoute();
+        } else {
+          _navScreenMap.once('load', applyRoute);
+        }
+      })
+      .catch(function(err) { console.warn('Nav route fetch failed:', err); });
+  }
 
-      // Add pickup + dropoff pin markers
-      if (pCoords && pCoords[0]) {
-        var pEl = document.createElement('div');
-        pEl.style.cssText = 'width:28px;height:28px;background:#4ade80;border:3px solid #fff;border-radius:50%;box-shadow:0 0 12px rgba(74,222,128,.6);display:flex;align-items:center;justify-content:center;font-size:14px;';
-        pEl.textContent = 'P';
-        new maplibregl.Marker({element:pEl}).setLngLat(pCoords).addTo(_navScreenMap);
-      }
-      if (dCoords && dCoords[0]) {
-        var dEl = document.createElement('div');
-        dEl.style.cssText = 'width:28px;height:28px;background:#f87171;border:3px solid #fff;border-radius:50%;box-shadow:0 0 12px rgba(248,113,113,.6);display:flex;align-items:center;justify-content:center;font-size:14px;';
-        dEl.textContent = 'D';
-        new maplibregl.Marker({element:dEl}).setLngLat(dCoords).addTo(_navScreenMap);
-      }
-    })
-    .catch(function(){});
+  // If coords already exist, draw immediately
+  if (job.fromCoords && job.fromCoords[0] && job.toCoords && job.toCoords[0]) {
+    _doDrawRoute(job.fromCoords, job.toCoords);
+    return;
+  }
+
+  // Otherwise geocode the missing addresses first using Mapbox
+  var tasks = [];
+  if (!job.fromCoords && job.from) {
+    tasks.push(_geocodeAddress(job.from).then(function(c){ if(c) job.fromCoords = c; }));
+  }
+  if (!job.toCoords && job.to) {
+    tasks.push(_geocodeAddress(job.to).then(function(c){ if(c) job.toCoords = c; }));
+  }
+
+  Promise.all(tasks).then(function() {
+    if (job.fromCoords || job.toCoords) {
+      _doDrawRoute(job.fromCoords, job.toCoords);
+    }
+  });
 }
 
 // Place the animated truck / arrow marker for the driver
@@ -4509,13 +4675,11 @@ function _startNavHeadingWatch() {
     function(pos) {
       var lat = pos.coords.latitude;
       var lng = pos.coords.longitude;
-      var heading = pos.coords.heading; // degrees from north, or null
-      var speed = pos.coords.speed;     // m/s or null
+      var heading = pos.coords.heading;
+      var speed = pos.coords.speed;
 
-      // Update global driver pos
       driverLat = lat; driverLng = lng;
 
-      // Bearing: prefer GPS heading, fallback to last known
       if (heading != null && !isNaN(heading)) {
         _navCurrentBearing = heading;
       }
@@ -4523,6 +4687,22 @@ function _startNavHeadingWatch() {
       // Update speed display
       var speedEl = document.getElementById('tc-waze-speed');
       if (speedEl) speedEl.textContent = (speed != null && speed >= 0) ? Math.round(speed * 3.6) : '0';
+
+      // Reverse geocode current position every ~10 seconds to show street name
+      var now = Date.now();
+      if (!_tcNavState._lastRevGeo || now - _tcNavState._lastRevGeo > 10000) {
+        _tcNavState._lastRevGeo = now;
+        _mbReverseGeocode(lng, lat).then(function(addr) {
+          if (addr) {
+            var instrEl = document.getElementById('tc-nav-instruction');
+            if (instrEl && instrEl.textContent.indexOf('Head to') === 0) {
+              // Only update if it still shows the generic instruction
+            }
+            var streetEl = document.getElementById('tc-nav-street');
+            if (streetEl) streetEl.textContent = addr;
+          }
+        });
+      }
 
       // Move driver marker + rotate map
       _navUpdateDriverOnMap(lng, lat, _navCurrentBearing);
@@ -5624,16 +5804,38 @@ function _broadcastETA(jobId, fromCoords, toCoords) {
 // then recalculates real driving distance so display always matches navigation
 // ═══════════════════════════════════════════════════════════════
 
-// Nominatim geocoding (OpenStreetMap) — SA street coverage
+// ═══════════════════════════════════════════════════════════════
+// MAPBOX GEOCODING — forward + reverse (maps stay on MapLibre/OpenFreeMap)
+// ═══════════════════════════════════════════════════════════════
+var MBTOKEN = 'pk.eyJ1Ijoic3BoaXdlLTY2NiIsImEiOiJjbW93bzg4bTgwMTl2MnVyMW05eWNxM2JvIn0.C2-dfpQIZ-QbRnwIFgTMrQ';
+
+// Forward geocode: address string → [lng, lat]
 function _geocodeAddress(address){
-  var query=address.toLowerCase().includes('south africa')?address:address+', South Africa';
-  return fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(query)+'&countrycodes=za&limit=1',{headers:{'Accept-Language':'en'}})
-    .then(function(r){return r.json();})
+  var query = /south africa/i.test(address) ? address : address + ', South Africa';
+  return fetch('https://api.mapbox.com/geocoding/v5/mapbox.places/' +
+               encodeURIComponent(query) +
+               '.json?access_token=' + MBTOKEN + '&country=ZA&limit=1&language=en')
+    .then(function(r){ return r.json(); })
     .then(function(d){
-      if(d&&d.length){return[parseFloat(d[0].lon),parseFloat(d[0].lat)];}
+      if(d && d.features && d.features[0]) return d.features[0].center; // [lng, lat]
       return null;
     })
-    .catch(function(){return null;});
+    .catch(function(){ return null; });
+}
+
+// Reverse geocode: lng, lat → address string
+function _mbReverseGeocode(lng, lat){
+  return fetch('https://api.mapbox.com/geocoding/v5/mapbox.places/' +
+               lng + ',' + lat +
+               '.json?access_token=' + MBTOKEN + '&language=en&types=address,neighborhood,locality,place')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d && d.features && d.features[0]){
+        return (d.features[0].place_name||'').replace(/,\s*South Africa$/i,'').trim();
+      }
+      return '';
+    })
+    .catch(function(){ return ''; });
 }
 
 function _getDriverPosition(){
@@ -6041,6 +6243,62 @@ _seedEarningsHistory();
   document.addEventListener('click',function(e){
     // Legacy nav-start-btn handler removed; new overlay handles navigation
   });
+
+  // ══════════════════════════════════════════════════════════════════
+  // AUTO-LOGIN — restores driver session on every app open / reload
+  // Uses Firebase onAuthStateChanged so it works even after backgrounding
+  // ══════════════════════════════════════════════════════════════════
+  (function(){
+    function _waitAndRun(){
+      if(!window._FB){setTimeout(_waitAndRun,60);return;}
+      var FB=window._FB;
+      FB.onAuthStateChanged(FB.auth,function(user){
+        try{
+          if(user){
+            // 1) Try the fast localStorage cache first
+            try{
+              var cached=JSON.parse(localStorage.getItem('tc_driver_session')||'null');
+              if(cached&&cached.uid===user.uid&&cached.data&&cached.data.name){
+                currentUid=user.uid;
+                dData=cached.data;
+                // Always re-fetch from Firestore in background to keep data fresh
+                FB.getDoc(FB.doc(FB.db,'drivers',user.uid)).then(function(snap){
+                  if(snap.exists()){dData=snap.data();saveSession();}
+                }).catch(function(){});
+                if(dData.status==='approved')goToDriverHome();
+                else goTo('s-pending');
+                return;
+              }
+            }catch(e){}
+
+            // 2) No valid cache — fetch from Firestore
+            currentUid=user.uid;
+            FB.getDoc(FB.doc(FB.db,'drivers',user.uid))
+              .then(function(snap){
+                if(snap.exists()){
+                  dData=snap.data();
+                  saveSession();
+                  if(dData.status==='approved')goToDriverHome();
+                  else goTo('s-pending');
+                }else{
+                  // Firebase auth exists but no driver doc — send back to registration
+                  currentUid=null;
+                  FB.signOut(FB.auth).catch(function(){});
+                  goTo('s-landing');
+                }
+              })
+              .catch(function(){ goTo('s-landing'); });
+          }else{
+            // No Firebase session — show landing
+            try{localStorage.removeItem('tc_driver_session');}catch(e){}
+            goTo('s-landing');
+          }
+        }catch(e){ goTo('s-landing'); }
+      });
+    }
+    _waitAndRun();
+  })();
+
 })();
 </script>
 <!-- ══ UPLOAD ACTION SHEET ══ -->
