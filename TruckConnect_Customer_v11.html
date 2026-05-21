@@ -466,6 +466,18 @@ body.light-mode .hfp-truck-row.selected{border-color:#111;background:#efefef;}
 #home-locate-btn.locating{animation:pulseRing .8s ease infinite;}
 </style>
 
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "a04fdcf0-5bbe-4047-a217-8437f36d82d2",
+      serviceWorkerParam: { scope: '/trucconnect/' },
+      notifyButton: { enable: false },
+      promptOptions: { slidedown: { prompts: [] } }
+    });
+  });
+</script>
 </head>
 <body class="light-mode">
 <script>
@@ -1266,10 +1278,11 @@ var _driverLocUnsub=null; // real-time listener for driver GPS location
 var _driverMapMarker=null; // MapLibre marker on homeMap showing live driver
 var _driverRouteMarker=null; // MapLibre marker on customerMap showing live driver
 var _trackingBookingId=null; // which booking we're currently tracking
+var _MT_KEY='o5ej8Op7GydtRmUQcJRw';
 function _mapStyle(){
   if(document.body.classList.contains('light-mode'))
-    return 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json';
-  return 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
+    return 'https://api.maptiler.com/maps/streets-v4/style.json?key='+_MT_KEY;
+  return 'https://api.maptiler.com/maps/streets-v4-dark/style.json?key='+_MT_KEY;
 }
 
 function $(id){return document.getElementById(id);}
@@ -1676,7 +1689,7 @@ function locateUser(){
     if(btn){btn.style.background='rgba(255,255,255,.96)';}
   },function(){
     if(btn){btn.style.background='rgba(255,255,255,.96)';}
-  },{enableHighAccuracy:true,timeout:10000,maximumAge:0});
+  },{enableHighAccuracy:true,timeout:10000});
 }
 
 function initHomeMap(){
@@ -1706,7 +1719,7 @@ function initHomeMap(){
         el.style.cssText='width:18px;height:18px;background:#1a73e8;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 5px rgba(26,115,232,0.25),0 2px 8px rgba(0,0,0,.3);';
         homeMarker=new maplibregl.Marker({element:el}).setLngLat([lng,lat]).addTo(homeMap);
       }
-    },function(){},{enableHighAccuracy:true,timeout:10000,maximumAge:0});
+    },function(){},{enableHighAccuracy:true,timeout:8000});
   }
 }
 
@@ -2248,7 +2261,7 @@ function initBookForm(){
     navigator.geolocation.getCurrentPosition(function(pos){
       var lng=pos.coords.longitude,lat=pos.coords.latitude;
       fromCoords=[lng,lat];
-      fetch('https://api.mapbox.com/geocoding/v5/mapbox.places/'+lng+','+lat+'.json?access_token='+MBTOKEN+'&language=en')
+      fetch('https://photon.komoot.io/reverse?lon='+lng+'&lat='+lat+'&lang=en&limit=1')
       .then(function(r){return r.json();})
       .then(function(data){
         if(data&&data.features&&data.features[0]){
@@ -2256,7 +2269,7 @@ function initBookForm(){
           if($('b-from')&&!$('b-from').value){$('b-from').value=addr;bookingData.from=addr;}
         }
       }).catch(function(){});
-    },function(){},{enableHighAccuracy:true,timeout:10000,maximumAge:0});
+    },function(){},{enableHighAccuracy:true,timeout:8000});
   }
 }
 
@@ -2456,6 +2469,11 @@ function confirmBooking(){
       myBookings.push(bk);
       if(btn){btn.disabled=false;btn.textContent='Find a Driver →';}
       writeNotif(currentUid,'📦','#dcfce7','#16a34a','Booking Confirmed!','Your booking #'+bkId+' is placed. Searching for a driver now...',bkId);
+      // Tag this user in OneSignal so we can send them targeted notifications
+      if(window.OneSignal) {
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        OneSignalDeferred.push(function(OS){ OS.User.addTag('uid', currentUid); OS.User.addTag('role','customer'); });
+      }
       startDriverSearch(bk);
     }).catch(function(e){
       console.warn('Booking save error:',e);
@@ -2635,105 +2653,130 @@ function chooseDriver(driver){
 
 // AUTOCOMPLETE — Google Places (accurate SA street addresses, schools, homes, businesses)
 // ═══════════════════════════════════════════════════════════════════════
-// MAPBOX GEOCODING — forward (autocomplete) + reverse (GPS → address)
-// Maps stay on MapLibre/CartoDB — ONLY geocoding uses Mapbox
 // ═══════════════════════════════════════════════════════════════════════
-var MBTOKEN = 'pk.eyJ1Ijoic3BoaXdlLTY2NiIsImEiOiJjbW93bzg4bTgwMTl2MnVyMW05eWNxM2JvIn0.C2-dfpQIZ-QbRnwIFgTMrQ';
+// PHOTON GEOCODING — forward (autocomplete) + reverse (GPS → address)
+// Uses Photon by Komoot (OpenStreetMap data) — FREE, no API key needed
+// Full SA coverage: hospitals, schools, colleges, every building & street
+// ═══════════════════════════════════════════════════════════════════════
 
-// Format a Mapbox feature into a short readable address
-function _mbShortAddr(feature) {
-  if (!feature) return '';
-  // place_name is already well-formatted, just strip trailing country
-  return (feature.place_name || '').replace(/,\s*South Africa$/i, '').trim();
+// South Africa bounding box for Photon search
+var _SA_BBOX = '16.4,-34.9,32.9,-22.1'; // west,south,east,north
+
+// Format a Photon feature into a readable address string
+function _photonAddr(props) {
+  var parts = [];
+  if (props.housenumber && props.street) parts.push(props.housenumber + ' ' + props.street);
+  else if (props.street) parts.push(props.street);
+  if (props.name && !parts.length) parts.push(props.name);
+  if (props.suburb) parts.push(props.suburb);
+  if (props.city || props.town || props.village) parts.push(props.city || props.town || props.village);
+  if (props.state) parts.push(props.state);
+  return parts.filter(Boolean).join(', ');
 }
 
-// Get main display line (street + number) from Mapbox feature
-function _mbMainLine(feature) {
-  var text = feature.text || '';
-  var addr = feature.address || '';
-  if (addr) return addr + ' ' + text;
-  return text || feature.place_name.split(',')[0];
+// Main display line for a Photon feature
+function _photonMain(props) {
+  if (props.name) return props.name;
+  if (props.housenumber && props.street) return props.housenumber + ' ' + props.street;
+  return props.street || props.city || props.town || 'Unknown';
 }
 
-// Get subtitle from Mapbox context (suburb, city, province)
-function _mbSubLine(feature) {
-  var ctx = feature.context || [];
-  var parts = ctx
-    .filter(function(c){ return /neighborhood|locality|place|region/.test(c.id); })
-    .map(function(c){ return c.text; })
-    .filter(Boolean);
-  return parts.slice(0, 3).join(', ');
+// Subtitle line for a Photon feature
+function _photonSub(props) {
+  var parts = [];
+  if (props.suburb) parts.push(props.suburb);
+  if (props.city || props.town || props.village) parts.push(props.city || props.town || props.village);
+  if (props.state) parts.push(props.state);
+  return parts.filter(Boolean).slice(0, 3).join(', ');
 }
 
-// Reverse geocode: [lng, lat] → address string (returns Promise<string>)
+// Reverse geocode: lng, lat → address string (returns Promise<string>)
 function _mbReverseGeocode(lng, lat) {
-  var url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' +
-            lng + ',' + lat + '.json?access_token=' + MBTOKEN + '&language=en&types=address,neighborhood,locality,place';
+  var url = 'https://photon.komoot.io/reverse?lon=' + lng + '&lat=' + lat + '&lang=en&limit=1';
   return fetch(url)
     .then(function(r){ return r.json(); })
     .then(function(data){
       if (data && data.features && data.features[0]) {
-        return _mbShortAddr(data.features[0]);
+        return _photonAddr(data.features[0].properties);
       }
       return '';
-    });
+    })
+    .catch(function(){ return ''; });
 }
 
-// ── AUTOCOMPLETE ENGINE (Photon — free, no API key, Gauteng-biased) ────
+// Core Photon search — returns Promise<features[]>
+function _photonSearch(q, lng, lat) {
+  var url = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(q) +
+            '&limit=7&lang=en&bbox=' + _SA_BBOX;
+  if (lng && lat) url += '&lon=' + lng + '&lat=' + lat;
+  return fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data){ return (data && data.features) ? data.features : []; })
+    .catch(function(){ return []; });
+}
+
+// Render Photon results into a dropdown list element
+function _photonRenderList(features, list, onSelect) {
+  list.innerHTML = '';
+  if (!features.length) { list.style.display = 'none'; return; }
+  features.forEach(function(f) {
+    var props = f.properties;
+    // Only show South Africa results
+    if (props.country && props.country !== 'South Africa') return;
+    var d = document.createElement('div');
+    d.className = 'autocomplete-item';
+    var main = _photonMain(props);
+    var sub  = _photonSub(props);
+    d.innerHTML = '<div class="ac-main">' + main + '</div>' +
+                  (sub ? '<div class="ac-sub">' + sub + '</div>' : '');
+    d.onclick = function() {
+      var fullAddr = _photonAddr(props);
+      var coords   = f.geometry.coordinates; // [lng, lat]
+      list.style.display = 'none';
+      onSelect(fullAddr, coords);
+    };
+    list.appendChild(d);
+  });
+  if (list.children.length) list.style.display = 'block';
+  else list.style.display = 'none';
+}
+
+// ── AUTOCOMPLETE ENGINE ────────────────────────────────────────────────────
 // Used by the Book screen fields (b-from / b-to)
 function setupAC(inputId, listId, onSelect) {
   var inp = $(inputId); if (!inp) return;
   var list = $(listId); if (!list) return;
   var timer = null;
+  var lastLng = 28.0473, lastLat = -26.2041; // Joburg default proximity
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(p){
+      lastLng = p.coords.longitude; lastLat = p.coords.latitude;
+    }, function(){}, { enableHighAccuracy: false, timeout: 5000 });
+  }
 
   inp.addEventListener('input', function() {
     var q = inp.value.trim();
     if (q.length < 2) { list.style.display = 'none'; return; }
     clearTimeout(timer);
     timer = setTimeout(function() {
-      // lat/lon bias centres results on Gauteng (Joburg/Pretoria region)
-      var url = 'https://photon.komoot.io/api/?q=' +
-                encodeURIComponent(q) +
-                '&lat=-26.204&lon=28.047&limit=7&lang=en';
-      fetch(url)
-        .then(function(r){ return r.json(); })
-        .then(function(data){
-          if (!data || !data.features || !data.features.length) {
-            list.style.display = 'none'; return;
-          }
-          list.innerHTML = '';
-          data.features.forEach(function(f) {
-            var p = f.properties || {};
-            var coords = f.geometry && f.geometry.coordinates; // [lng, lat]
-            var main = [p.name, p.street].filter(Boolean).join(', ') || p.name || '';
-            var sub  = [p.city || p.locality, p.state].filter(Boolean).join(', ');
-            var fullAddr = [p.name, p.street, p.city || p.locality, p.state].filter(Boolean).join(', ');
-            if (!fullAddr) return;
-            var d = document.createElement('div');
-            d.className = 'autocomplete-item';
-            d.innerHTML = '<div class="ac-main">' + main + '</div>' +
-                          '<div class="ac-sub">' + sub + '</div>';
-            d.onclick = function() {
-              inp.value = fullAddr;
-              list.style.display = 'none';
-              onSelect(fullAddr, coords); // [lng, lat]
-            };
-            list.appendChild(d);
-          });
-          list.style.display = 'block';
-        })
-        .catch(function(){ list.style.display = 'none'; });
-    }, 280);
+      _photonSearch(q, lastLng, lastLat).then(function(features) {
+        _photonRenderList(features, list, function(addr, coords) {
+          inp.value = addr;
+          onSelect(addr, coords);
+        });
+      });
+    }, 300);
   });
 
-  // Close list when tapping outside
   document.addEventListener('click', function(e){
     if (!inp.contains(e.target) && !list.contains(e.target)) list.style.display = 'none';
   });
 }
+
 function _waitGmaps(fn){ fn(); } // legacy shim — keep for safety
 
-// ── HOME BOOKING SHEET AUTOCOMPLETE (Photon — free, Gauteng-biased) ────
+// ── HOME BOOKING SHEET AUTOCOMPLETE (hsAC) ────────────────────────────────
 // Used by hs-from / hs-to quick-book inputs on the home screen
 window.hsAC = function(inp, listId, isFrom) {
   var list = document.getElementById(listId); if (!list) return;
@@ -2741,40 +2784,18 @@ window.hsAC = function(inp, listId, isFrom) {
   if (q.length < 2) { list.style.display = 'none'; return; }
   clearTimeout(inp._acTimer);
   inp._acTimer = setTimeout(function() {
-    var url = 'https://photon.komoot.io/api/?q=' +
-              encodeURIComponent(q) +
-              '&lat=-26.204&lon=28.047&limit=7&lang=en';
-    fetch(url)
-      .then(function(r){ return r.json(); })
-      .then(function(data){
-        if (!data || !data.features || !data.features.length) {
-          list.style.display = 'none'; return;
-        }
-        list.innerHTML = '';
-        data.features.forEach(function(f) {
-          var p = f.properties || {};
-          var coords = f.geometry && f.geometry.coordinates; // [lng, lat]
-          var main = [p.name, p.street].filter(Boolean).join(', ') || p.name || '';
-          var sub  = [p.city || p.locality, p.state].filter(Boolean).join(', ');
-          var fullAddr = [p.name, p.street, p.city || p.locality, p.state].filter(Boolean).join(', ');
-          if (!fullAddr) return;
-          var d = document.createElement('div');
-          d.className = 'autocomplete-item';
-          d.innerHTML = '<div class="ac-main">' + main + '</div>' +
-                        '<div class="ac-sub">' + sub + '</div>';
-          d.onclick = function() {
-            inp.value = fullAddr;
-            list.style.display = 'none';
-            if (isFrom) hsFrCoords = coords;
-            else        hsToCoords = coords;
-          };
-          list.appendChild(d);
-        });
-        list.style.display = 'block';
-      })
-      .catch(function(){ list.style.display = 'none'; });
-  }, 280);
+    var lng = (typeof customerLng !== 'undefined' && customerLng) ? customerLng : 28.0473;
+    var lat = (typeof customerLat !== 'undefined' && customerLat) ? customerLat : -26.2041;
+    _photonSearch(q, lng, lat).then(function(features) {
+      _photonRenderList(features, list, function(addr, coords) {
+        inp.value = addr;
+        if (isFrom) hsFrCoords = coords;
+        else        hsToCoords = coords;
+      });
+    });
+  }, 300);
 };
+
 function switchTab2(tab){
   ['home','book','history','profile','notifications'].forEach(function(t){var b=$('btm-'+t);if(b)b.classList.remove('active');});
   var ab=$('btm-'+tab);if(ab)ab.classList.add('active');
@@ -2812,7 +2833,7 @@ window.openBookingSheet=function(){
           var el=document.getElementById('hs-from');
           if(addr&&el&&!el.value) el.value=addr;
         }).catch(function(){});
-      },function(){},{enableHighAccuracy:true,timeout:10000,maximumAge:0});
+      },function(){},{enableHighAccuracy:true,timeout:8000});
     }
   }
 };

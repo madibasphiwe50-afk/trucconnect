@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>TruckConnect · Admin Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css"/>
+<script async src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{-webkit-text-size-adjust:100%;}
+body{background:#06101f;color:#dde4f0;font-family:'Sora',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+input,select,button,textarea{font-family:'Sora',sans-serif;}
+
+:root{
+  --bg:#06101f;
+  --bg2:#0b1628;
+  --bg3:#101f35;
+  --bg4:#142540;
+  --blue:#2563eb;
+  --blue2:#1d4ed8;
+  --blue3:#1e40af;
+  --glow:rgba(37,99,235,.3);
+  --sky:#38bdf8;
+  --sky2:#0ea5e9;
+  --green:#22c55e;
+  --green2:#16a34a;
+  --red:#ef4444;
+  --amber:#f59e0b;
+  --purple:#a855f7;
+  --card:#0b1628;
+  --card2:#0f1e32;
+  --border:rgba(255,255,255,.065);
+  --border2:rgba(255,255,255,.12);
+  --border3:rgba(37,99,235,.25);
+  --text:#dde4f0;
+  --text2:#c4cdd e;
+  --muted:#5a6a82;
+  --muted2:#8899b0;
+  --mono:'JetBrains Mono',monospace;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+@keyframes popIn{from{transform:scale(.94) translateY(24px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+@keyframes ripple{from{transform:scale(0);opacity:.4}to{transform:scale(2.5);opacity:0}}
+@keyframes spinAnim{to{transform:rotate(360deg)}}
+@keyframes slideInRight{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:4px;}
+
+/* ── SCREEN SYSTEM ── */
+.screen{display:none;min-height:100vh;flex-direction:column;}
+.screen.active{display:flex;animation:fadeUp .22s ease;}
+
+/* ══════════════════════════════════════
+   LOGIN
+══════════════════════════════════════ */
+#s-login{
+  justify-content:center;align-items:center;
+  background:var(--bg);
+}
+.login-wrap{width:100%;max-width:370px;padding:20px;}
+.login-brand{text-align:center;margin-bottom:36px;}
+.login-icon{font-size:50px;display:block;margin-bottom:12px;}
+.login-title{font-size:26px;font-weight:900;color:#fff;letter-spacing:-1px;margin-bottom:4px;}
+.login-title em{font-style:normal;color:var(--sky);}
+.login-sub{font-size:10px;color:rgba(255,255,255,.18);text-transform:uppercase;letter-spacing:2px;font-weight:600;}
+.login-card{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:22px;padding:26px 22px;backdrop-filter:blur(24px);}
+.login-card-title{font-size:15px;font-weight:800;color:#fff;margin-bottom:2px;}
+.login-card-sub{font-size:11px;color:rgba(255,255,255,.2);margin-bottom:22px;}
+.lf-group{margin-bottom:13px;}
+.lf-label{font-size:9px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;}
+.lf-input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:12px 15px;color:#fff;font-size:13px;outline:none;transition:all .2s;}
+.lf-input:focus{border-color:var(--sky);background:rgba(56,189,248,.04);box-shadow:0 0 0 3px rgba(56,189,248,.07);}
+.lf-input::placeholder{color:rgba(255,255,255,.15);}
+.login-err{color:#f87171;font-size:11px;margin-top:6px;font-weight:500;display:none;padding:8px 12px;background:rgba(239,68,68,.08);border-radius:8px;border:1px solid rgba(239,68,68,.15);}
+.login-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;margin-top:6px;transition:background .15s;letter-spacing:.3px;}
+.login-btn:hover{background:var(--blue2);}
+.login-btn:active{background:var(--blue3);}
+.login-btn:disabled{opacity:.45;cursor:not-allowed;}
+
+/* ══════════════════════════════════════
+   TOPBAR
+══════════════════════════════════════ */
+.topbar{background:rgba(6,16,31,.97);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:54px;position:sticky;top:0;z-index:300;}
+.topbar-brand{display:flex;align-items:center;gap:8px;}
+.topbar-dot{width:7px;height:7px;background:var(--sky);border-radius:50%;animation:blink 2s ease infinite;flex-shrink:0;}
+.topbar-name{font-size:14px;font-weight:900;color:#fff;letter-spacing:-.4px;}
+.topbar-name em{font-style:normal;color:var(--sky);}
+.topbar-right{display:flex;align-items:center;gap:8px;}
+.live-pill{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:800;color:var(--green);background:rgba(34,197,94,.08);padding:4px 9px;border-radius:20px;border:1px solid rgba(34,197,94,.18);letter-spacing:.5px;}
+.live-pip{width:5px;height:5px;background:var(--green);border-radius:50%;animation:blink 1.4s ease infinite;}
+.signout-btn{background:none;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:5px 11px;color:rgba(255,255,255,.4);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;}
+.signout-btn:hover{border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.7);}
+
+/* ══════════════════════════════════════
+   BOTTOM NAV
+══════════════════════════════════════ */
+.btm-nav{display:flex;background:rgba(6,16,31,.99);border-top:1px solid var(--border);position:sticky;bottom:0;z-index:200;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;}
+.btm-nav::-webkit-scrollbar{display:none;}
+.nav-btn{flex:none;min-width:58px;background:none;border:none;padding:8px 6px 6px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:rgba(255,255,255,.25);transition:color .15s;position:relative;}
+.nav-btn.active{color:var(--sky);}
+.nav-btn.active::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:2px;background:linear-gradient(90deg,var(--blue),var(--sky));border-radius:0 0 3px 3px;}
+.nav-btn-icon{font-size:17px;line-height:1;}
+.nav-btn-lbl{font-size:8px;font-weight:700;letter-spacing:.3px;white-space:nowrap;}
+.nav-badge{position:absolute;top:4px;right:6px;background:var(--red);color:#fff;font-size:8px;font-weight:800;min-width:15px;height:15px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px;display:none;}
+.nav-badge.show{display:flex;}
+
+/* ══════════════════════════════════════
+   MAIN + TABS
+══════════════════════════════════════ */
+.admin-main{flex:1;overflow-y:auto;padding:16px;padding-bottom:16px;}
+.tab{display:none;}
+.tab.active{display:block;animation:fadeUp .18s ease;}
+.pg-title{font-size:20px;font-weight:900;color:#fff;margin-bottom:2px;letter-spacing:-.5px;}
+.pg-sub{font-size:11px;color:var(--muted2);margin-bottom:16px;}
+
+/* ══════════════════════════════════════
+   CARDS
+══════════════════════════════════════ */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:13px;}
+.card-inner{padding:15px;}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--border);}
+.card-head-title{font-size:13px;font-weight:800;color:var(--text);}
+.chip{display:inline-flex;align-items:center;font-size:9px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.3px;border:1px solid transparent;}
+.chip-blue{background:rgba(37,99,235,.15);color:#93c5fd;border-color:rgba(37,99,235,.25);}
+.chip-red{background:rgba(239,68,68,.12);color:#fca5a5;border-color:rgba(239,68,68,.2);}
+.chip-amber{background:rgba(245,158,11,.12);color:#fcd34d;border-color:rgba(245,158,11,.2);}
+.chip-green{background:rgba(34,197,94,.1);color:#86efac;border-color:rgba(34,197,94,.2);}
+
+/* HERO REVENUE CARD */
+.rev-hero{background:#0d1d38;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;margin-bottom:13px;}
+.rev-eyebrow{font-size:9px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;}
+.rev-big{font-size:38px;font-weight:900;color:#fff;letter-spacing:-1.5px;font-family:var(--mono);line-height:1;}
+.rev-note{font-size:11px;color:rgba(255,255,255,.25);margin-top:5px;}
+.rev-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.05);}
+.rev-cell{text-align:center;}
+.rev-cell-n{font-size:16px;font-weight:800;color:#fff;font-family:var(--mono);}
+.rev-cell-l{font-size:8px;color:rgba(255,255,255,.2);margin-top:3px;text-transform:uppercase;letter-spacing:.5px;}
+
+/* STAT GRID */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:13px;}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:15px;transition:border-color .2s;}
+.stat:hover{border-color:var(--border2);}
+.stat.blue{background:linear-gradient(135deg,rgba(37,99,235,.12),rgba(37,99,235,.04));border-color:rgba(37,99,235,.2);}
+.stat-lbl{font-size:9px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;}
+.stat-n{font-size:30px;font-weight:900;color:var(--text);font-family:var(--mono);letter-spacing:-1px;line-height:1;}
+.stat-n.sky{color:var(--sky);}
+.stat-note{font-size:10px;color:var(--muted2);margin-top:4px;font-weight:500;}
+.stat-note.green{color:var(--green);}
+
+/* ══════════════════════════════════════
+   LIST ITEMS
+══════════════════════════════════════ */
+.li{padding:13px 15px;border-bottom:1px solid var(--border);transition:background .12s;}
+.li:last-child{border-bottom:none;}
+.li:hover{background:rgba(255,255,255,.015);}
+.li-row{display:flex;align-items:center;gap:10px;}
+.li-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;background:linear-gradient(135deg,var(--blue),var(--sky2));}
+.li-av.g{background:linear-gradient(135deg,#15803d,#14532d);}
+.li-av.r{background:linear-gradient(135deg,var(--red),#991b1b);}
+.li-av.a{background:linear-gradient(135deg,#d97706,#78350f);}
+.li-av.p{background:linear-gradient(135deg,#7c3aed,#3b0764);}
+.li-av.emoji{background:none;font-size:22px;}
+.li-info{flex:1;min-width:0;}
+.li-name{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.li-meta{font-size:10px;color:var(--muted2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.li-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.li-acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+
+/* PILLS */
+.pill{display:inline-flex;align-items:center;font-size:8px;font-weight:800;padding:3px 8px;border-radius:20px;letter-spacing:.4px;border:1px solid transparent;text-transform:uppercase;}
+.p-pending{background:rgba(245,158,11,.12);color:#fcd34d;border-color:rgba(245,158,11,.22);}
+.p-approved{background:rgba(34,197,94,.1);color:#86efac;border-color:rgba(34,197,94,.2);}
+.p-rejected{background:rgba(239,68,68,.1);color:#fca5a5;border-color:rgba(239,68,68,.18);}
+.p-suspended{background:rgba(168,85,247,.1);color:#d8b4fe;border-color:rgba(168,85,247,.2);}
+.p-avail{background:rgba(56,189,248,.1);color:#7dd3fc;border-color:rgba(56,189,248,.2);}
+.p-accepted{background:rgba(34,197,94,.1);color:#86efac;border-color:rgba(34,197,94,.2);}
+.p-in_progress{background:rgba(168,85,247,.1);color:#d8b4fe;border-color:rgba(168,85,247,.2);}
+.p-completed{background:rgba(34,197,94,.08);color:#bbf7d0;border-color:rgba(34,197,94,.15);}
+.p-cancelled{background:rgba(100,116,139,.1);color:var(--muted2);border-color:rgba(100,116,139,.18);}
+.p-active{background:rgba(34,197,94,.1);color:#86efac;border-color:rgba(34,197,94,.2);}
+.p-open{background:rgba(239,68,68,.1);color:#fca5a5;border-color:rgba(239,68,68,.18);}
+.p-investigating{background:rgba(245,158,11,.12);color:#fcd34d;border-color:rgba(245,158,11,.22);}
+.p-resolved{background:rgba(34,197,94,.1);color:#86efac;border-color:rgba(34,197,94,.2);}
+
+/* BUTTONS */
+.btn{border:none;border-radius:8px;padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;transition:all .13s;letter-spacing:.2px;white-space:nowrap;}
+.btn:active{transform:scale(.97);}
+.btn-approve{background:rgba(34,197,94,.12);color:#86efac;border:1px solid rgba(34,197,94,.22);}
+.btn-approve:hover{background:rgba(34,197,94,.22);}
+.btn-reject{background:rgba(239,68,68,.1);color:#fca5a5;border:1px solid rgba(239,68,68,.18);}
+.btn-reject:hover{background:rgba(239,68,68,.2);}
+.btn-view{background:rgba(56,189,248,.08);color:#7dd3fc;border:1px solid rgba(56,189,248,.18);}
+.btn-view:hover{background:rgba(56,189,248,.18);}
+.btn-suspend{background:rgba(168,85,247,.1);color:#d8b4fe;border:1px solid rgba(168,85,247,.2);}
+.btn-suspend:hover{background:rgba(168,85,247,.2);}
+.btn-reinstate{background:rgba(34,197,94,.1);color:#86efac;border:1px solid rgba(34,197,94,.2);}
+.btn-reinstate:hover{background:rgba(34,197,94,.2);}
+.btn-chat{background:rgba(56,189,248,.08);color:#7dd3fc;border:1px solid rgba(56,189,248,.15);}
+.btn-chat:hover{background:rgba(56,189,248,.18);}
+.btn-danger{background:rgba(239,68,68,.08);color:#fca5a5;border:1px solid rgba(239,68,68,.15);}
+.btn-danger:hover{background:rgba(239,68,68,.18);}
+.btn-primary{background:var(--blue);color:#fff;border:none;border-radius:11px;padding:13px;font-size:13px;font-weight:700;cursor:pointer;width:100%;transition:background .15s;margin-top:8px;}
+.btn-primary:hover{background:var(--blue2);}
+.btn-secondary{background:rgba(255,255,255,.05);color:var(--muted2);border:1px solid var(--border);border-radius:11px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;width:100%;transition:background .15s;margin-top:8px;}
+.btn-secondary:hover{background:rgba(255,255,255,.08);}
+
+/* SEARCH */
+.search-wrap{position:relative;margin-bottom:12px;}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none;}
+.search-inp{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:11px 14px 11px 36px;color:var(--text);font-size:13px;outline:none;transition:border-color .2s;}
+.search-inp:focus{border-color:rgba(56,189,248,.35);box-shadow:0 0 0 3px rgba(56,189,248,.05);}
+.search-inp::placeholder{color:var(--muted);}
+
+/* FILTER TABS */
+.ftabs{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;-ms-overflow-style:none;scrollbar-width:none;}
+.ftabs::-webkit-scrollbar{display:none;}
+.ftab{padding:6px 13px;border:1px solid var(--border);border-radius:20px;background:var(--card);color:var(--muted2);font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .13s;}
+.ftab:active{transform:scale(.96);}
+.ftab.on{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 3px 12px rgba(37,99,235,.35);}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);z-index:500;display:none;align-items:flex-end;}
+.overlay.show{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:24px 24px 0 0;padding:20px;width:100%;max-height:90vh;overflow-y:auto;animation:popIn .22s cubic-bezier(.34,1.56,.64,1);}
+.modal-handle{width:32px;height:3px;background:rgba(255,255,255,.12);border-radius:3px;margin:0 auto 16px;}
+.modal-title{font-size:16px;font-weight:900;color:#fff;letter-spacing:-.3px;}
+.modal-sub{font-size:11px;color:var(--muted2);margin-top:2px;margin-bottom:16px;}
+.mrow{display:flex;justify-content:space-between;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border);gap:10px;}
+.mrow:last-of-type{border-bottom:none;}
+.mkey{font-size:11px;color:var(--muted2);flex-shrink:0;}
+.mval{font-size:12px;font-weight:700;color:var(--text);text-align:right;word-break:break-all;}
+.modal-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
+.mbtn{flex:1;border:none;border-radius:11px;padding:13px;font-size:12px;font-weight:800;cursor:pointer;min-width:72px;transition:all .13s;letter-spacing:.2px;}
+.mbtn-approve{background:rgba(34,197,94,.12);color:#86efac;border:1px solid rgba(34,197,94,.22);}
+.mbtn-reject{background:rgba(239,68,68,.1);color:#fca5a5;border:1px solid rgba(239,68,68,.18);}
+.mbtn-close{background:rgba(255,255,255,.05);color:var(--muted2);border:1px solid var(--border);}
+.mbtn-suspend{background:rgba(168,85,247,.1);color:#d8b4fe;border:1px solid rgba(168,85,247,.2);}
+.msec-lbl{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:12px 0 7px;border-top:1px solid var(--border);margin-top:6px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(0);background:rgba(11,22,40,.97);backdrop-filter:blur(20px);color:#fff;font-size:12px;font-weight:600;padding:10px 20px;border-radius:22px;z-index:9000;white-space:nowrap;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;border:1px solid rgba(255,255,255,.09);box-shadow:0 8px 28px rgba(0,0,0,.5);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+
+
+/* CHARTS */
+.chart-wrap{padding:14px 14px 4px;}
+.barchart{display:flex;align-items:flex-end;gap:5px;height:90px;margin-bottom:6px;}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.bar-fill{width:100%;border-radius:4px 4px 0 0;transition:height .5s cubic-bezier(.34,1.4,.64,1);}
+.bar-val{font-size:8px;color:var(--muted2);font-weight:600;font-family:var(--mono);}
+.bar-lbl{font-size:8px;color:var(--muted);font-weight:600;}
+
+/* MAP */
+.map-box{width:100%;height:70vh;border-radius:16px;overflow:hidden;position:relative;margin-bottom:13px;border:1px solid var(--border);}
+#admin-map{width:100%;height:100%;}
+.map-live-tag{position:absolute;top:12px;left:12px;z-index:999;background:rgba(6,16,31,.85);border-radius:10px;padding:5px 12px;font-size:10px;font-weight:800;color:#38bdf8;pointer-events:none;letter-spacing:.5px;}
+.map-legend{position:absolute;bottom:12px;right:12px;z-index:999;background:rgba(6,16,31,.8);border-radius:10px;padding:6px 12px;font-size:9px;color:rgba(255,255,255,.7);display:flex;gap:10px;pointer-events:none;align-items:center;}
+.map-full-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:11px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;transition:background .15s;margin-bottom:13px;}
+.map-full-btn:hover{background:var(--blue2);}
+
+/* CHAT */
+.chat-win{display:flex;flex-direction:column;height:300px;}
+.chat-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:7px;}
+.chat-bubble{max-width:78%;padding:8px 12px;border-radius:12px;font-size:12px;line-height:1.5;}
+.chat-bubble.me{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;align-self:flex-end;border-radius:12px 12px 3px 12px;}
+.chat-bubble.them{background:var(--bg3);color:var(--text);align-self:flex-start;border-radius:12px 12px 12px 3px;border:1px solid var(--border);}
+.chat-time{font-size:9px;opacity:.45;margin-top:2px;}
+.chat-input-row{display:flex;gap:7px;padding:10px;border-top:1px solid var(--border);}
+.chat-inp{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:9px 12px;color:var(--text);font-size:12px;outline:none;transition:border-color .2s;}
+.chat-inp:focus{border-color:rgba(56,189,248,.35);}
+.chat-send-btn{background:var(--blue);color:#fff;border:none;border-radius:10px;padding:9px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s;}
+.chat-send-btn:hover{background:var(--blue2);}
+.chat-li{padding:11px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .12s;}
+.chat-li:hover{background:rgba(255,255,255,.025);}
+.chat-li-type{font-size:9px;font-weight:700;padding:2px 6px;border-radius:6px;margin-left:auto;flex-shrink:0;}
+.chat-li-driver{background:rgba(34,197,94,.1);color:#86efac;}
+.chat-li-customer{background:rgba(56,189,248,.1);color:#7dd3fc;}
+
+/* RATINGS */
+.rb-wrap{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.rb-lbl{font-size:10px;color:var(--muted2);font-weight:700;width:14px;text-align:right;}
+.rb-bg{flex:1;height:7px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;}
+.rb-fill{height:100%;background:linear-gradient(90deg,var(--amber),#fde68a);border-radius:4px;transition:width .6s cubic-bezier(.34,1.4,.64,1);}
+.rb-cnt{font-size:10px;color:var(--muted);font-family:var(--mono);width:22px;}
+
+/* FORM ELEMENTS */
+.fg{margin-bottom:13px;}
+.fl{font-size:9px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.7px;display:block;margin-bottom:5px;}
+.fi{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 13px;color:var(--text);font-size:13px;outline:none;transition:border-color .2s;}
+.fi:focus{border-color:rgba(56,189,248,.35);box-shadow:0 0 0 3px rgba(56,189,248,.05);}
+.fi::placeholder{color:var(--muted);}
+.fselect{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 13px;color:var(--text);font-size:13px;outline:none;appearance:none;cursor:pointer;}
+
+/* SETTINGS ROWS */
+.srow{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 15px;border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap;}
+.srow:last-child{border-bottom:none;}
+.skey{font-size:13px;font-weight:600;color:var(--text);}
+.sval{font-size:12px;color:var(--muted2);text-align:right;word-break:break-all;}
+
+/* NOTIF TARGETS */
+.ntargets{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 14px;}
+.ntarget{border:1px solid var(--border);border-radius:11px;padding:12px;cursor:pointer;transition:all .15s;text-align:center;}
+.ntarget:hover{border-color:var(--border2);}
+.ntarget.on{border-color:var(--sky);background:rgba(56,189,248,.07);}
+.ntarget-ico{font-size:20px;margin-bottom:4px;}
+.ntarget-lbl{font-size:11px;font-weight:700;color:var(--muted2);}
+.ntarget.on .ntarget-lbl{color:var(--sky);}
+
+/* ROLE BADGES */
+.rbadge{font-size:9px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.3px;}
+.rb-super{background:rgba(168,85,247,.12);color:#d8b4fe;border:1px solid rgba(168,85,247,.22);}
+.rb-finance{background:rgba(34,197,94,.1);color:#86efac;border:1px solid rgba(34,197,94,.2);}
+.rb-support{background:rgba(56,189,248,.1);color:#7dd3fc;border:1px solid rgba(56,189,248,.2);}
+.rb-ops{background:rgba(245,158,11,.12);color:#fcd34d;border:1px solid rgba(245,158,11,.2);}
+
+/* TRUCK SPECS */
+.specs-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px;}
+.spec{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:9px;}
+.spec-lbl{font-size:8px;color:var(--muted2);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+.spec-val{font-size:12px;font-weight:700;color:var(--text);}
+
+/* EMPTY STATE */
+.empty{padding:32px 20px;text-align:center;}
+.empty-ico{font-size:28px;margin-bottom:8px;opacity:.4;}
+.empty-txt{font-size:12px;color:var(--muted);font-weight:500;}
+
+/* LOADING SPINNER */
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.1);border-top-color:var(--sky);border-radius:50%;animation:spinAnim .7s linear infinite;vertical-align:middle;}
+</style>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "a04fdcf0-5bbe-4047-a217-8437f36d82d2",
+      serviceWorkerParam: { scope: '/trucconnect/' },
+      notifyButton: { enable: false },
+      promptOptions: { slidedown: { prompts: [] } }
+    });
+  });
+</script>
+</head>
+<body>
+
+<!-- Firebase -->
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getFirestore,collection,updateDoc,addDoc,doc,onSnapshot,query,where,orderBy,getDocs,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const app=initializeApp({apiKey:"AIzaSyD0dRuRqbsJr0-Kv29xcpQGjW-1DiYPNLo",authDomain:"truck-connect-c0c67.firebaseapp.com",projectId:"truck-connect-c0c67",storageBucket:"truck-connect-c0c67.firebasestorage.app",messagingSenderId:"313065662016",appId:"1:313065662016:web:a43aecfce5d7db205d61a5"});
+window._FB={auth:getAuth(app),db:getFirestore(app),signInWithEmailAndPassword,signOut,onAuthStateChanged,collection,updateDoc,addDoc,doc,onSnapshot,query,where,orderBy,getDocs,serverTimestamp};
+</script>
+
+<div class="toast" id="toast"></div>
+
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)_closeModal()">
+  <div class="modal" id="modal"><div class="modal-handle"></div></div>
+</div>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="s-login" class="screen active">
+  <div class="login-wrap">
+    <div class="login-brand">
+      <span class="login-icon">🚛</span>
+      <div class="login-title">Truck<em>Connect</em></div>
+      <div class="login-sub">Admin Command Centre</div>
+    </div>
+    <div class="login-card">
+      <div class="login-card-title">Secure Sign In</div>
+      <div class="login-card-sub">Authorised personnel only</div>
+      <div class="lf-group">
+        <label class="lf-label">Email</label>
+        <input class="lf-input" id="li-email" type="email" placeholder="admin@truckconnect.co.za" autocomplete="email"/>
+      </div>
+      <div class="lf-group">
+        <label class="lf-label">Password</label>
+        <input class="lf-input" id="li-pass" type="password" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+      <div class="login-err" id="login-err"></div>
+      <button class="login-btn" id="login-btn">Sign In →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ADMIN ══════════════ -->
+<div id="s-admin" class="screen">
+
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-dot"></div>
+      <div class="topbar-name">Truck<em>Connect</em> · Admin</div>
+    </div>
+    <div class="topbar-right">
+      <div class="live-pill"><div class="live-pip"></div> LIVE</div>
+      <button class="signout-btn" id="signout-btn">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="admin-main">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="tab active" id="tab-dashboard">
+      <div class="pg-title">Dashboard</div>
+      <div class="pg-sub" id="dash-date">—</div>
+
+      <div class="rev-hero">
+        <div class="rev-eyebrow">Total Revenue</div>
+        <div class="rev-big" id="h-rev">R0</div>
+        <div class="rev-note">Subscription revenue · 3-month free trial active</div>
+        <div class="rev-row">
+          <div class="rev-cell"><div class="rev-cell-n" id="h-subrev">R0</div><div class="rev-cell-l">Plans</div></div>
+          <div class="rev-cell"><div class="rev-cell-n" id="h-bookings">0</div><div class="rev-cell-l">Bookings</div></div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat"><div class="stat-lbl">Drivers</div><div class="stat-n" id="h-drivers">0</div><div class="stat-note" id="h-pending-note">0 pending</div></div>
+        <div class="stat"><div class="stat-lbl">Customers</div><div class="stat-n" id="h-customers">0</div><div class="stat-note">Registered</div></div>
+        <div class="stat blue"><div class="stat-lbl">Active Trips</div><div class="stat-n sky" id="h-active">0</div><div class="stat-note green">In progress</div></div>
+        <div class="stat"><div class="stat-lbl">Approved</div><div class="stat-n" id="h-approved">0</div><div class="stat-note green">Active drivers</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">📈 Bookings — Last 7 Days</div></div>
+        <div class="chart-wrap"><div class="barchart" id="dash-chart"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-title">⏳ Pending Approvals</div>
+          <div class="chip chip-amber" id="pending-badge">0</div>
+        </div>
+        <div id="pending-list"><div class="empty"><div class="empty-ico">✅</div><div class="empty-txt">No pending applications.</div></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">📦 Recent Bookings</div></div>
+        <div id="recent-list"><div class="empty"><div class="empty-ico">📦</div><div class="empty-txt">No bookings yet.</div></div></div>
+      </div>
+    </div>
+
+    <!-- ── DRIVERS ── -->
+    <div class="tab" id="tab-drivers">
+      <div class="pg-title">Drivers</div>
+      <div class="pg-sub">Manage applications, approvals and suspensions.</div>
+      <div class="search-wrap"><span class="search-icon">🔍</span><input class="search-inp" id="driver-search" placeholder="Search name, email or plate..." oninput="renderDrivers()"/></div>
+      <div class="ftabs">
+        <button class="ftab on" onclick="setFilter(this,'driverFilter','all','renderDrivers')">All</button>
+        <button class="ftab" onclick="setFilter(this,'driverFilter','pending','renderDrivers')">⏳ Pending</button>
+        <button class="ftab" onclick="setFilter(this,'driverFilter','approved','renderDrivers')">✅ Approved</button>
+        <button class="ftab" onclick="setFilter(this,'driverFilter','suspended','renderDrivers')">⏸ Suspended</button>
+        <button class="ftab" onclick="setFilter(this,'driverFilter','rejected','renderDrivers')">❌ Rejected</button>
+      </div>
+      <div class="card"><div id="drivers-list"><div class="empty"><div class="empty-ico">🚛</div><div class="empty-txt">Loading...</div></div></div></div>
+    </div>
+
+    <!-- ── CUSTOMERS ── -->
+    <div class="tab" id="tab-customers">
+      <div class="pg-title">Customers</div>
+      <div class="pg-sub">All registered customer accounts.</div>
+      <div class="search-wrap"><span class="search-icon">🔍</span><input class="search-inp" id="customer-search" placeholder="Search name or email..." oninput="renderCustomers()"/></div>
+      <div class="card"><div id="customers-list"><div class="empty"><div class="empty-ico">👥</div><div class="empty-txt">Loading...</div></div></div></div>
+    </div>
+
+    <!-- ── BOOKINGS ── -->
+    <div class="tab" id="tab-bookings">
+      <div class="pg-title">Bookings</div>
+      <div class="pg-sub">All loads on the platform.</div>
+      <div class="ftabs">
+        <button class="ftab on" onclick="setFilter(this,'bookingFilter','all','renderBookings')">All</button>
+        <button class="ftab" onclick="setFilter(this,'bookingFilter','avail','renderBookings')">🟡 Open</button>
+        <button class="ftab" onclick="setFilter(this,'bookingFilter','accepted','renderBookings')">🟢 Accepted</button>
+        <button class="ftab" onclick="setFilter(this,'bookingFilter','in_progress','renderBookings')">🚛 Transit</button>
+        <button class="ftab" onclick="setFilter(this,'bookingFilter','completed','renderBookings')">✅ Done</button>
+        <button class="ftab" onclick="setFilter(this,'bookingFilter','cancelled','renderBookings')">❌ Cancelled</button>
+      </div>
+      <div class="card"><div id="bookings-list"><div class="empty"><div class="empty-ico">📦</div><div class="empty-txt">Loading...</div></div></div></div>
+    </div>
+
+    <!-- ── LIVE TRACKING ── -->
+    <div class="tab" id="tab-tracking">
+      <div class="pg-title">🗺️ Live Tracking</div>
+      <div class="pg-sub">Driver GPS positions during active trips.</div>
+
+      <div class="map-box">
+        <div id="admin-map"></div>
+        <div class="map-live-tag">● LIVE GPS</div>
+        <div class="map-legend">🔵 In Transit &nbsp;🟢 Online &nbsp;⚫ Offline</div>
+      </div>
+
+      <button class="map-full-btn" onclick="openFullMap()">📍 Open All Trucks in Google Maps</button>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-title">Active Trips</div>
+          <div class="chip chip-blue" id="active-badge">0</div>
+        </div>
+        <div id="active-trips-list"><div class="empty"><div class="empty-ico">🗺️</div><div class="empty-txt">No active trips right now.</div></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">ℹ️ How GPS Tracking Works</div></div>
+        <div style="padding:14px 15px;font-size:12px;color:var(--muted2);line-height:1.75;">
+          The Driver App uses <strong style="color:var(--sky);">MapLibre GL + GPS watchPosition()</strong> to push coordinates via <code style="font-family:var(--mono);font-size:11px;background:var(--bg3);padding:1px 5px;border-radius:4px;">watchPosition()</code> to <code style="font-family:var(--mono);font-size:11px;background:var(--bg3);padding:1px 5px;border-radius:4px;">drivers/{uid}/lat + lng</code> in Firestore whenever the driver is online. The admin map reads those same fields in real-time and places a marker per driver.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PUSH NOTIFICATIONS ── -->
+    <div class="tab" id="tab-notifications">
+      <div class="pg-title">🔔 Push Notifications</div>
+      <div class="pg-sub">Broadcast messages to drivers and customers.</div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">Compose &amp; Send</div></div>
+        <div class="card-inner">
+          <label class="fl">Send To</label>
+          <div class="ntargets">
+            <div class="ntarget on" id="nt-drivers" onclick="pickNotifTarget('drivers')"><div class="ntarget-ico">🚛</div><div class="ntarget-lbl">All Drivers</div></div>
+            <div class="ntarget" id="nt-customers" onclick="pickNotifTarget('customers')"><div class="ntarget-ico">👥</div><div class="ntarget-lbl">All Customers</div></div>
+            <div class="ntarget" id="nt-approved" onclick="pickNotifTarget('approved')"><div class="ntarget-ico">✅</div><div class="ntarget-lbl">Approved Drivers</div></div>
+            <div class="ntarget" id="nt-all" onclick="pickNotifTarget('all')"><div class="ntarget-ico">📢</div><div class="ntarget-lbl">Everyone</div></div>
+          </div>
+          <div class="fg">
+            <label class="fl">Title (max 60 chars)</label>
+            <input class="fi" id="notif-title" placeholder="e.g. New loads in Gauteng!" maxlength="60"/>
+          </div>
+          <div class="fg">
+            <label class="fl">Message (max 200 chars)</label>
+            <textarea class="fi" id="notif-body" rows="3" placeholder="Write your message..." maxlength="200" style="resize:none;"></textarea>
+          </div>
+          <button class="btn-primary" onclick="sendBroadcast()">📤 Send Notification</button>
+          <p style="font-size:10px;color:var(--muted);margin-top:9px;text-align:center;">Requires FCM Server Key in Settings · Logged to Firestore <code style="font-family:var(--mono);">notifications</code></p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">📨 Sent History</div></div>
+        <div id="notif-history"><div class="empty"><div class="empty-ico">📨</div><div class="empty-txt">No notifications sent yet.</div></div></div>
+      </div>
+    </div>
+
+    <!-- ── CHAT ── -->
+    <div class="tab" id="tab-chat">
+      <div class="pg-title">💬 Messaging</div>
+      <div class="pg-sub">Chat with drivers and customers directly.</div>
+
+      <div id="chat-conv-view" style="display:none;">
+        <button onclick="closeChatConv()" style="background:none;border:none;color:var(--sky);font-size:13px;font-weight:700;cursor:pointer;margin-bottom:12px;padding:4px 0;">← Back</button>
+        <div class="card" style="overflow:hidden;">
+          <div class="card-head"><div class="card-head-title" id="chat-conv-title">Chat</div></div>
+          <div class="chat-win">
+            <div class="chat-msgs" id="chat-msgs"></div>
+            <div class="chat-input-row">
+              <input class="chat-inp" id="chat-inp" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMsg()"/>
+              <button class="chat-send-btn" onclick="sendMsg()">↑</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="chat-list-view">
+        <div class="search-wrap"><span class="search-icon">🔍</span><input class="search-inp" id="chat-search" placeholder="Search conversations..." oninput="renderChatList()"/></div>
+        <div class="card" id="chat-list-card">
+          <div class="empty"><div class="empty-ico">💬</div><div class="empty-txt">Open a driver or customer profile and tap 💬 Chat to start a conversation.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VEHICLES ── -->
+    <div class="tab" id="tab-vehicles">
+      <div class="pg-title">🚛 Fleet / Vehicles</div>
+      <div class="pg-sub">All registered trucks and compliance status.</div>
+      <div class="search-wrap"><span class="search-icon">🔍</span><input class="search-inp" id="vehicle-search" placeholder="Search driver name or plate..." oninput="renderVehicles()"/></div>
+      <div class="ftabs">
+        <button class="ftab on" onclick="setFilter(this,'vehicleFilter','all','renderVehicles')">All Types</button>
+        <button class="ftab" onclick="setFilter(this,'vehicleFilter','flatbed','renderVehicles')">Flatbed</button>
+        <button class="ftab" onclick="setFilter(this,'vehicleFilter','tipper','renderVehicles')">Tipper</button>
+        <button class="ftab" onclick="setFilter(this,'vehicleFilter','crane','renderVehicles')">Crane</button>
+        <button class="ftab" onclick="setFilter(this,'vehicleFilter','refrigerated','renderVehicles')">Refrigerated</button>
+      </div>
+      <div class="card"><div id="vehicles-list"><div class="empty"><div class="empty-ico">🚛</div><div class="empty-txt">Loading fleet...</div></div></div></div>
+    </div>
+
+    <!-- ── RATINGS ── -->
+    <div class="tab" id="tab-ratings">
+      <div class="pg-title">⭐ Ratings &amp; Reviews</div>
+      <div class="pg-sub">Driver performance scores from customers.</div>
+
+      <div class="stats-grid">
+        <div class="stat"><div class="stat-lbl">Platform Avg</div><div class="stat-n" id="rat-avg">—</div><div class="stat-note">Overall score</div></div>
+        <div class="stat"><div class="stat-lbl">Total Reviews</div><div class="stat-n" id="rat-total">0</div><div class="stat-note">All time</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">Rating Breakdown</div></div>
+        <div class="card-inner" id="rat-breakdown"><div class="empty"><div class="empty-ico">⭐</div><div class="empty-txt">No ratings yet. Appear after completed trips.</div></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">🏆 Driver Leaderboard</div></div>
+        <div id="rat-leaderboard"><div class="empty"><div class="empty-ico">🏆</div><div class="empty-txt">No ratings yet.</div></div></div>
+      </div>
+    </div>
+
+    <!-- ── DISPUTES ── -->
+    <div class="tab" id="tab-disputes">
+      <div class="pg-title">📋 Disputes</div>
+      <div class="pg-sub">Booking complaints, refund requests and issues.</div>
+      <div class="ftabs">
+        <button class="ftab on" onclick="setFilter(this,'disputeFilter','all','renderDisputes')">All</button>
+        <button class="ftab" onclick="setFilter(this,'disputeFilter','open','renderDisputes')">🔴 Open</button>
+        <button class="ftab" onclick="setFilter(this,'disputeFilter','investigating','renderDisputes')">🟡 Investigating</button>
+        <button class="ftab" onclick="setFilter(this,'disputeFilter','resolved','renderDisputes')">✅ Resolved</button>
+      </div>
+      <div class="card"><div id="disputes-list"><div class="empty"><div class="empty-ico">📋</div><div class="empty-txt">No disputes filed yet.</div></div></div></div>
+    </div>
+
+    <!-- ── ANALYTICS ── -->
+    <div class="tab" id="tab-analytics">
+      <div class="pg-title">📊 Analytics</div>
+      <div class="pg-sub">Revenue trends, booking volumes and growth.</div>
+
+      <div class="stats-grid">
+        <div class="stat blue"><div class="stat-lbl">Month Revenue</div><div class="stat-n sky" id="an-rev">R0</div><div class="stat-note green">Calculated live</div></div>
+        <div class="stat"><div class="stat-lbl">Completion Rate</div><div class="stat-n" id="an-comp">0%</div><div class="stat-note">Bookings done</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">Monthly Revenue (Last 6 Mo.)</div></div>
+        <div class="chart-wrap"><div class="barchart" id="an-rev-chart"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">Booking Status Breakdown</div></div>
+        <div class="card-inner" id="an-booking-chart"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">Driver Growth (Last 6 Mo.)</div></div>
+        <div class="chart-wrap"><div class="barchart" id="an-driver-chart"></div></div>
+      </div>
+    </div>
+
+    <!-- ── REVENUE ── -->
+    <div class="tab" id="tab-revenue">
+      <div class="pg-title">💰 Revenue</div>
+      <div class="pg-sub">Subscription revenue breakdown.</div>
+
+      <div class="rev-hero">
+        <div class="rev-eyebrow">Platform Lifetime Earnings</div>
+        <div class="rev-big" id="rv-total">R0</div>
+        <div class="rev-note">Subscription revenue · 3-month free trial active</div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat"><div class="stat-lbl">Mover Plans</div><div class="stat-n" id="rv-basic-n">0</div><div class="stat-note" id="rv-basic-note">R0/mo</div></div>
+        <div class="stat"><div class="stat-lbl">Standard Plans</div><div class="stat-n" id="rv-std-n">0</div><div class="stat-note" id="rv-std-note">R0/mo</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">Breakdown</div></div>
+        <div class="srow"><span class="skey">Mover Plans · R699/mo</span><span class="sval" id="rv-basic-detail">—</span></div>
+        <div class="srow"><span class="skey">Standard Plans · R899/mo</span><span class="sval" id="rv-std-detail">—</span></div>
+        <div class="srow" style="border-top:1px solid var(--border2);"><span class="skey" style="font-size:15px;font-weight:900;color:#fff;">Grand Total</span><span class="sval" style="font-size:15px;font-weight:900;color:#fff;font-family:var(--mono);" id="rv-grand">R0</span></div>
+      </div>
+    </div>
+
+    <!-- ── ROLES ── -->
+    <div class="tab" id="tab-roles">
+      <div class="pg-title">🔐 Admin Roles</div>
+      <div class="pg-sub">Team access levels and permissions.</div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">Permission Matrix</div></div>
+        <div class="srow"><span class="skey"><span class="rbadge rb-super">SUPER ADMIN</span></span><span class="sval">Full access — all tabs, all actions</span></div>
+        <div class="srow"><span class="skey"><span class="rbadge rb-finance">FINANCE</span></span><span class="sval">Revenue and subscriptions only</span></div>
+        <div class="srow"><span class="skey"><span class="rbadge rb-support">SUPPORT</span></span><span class="sval">Bookings, disputes, chat — no financials</span></div>
+        <div class="srow"><span class="skey"><span class="rbadge rb-ops">OPERATIONS</span></span><span class="sval">Drivers, fleet, tracking — no financials</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-title">Admin Accounts</div>
+          <div class="chip chip-blue" id="admin-count">1</div>
+        </div>
+        <div class="li">
+          <div class="li-row">
+            <div class="li-av p">A</div>
+            <div class="li-info">
+              <div class="li-name">Super Admin</div>
+              <div class="li-meta" id="admin-email">Loading...</div>
+            </div>
+            <div class="li-right"><span class="rbadge rb-super">SUPER</span></div>
+          </div>
+          <div style="margin-top:6px;font-size:11px;color:var(--green);">● Active session</div>
+        </div>
+        <div id="invited-admins-list"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">Invite Team Member</div></div>
+        <div class="card-inner">
+          <div class="fg">
+            <label class="fl">Email Address</label>
+            <input class="fi" id="invite-email" type="email" placeholder="colleague@truckconnect.co.za"/>
+          </div>
+          <div class="fg">
+            <label class="fl">Role</label>
+            <select class="fselect" id="invite-role">
+              <option value="finance">Finance</option>
+              <option value="support">Support</option>
+              <option value="ops">Operations</option>
+            </select>
+          </div>
+          <button class="btn-primary" onclick="sendInvite()">📧 Send Invite</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS ── -->
+    <div class="tab" id="tab-settings">
+      <div class="pg-title">⚙️ Settings</div>
+      <div class="pg-sub">Platform configuration and integrations.</div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">Subscription Pricing</div></div>
+        <div class="srow"><span class="skey">Mover Plan</span><span class="sval" style="font-family:var(--mono);color:var(--sky);">R699 / month</span></div>
+        <div class="srow"><span class="skey">Standard Plan</span><span class="sval" style="font-family:var(--mono);color:var(--sky);">R899 / month</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">🔔 FCM Push Notifications</div></div>
+        <div style="padding:14px 15px;">
+          <label class="fl">FCM Server Key</label>
+          <input class="fi" id="fcm-key" placeholder="Paste your FCM Server Key here..." style="font-family:var(--mono);font-size:11px;"/>
+          <button class="btn-secondary" style="margin-top:8px;" onclick="saveFcmKey()">Save Key</button>
+          <p style="font-size:10px;color:var(--muted);margin-top:8px;">Firebase Console → Project Settings → Cloud Messaging → Legacy Server Key</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">Platform Info</div></div>
+        <div class="srow"><span class="skey">Firebase Project</span><span class="sval">truck-connect-c0c67</span></div>
+        <div class="srow"><span class="skey">Authentication</span><span class="sval">Firebase Auth</span></div>
+        <div class="srow"><span class="skey">Encryption</span><span class="sval">AES-GCM · PBKDF2 · 100k iter.</span></div>
+        <div class="srow"><span class="skey">Admin Version</span><span class="sval" style="color:var(--sky);font-family:var(--mono);">v5.0.0 Pro</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-head-title">Platform Apps</div></div>
+        <div style="padding:12px 15px;border-bottom:1px solid var(--border);">
+          <div class="fl" style="margin-bottom:8px;">Customer App</div>
+          <a href="https://madibasphiwe50-afk.github.io/trucconnect/index-25-1-1-1-1-1.html" target="_blank" style="display:flex;align-items:center;justify-content:space-between;background:rgba(37,99,235,.1);color:#93c5fd;border:1px solid rgba(37,99,235,.2);border-radius:11px;padding:12px 15px;font-size:13px;font-weight:700;text-decoration:none;transition:background .15s;" onmouseover="this.style.background='rgba(37,99,235,.18)'" onmouseout="this.style.background='rgba(37,99,235,.1)'">
+            <span>📦 Open Customer App</span><span>→</span>
+          </a>
+        </div>
+        <div style="padding:12px 15px;">
+          <div class="fl" style="margin-bottom:8px;">Driver App</div>
+          <a href="https://madibasphiwe50-afk.github.io/trucconnect/driver-6-0-0.html" target="_blank" style="display:flex;align-items:center;justify-content:space-between;background:rgba(34,197,94,.08);color:#86efac;border:1px solid rgba(34,197,94,.18);border-radius:11px;padding:12px 15px;font-size:13px;font-weight:700;text-decoration:none;transition:background .15s;" onmouseover="this.style.background='rgba(34,197,94,.16)'" onmouseout="this.style.background='rgba(34,197,94,.08)'">
+            <span>🚛 Open Driver App</span><span>→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /admin-main -->
+
+  <!-- BOTTOM NAV -->
+  <div class="btm-nav" id="btm-nav">
+    <button class="nav-btn active" onclick="goTab('dashboard',this)"><div class="nav-btn-icon">📊</div><div class="nav-btn-lbl">Dashboard</div></button>
+    <button class="nav-btn" onclick="goTab('drivers',this)"><div class="nav-btn-icon">🚛</div><div class="nav-btn-lbl">Drivers</div><div class="nav-badge" id="badge-drivers"></div></button>
+    <button class="nav-btn" onclick="goTab('customers',this)"><div class="nav-btn-icon">👥</div><div class="nav-btn-lbl">Customers</div></button>
+    <button class="nav-btn" onclick="goTab('bookings',this)"><div class="nav-btn-icon">📦</div><div class="nav-btn-lbl">Bookings</div></button>
+    <button class="nav-btn" onclick="goTab('tracking',this)"><div class="nav-btn-icon">🗺️</div><div class="nav-btn-lbl">Tracking</div></button>
+    <button class="nav-btn" onclick="goTab('notifications',this)"><div class="nav-btn-icon">🔔</div><div class="nav-btn-lbl">Notify</div></button>
+    <button class="nav-btn" onclick="goTab('chat',this)"><div class="nav-btn-icon">💬</div><div class="nav-btn-lbl">Chat</div></button>
+    <button class="nav-btn" onclick="goTab('vehicles',this)"><div class="nav-btn-icon">🔧</div><div class="nav-btn-lbl">Fleet</div></button>
+    <button class="nav-btn" onclick="goTab('ratings',this)"><div class="nav-btn-icon">⭐</div><div class="nav-btn-lbl">Ratings</div></button>
+    <button class="nav-btn" onclick="goTab('disputes',this)"><div class="nav-btn-icon">📋</div><div class="nav-btn-lbl">Disputes</div><div class="nav-badge" id="badge-disputes"></div></button>
+    <button class="nav-btn" onclick="goTab('analytics',this)"><div class="nav-btn-icon">📈</div><div class="nav-btn-lbl">Analytics</div></button>
+    <button class="nav-btn" onclick="goTab('revenue',this)"><div class="nav-btn-icon">💰</div><div class="nav-btn-lbl">Revenue</div></button>
+    <button class="nav-btn" onclick="goTab('roles',this)"><div class="nav-btn-icon">🔐</div><div class="nav-btn-lbl">Roles</div></button>
+    <button class="nav-btn" onclick="goTab('settings',this)"><div class="nav-btn-icon">⚙️</div><div class="nav-btn-lbl">Settings</div></button>
+  </div>
+
+</div><!-- /s-admin -->
+
+<script>
+(function(){
+'use strict';
+
+/* ── STATE ── */
+var allDrivers=[],allCustomers=[],allBookings=[],allDisputes=[],allRatings=[];
+var filters={driverFilter:'all',bookingFilter:'all',vehicleFilter:'all',disputeFilter:'all'};
+var listenersOn=false;
+var FCM_KEY=localStorage.getItem('tc_fcm')||'';
+var notifTarget='drivers';
+var chatUid=null,chatName='',chatUnsub=null;
+
+/* ── UTILS ── */
+function $(id){return document.getElementById(id);}
+function txt(id,v){var el=$(id);if(el)el.textContent=String(v);}
+function safe(s){if(!s)return'—';return String(s).replace(/[<>&"']/g,function(c){return({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]);});}
+function tAgo(iso){if(!iso)return'just now';var d=Math.floor((Date.now()-new Date(iso).getTime())/1000);if(d<60)return d+'s ago';if(d<3600)return Math.floor(d/60)+'m ago';return Math.floor(d/3600)+'h ago';}
+function uid(d){return d.uid||d.id||'';}
+function toast(msg,dur){var t=$('toast');if(!t)return;t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},dur||2800);}
+function goScreen(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});var s=$(id);if(s)s.classList.add('active');}
+
+/* ── PILLS ── */
+var PILL_MAP={
+  pending:'p-pending',approved:'p-approved',rejected:'p-rejected',suspended:'p-suspended',
+  pending_payment:'p-pending',
+  avail:'p-avail',accepted:'p-accepted',in_progress:'p-in_progress',completed:'p-completed',
+  cancelled:'p-cancelled',active:'p-active',open:'p-open',investigating:'p-investigating',resolved:'p-resolved'
+};
+var PILL_LBL={
+  avail:'Open',accepted:'Accepted',in_progress:'In Transit',completed:'Completed',cancelled:'Cancelled',
+  pending:'Pending',approved:'Approved',rejected:'Rejected',active:'Active',suspended:'Suspended',
+  pending_payment:'⏳ Awaiting Payment',
+  open:'Open',investigating:'Investigating',resolved:'Resolved'
+};
+function pillHtml(s){return '<span class="pill '+(PILL_MAP[s]||'p-pending')+'">'+(PILL_LBL[s]||String(s||'').toUpperCase())+'</span>';}
+
+/* ── FILTERS ── */
+window.setFilter=function(btn,key,val,renderFn){
+  filters[key]=val;
+  var parent=btn.closest('.ftabs');
+  if(parent)parent.querySelectorAll('.ftab').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  window[renderFn]&&window[renderFn]();
+};
+
+/* ── TAB NAVIGATION ── */
+window.goTab=function(tab,btn){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
+  var t=$('tab-'+tab);if(t)t.classList.add('active');
+  if(btn)btn.classList.add('active');
+  // lazy render on tab open
+  if(tab==='drivers')renderDrivers();
+  if(tab==='customers')renderCustomers();
+  if(tab==='bookings')renderBookings();
+  if(tab==='vehicles')renderVehicles();
+  if(tab==='analytics')renderAnalytics();
+  if(tab==='revenue')renderRevenue();
+  if(tab==='ratings')renderRatings();
+  if(tab==='disputes')renderDisputes();
+  if(tab==='tracking')renderTracking();
+  if(tab==='chat')renderChatList();
+  if(tab==='notifications')loadNotifHistory();
+  if(tab==='roles')loadInvitedAdmins();
+};
+
+/* ── MODAL ── */
+function openModal(buildFn){
+  var m=$('modal');m.innerHTML='<div class="modal-handle"></div>';
+  buildFn(m);
+  $('overlay').classList.add('show');
+}
+window._closeModal=function(){$('overlay').classList.remove('show');};
+
+
+/* ── FCM ── */
+window.saveFcmKey=function(){var v=($('fcm-key')||{}).value||'';if(!v.trim()){toast('⚠️ Enter a key first');return;}FCM_KEY=v.trim();localStorage.setItem('tc_fcm',FCM_KEY);toast('✅ FCM Key saved');};
+function sendFCM(token,title,body){
+  if(!token||!FCM_KEY||FCM_KEY==='YOUR_FCM_SERVER_KEY_HERE')return;
+  fetch('https://fcm.googleapis.com/fcm/send',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'key='+FCM_KEY},body:JSON.stringify({to:token,notification:{title:title,body:body}})}).catch(function(){});
+}
+
+/* ── FIRESTORE LISTENERS ── */
+function startListeners(){
+  if(listenersOn)return;listenersOn=true;
+  var FB=window._FB;if(!FB)return;
+  FB.onSnapshot(FB.collection(FB.db,'drivers'),function(s){allDrivers=[];s.forEach(function(d){allDrivers.push(Object.assign({id:d.id},d.data()));});updateDash();renderDrivers();renderVehicles();renderRatings();updateBadges();updateAdminMapMarkers();},function(e){toast('⚠️ Drivers: '+e.message);});
+  FB.onSnapshot(FB.collection(FB.db,'customers'),function(s){allCustomers=[];s.forEach(function(d){allCustomers.push(Object.assign({id:d.id},d.data()));});updateDash();renderCustomers();},function(e){toast('⚠️ Customers: '+e.message);});
+  FB.onSnapshot(FB.collection(FB.db,'bookings'),function(s){allBookings=[];s.forEach(function(d){allBookings.push(Object.assign({id:d.id},d.data()));});updateDash();renderBookings();renderRecentBookings();renderTracking();renderAnalytics();},function(e){toast('⚠️ Bookings: '+e.message);});
+  FB.onSnapshot(FB.collection(FB.db,'disputes'),function(s){allDisputes=[];s.forEach(function(d){allDisputes.push(Object.assign({id:d.id},d.data()));});renderDisputes();updateBadges();},function(){});
+  FB.onSnapshot(FB.collection(FB.db,'ratings'),function(s){allRatings=[];s.forEach(function(d){allRatings.push(Object.assign({id:d.id},d.data()));});renderRatings();},function(){});
+}
+
+/* ── BADGES ── */
+function updateBadges(){
+  var pending=allDrivers.filter(function(d){return d.status==='pending';}).length;
+  var openD=allDisputes.filter(function(d){return d.status==='open';}).length;
+  var bd=$('badge-drivers');if(bd){bd.textContent=pending;bd.classList.toggle('show',pending>0);}
+  var dd=$('badge-disputes');if(dd){dd.textContent=openD;dd.classList.toggle('show',openD>0);}
+}
+
+/* ── DASHBOARD ── */
+function updateDash(){
+  var pending=allDrivers.filter(function(d){return d.status==='pending';});
+  var approved=allDrivers.filter(function(d){return d.status==='approved';});
+  var active=allBookings.filter(function(b){return b.ds==='in_progress';});
+  var basic=allDrivers.filter(function(d){return d.subscription==='basic';}).length;
+  var std=allDrivers.filter(function(d){return d.subscription==='standard';}).length;
+  var subRev=(basic*699)+(std*899);
+  var commRev=allBookings.reduce(function(s,b){return s+(b.priceNum||0)*0.2;},0);
+  var total=subRev+commRev;
+  txt('h-rev','R'+Math.round(total).toLocaleString());
+  txt('h-subrev','R'+subRev.toLocaleString());
+  txt('h-commrev','R'+Math.round(commRev).toLocaleString());
+  txt('h-bookings',allBookings.length);
+  txt('h-drivers',allDrivers.length);
+  txt('h-customers',allCustomers.length);
+  txt('h-approved',approved.length);
+  txt('h-active',active.length);
+  txt('h-pending-note',pending.length+' pending approval');
+  txt('pending-badge',pending.length);
+  txt('dash-date',new Date().toLocaleDateString('en-ZA',{weekday:'long',year:'numeric',month:'long',day:'numeric'}));
+  renderPendingList(pending);
+  renderRecentBookings();
+  buildBarChart('dash-chart',['Mon','Tue','Wed','Thu','Fri','Sat','Now'],[3,7,5,9,12,8,Math.max(allBookings.length,1)],'linear-gradient(180deg,rgba(37,99,235,.9),rgba(37,99,235,.25))','');
+}
+
+/* ── PENDING LIST ── */
+function renderPendingList(pending){
+  var w=$('pending-list');if(!w)return;
+  if(!pending.length){w.innerHTML='<div class="empty"><div class="empty-ico">✅</div><div class="empty-txt">No pending applications.</div></div>';return;}
+  w.innerHTML='';
+  pending.forEach(function(d){
+    var uid_=uid(d);
+    var item=make('div','li');
+    var row=make('div','li-row');
+    var av=make('div','li-av');av.textContent=d.name?d.name[0].toUpperCase():'D';
+    var inf=make('div','li-info');
+    inf.innerHTML='<div class="li-name">'+safe(d.name)+'</div><div class="li-meta">'+safe(d.email)+' · '+safe(d.truckType||d.truck||'—')+'</div>';
+    row.appendChild(av);row.appendChild(inf);item.appendChild(row);
+    var acts=make('div','li-acts');
+    acts.appendChild(mkBtn('✓ Approve','btn btn-approve',function(){approveDriver(uid_);}));
+    acts.appendChild(mkBtn('✕ Reject','btn btn-reject',function(){rejectDriver(uid_);}));
+    acts.appendChild(mkBtn('View','btn btn-view',function(){viewDriver(uid_);}));
+    item.appendChild(acts);w.appendChild(item);
+  });
+}
+
+/* ── RECENT BOOKINGS ── */
+function renderRecentBookings(){
+  var w=$('recent-list');if(!w)return;
+  var sorted=allBookings.slice().sort(function(a,b){return(b.created||'')>(a.created||'')?1:-1;}).slice(0,5);
+  if(!sorted.length){w.innerHTML='<div class="empty"><div class="empty-ico">📦</div><div class="empty-txt">No bookings yet.</div></div>';return;}
+  w.innerHTML='';
+  sorted.forEach(function(b){
+    var item=make('div','li');
+    var row=make('div','li-row');
+    var av=make('div','li-av emoji');av.textContent='📦';
+    var inf=make('div','li-info');
+    inf.innerHTML='<div class="li-name">'+safe(b.from)+' → '+safe(b.to)+'</div><div class="li-meta">#'+safe((b.id||'').slice(-6))+(b.driverName?' · 🚛 '+safe(b.driverName):'')+'</div>';
+    var right=make('div','li-right');
+    right.innerHTML='<span style="font-weight:700;color:var(--green);font-family:var(--mono);font-size:12px;">'+safe(b.price)+'</span>'+pillHtml(b.ds||'avail');
+    row.appendChild(av);row.appendChild(inf);row.appendChild(right);item.appendChild(row);w.appendChild(item);
+  });
+}
+
+/* ── DRIVERS ── */
+window.renderDrivers=function(){
+  var w=$('drivers-list');if(!w)return;
+  var search=(($('driver-search')||{}).value||'').toLowerCase();
+  var fl=filters.driverFilter;
+  var list=allDrivers.filter(function(d){
+    return(fl==='all'||d.status===fl)&&(!search||(d.name||'').toLowerCase().includes(search)||(d.email||'').toLowerCase().includes(search)||(d.plate||'').toLowerCase().includes(search));
+  });
+  if(!list.length){w.innerHTML='<div class="empty"><div class="empty-ico">🚛</div><div class="empty-txt">No drivers found.</div></div>';return;}
+  w.innerHTML='';
+  list.forEach(function(d){
+    var uid_=uid(d);
+    var avCls='li-av'+(d.status==='suspended'?' r':d.status==='approved'?' g':d.status==='rejected'?' r':'');
+    var item=make('div','li');
+    var row=make('div','li-row');
+    var av=make('div',avCls);av.textContent=d.name?d.name[0].toUpperCase():'D';
+    var inf=make('div','li-info');
+    inf.innerHTML='<div class="li-name">'+safe(d.name)+'</div><div class="li-meta">'+safe(d.email)+' · '+(d.subscription||'no plan')+(d.plate?' · '+safe(d.plate):'')+'</div>';
+    var right=make('div','li-right');right.innerHTML=pillHtml(d.status||'pending');
+    row.appendChild(av);row.appendChild(inf);row.appendChild(right);item.appendChild(row);
+    var acts=make('div','li-acts');
+    if(d.status==='pending'){
+      acts.appendChild(mkBtn('✓ Approve','btn btn-approve',mkFn(approveDriver,uid_)));
+      acts.appendChild(mkBtn('✕ Reject','btn btn-reject',mkFn(rejectDriver,uid_)));
+    }else if(d.status==='approved'){
+      acts.appendChild(mkBtn('⏸ Suspend','btn btn-suspend',mkFn(suspendDriver,uid_)));
+    }else if(d.status==='suspended'){
+      acts.appendChild(mkBtn('▶ Reinstate','btn btn-reinstate',mkFn(reinstateDriver,uid_)));
+    }
+    acts.appendChild(mkBtn('View','btn btn-view',mkFn(viewDriver,uid_)));
+    acts.appendChild(mkBtn('💬 Chat','btn btn-chat',(function(u,n){return function(){openChat(u,n);};})(uid_,d.name)));
+    item.appendChild(acts);w.appendChild(item);
+  });
+};
+
+/* ── CUSTOMERS ── */
+window.renderCustomers=function(){
+  var w=$('customers-list');if(!w)return;
+  var search=(($('customer-search')||{}).value||'').toLowerCase();
+  var list=allCustomers.filter(function(c){return!search||(c.name||'').toLowerCase().includes(search)||(c.email||'').toLowerCase().includes(search);});
+  if(!list.length){w.innerHTML='<div class="empty"><div class="empty-ico">👥</div><div class="empty-txt">No customers found.</div></div>';return;}
+  w.innerHTML='';
+  list.forEach(function(c){
+    var uid_=uid(c);
+    var item=make('div','li');
+    var row=make('div','li-row');
+    var av=make('div','li-av a');av.textContent=c.name?c.name[0].toUpperCase():'C';
+    var inf=make('div','li-info');
+    inf.innerHTML='<div class="li-name">'+safe(c.name)+'</div><div class="li-meta">'+safe(c.email)+' · '+(c.bookings||0)+' bookings</div>';
+    var right=make('div','li-right');right.innerHTML=pillHtml(c.status||'active');
+    row.appendChild(av);row.appendChild(inf);row.appendChild(right);item.appendChild(row);
+    var acts=make('div','li-acts');
+    acts.appendChild(mkBtn('💬 Chat','btn btn-chat',(function(u,n){return function(){openChat(u,n);};})(uid_,c.name)));
+    item.appendChild(acts);w.appendChild(item);
+  });
+};
+
+/* ── BOOKINGS ── */
+window.renderBookings=function(){
+  var w=$('bookings-list');if(!w)return;
+  var fl=filters.bookingFilter;
+  var list=allBookings.filter(function(b){return fl==='all'||b.ds===fl;}).slice().reverse();
+  if(!list.length){w.innerHTML='<div class="empty"><div class="empty-ico">📦</div><div class="empty-txt">No bookings found.</div></div>';return;}
+  w.innerHTML='';
+  list.forEach(function(b){
+    var item=make('div','li');
+    var row=make('div','li-row');
+    var av=make('div','li-av emoji');av.textContent='📦';
+    var inf=make('div','li-info');
+    inf.innerHTML='<div class="li-name">'+safe(b.from)+' → '+safe(b.to)+'</div><div class="li-meta">#'+safe((b.id||'').slice(-6))+' · '+safe(b.truck)+(b.driverName?' · 🚛 '+safe(b.driverName):'')+'</div>';
+    var right=make('div','li-right');
+    right.innerHTML='<span style="font-weight:700;color:var(--green);font-family:var(--mono);font-size:12px;">'+safe(b.price)+'</span>'+pillHtml(b.ds||'avail');
+    row.appendChild(av);row.appendChild(inf);row.appendChild(right);item.appendChild(row);
+    if(b.ds==='in_progress'||b.ds==='accepted'){
+      var acts=make('div','li-acts');
+      acts.appendChild(mkBtn('📋 Raise Dispute','btn btn-danger',(function(bid,f,t){return function(){openDisputeForm(bid,f,t);};})(b.id,b.from,b.to)));
+      item.appendChild(acts);
+    }
+    w.appendChild(item);
+  });
+};
+
+/* ── TRACKING ── */
+/* ── LEAFLET ADMIN MAP ── */
+var adminMap=null;
+var adminMapMarkers={};
+
+var _MT_KEY='o5ej8Op7GydtRmUQcJRw';
+function _adminMapStyle(){
+  return 'https://api.maptiler.com/maps/streets-v4-dark/style.json?key='+_MT_KEY;
+}
+
+function initAdminMap(){
+  if(adminMap)return;
+  var el=document.getElementById('admin-map');
+  if(!el)return;
+  if(typeof maplibregl==='undefined'){setTimeout(initAdminMap,300);return;}
+  adminMap=new maplibregl.Map({
+    container:'admin-map',
+    style:_adminMapStyle(),
+    center:[28.0473,-26.2041],
+    zoom:6,
+    attributionControl:false
+  });
+  adminMap.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
+  adminMap.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-left');
+  adminMap.on('load',function(){updateAdminMapMarkers();});
+}
+
+function _makeTruckEl(color,isActive){
+  var el=document.createElement('div');
+  var sz=isActive?'22px':'16px';
+  el.style.cssText='width:'+sz+';height:'+sz+';border-radius:50%;background:'+color+';border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.5);cursor:pointer;';
+  return el;
+}
+
+function updateAdminMapMarkers(){
+  if(!adminMap||!adminMap.loaded())return;
+  var driversWithGPS=allDrivers.filter(function(d){return d.lat&&d.lng;});
+  Object.keys(adminMapMarkers).forEach(function(uid_){
+    if(!driversWithGPS.find(function(d){return uid(d)===uid_;})){
+      adminMapMarkers[uid_].marker.remove();
+      delete adminMapMarkers[uid_];
+    }
+  });
+  driversWithGPS.forEach(function(d){
+    var uid_=uid(d);
+    var isActive=allBookings.some(function(b){return b.ds==='in_progress'&&b.driverUid===uid_;});
+    var color=isActive?'#38bdf8':'#22c55e';
+    var popupHtml='<div style="font-family:Sora,sans-serif;font-size:12px;padding:4px 2px;min-width:140px;">'+
+      '<div style="font-weight:800;color:#111;margin-bottom:4px;">🚛 '+(d.name||'Driver')+'</div>'+
+      '<div style="font-size:10px;color:#555;">'+(isActive?'🔵 In Transit':'🟢 Online')+'</div>'+
+      (d.plate?'<div style="font-size:10px;color:#888;margin-top:2px;">'+d.plate+'</div>':'')+
+      '<div style="margin-top:8px;"><a href="https://www.google.com/maps?q='+d.lat+','+d.lng+'" target="_blank" style="color:#2563eb;font-size:10px;font-weight:700;">Open in Maps →</a></div>'+
+      '</div>';
+    if(adminMapMarkers[uid_]){
+      adminMapMarkers[uid_].marker.setLngLat([d.lng,d.lat]);
+      adminMapMarkers[uid_].el.style.background=color;
+      var sz=isActive?'22px':'16px';
+      adminMapMarkers[uid_].el.style.width=sz;
+      adminMapMarkers[uid_].el.style.height=sz;
+    } else {
+      var el=_makeTruckEl(color,isActive);
+      var popup=new maplibregl.Popup({offset:14,closeButton:false,maxWidth:'200px'}).setHTML(popupHtml);
+      var marker=new maplibregl.Marker({element:el}).setLngLat([d.lng,d.lat]).setPopup(popup).addTo(adminMap);
+      adminMapMarkers[uid_]={marker:marker,el:el};
+    }
+  });
+  if(driversWithGPS.length>0){
+    var bounds=driversWithGPS.reduce(function(b,d){
+      return b.extend([d.lng,d.lat]);
+    },new maplibregl.LngLatBounds([driversWithGPS[0].lng,driversWithGPS[0].lat],[driversWithGPS[0].lng,driversWithGPS[0].lat]));
+    adminMap.fitBounds(bounds,{padding:60,maxZoom:14,duration:600});
+  }
+}
+
+function renderTracking(){
+  if(!adminMap){
+    initAdminMap();
+  } else {
+    setTimeout(function(){if(adminMap)adminMap.resize();},100);
+    updateAdminMapMarkers();
+  }
+  // Update markers from drivers collection (lat/lng fields — same as driver app pushes)
+  updateAdminMapMarkers();
+  // Active trips list
+  var active=allBookings.filter(function(b){return b.ds==='in_progress';});
+  txt('active-badge',active.length);
+  var w=$('active-trips-list');if(!w)return;
+  if(!active.length){w.innerHTML='<div class="empty"><div class="empty-ico">🗺️</div><div class="empty-txt">No active trips right now.</div></div>';return;}
+  w.innerHTML='';
+  active.forEach(function(b){
+    // Find driver's current GPS from allDrivers (same field the driver app writes)
+    var driver=allDrivers.find(function(d){return uid(d)===b.driverUid;});
+    var lat=driver&&driver.lat?driver.lat.toFixed(4):'--';
+    var lng=driver&&driver.lng?driver.lng.toFixed(4):'--';
+    var hasGPS=driver&&driver.lat&&driver.lng;
+    var item=make('div','li');
+    var row=make('div','li-row');
+    var av=make('div','li-av emoji');av.textContent='🚛';
+    var inf=make('div','li-info');
+    inf.innerHTML='<div class="li-name">'+safe(b.from)+' → '+safe(b.to)+'</div>'+
+      '<div class="li-meta">'+(safe(b.driverName)||'Driver')+' · GPS: '+lat+', '+lng+'</div>';
+    var right=make('div','li-right');right.innerHTML=pillHtml('in_progress');
+    row.appendChild(av);row.appendChild(inf);row.appendChild(right);item.appendChild(row);
+    if(hasGPS){
+      var acts=make('div','li-acts');
+      var url='https://www.google.com/maps?q='+driver.lat+','+driver.lng;
+      var mapBtn=mkBtn('📍 Open in Maps','btn btn-view',function(){window.open(url,'_blank');});
+      var focusBtn=mkBtn('🎯 Focus on Map','btn btn-view',(function(lat_,lng_){return function(){
+        if(adminMap){adminMap.setView([lat_,lng_],14);}
+      };})(driver.lat,driver.lng));
+      acts.appendChild(mapBtn);acts.appendChild(focusBtn);item.appendChild(acts);
+    }
+    w.appendChild(item);
+  });
+}
+
+window.openFullMap=function(){
+  var driversOnline=allDrivers.filter(function(d){return d.lat&&d.lng;});
+  if(!driversOnline.length){toast('No drivers with GPS data right now');return;}
+  var d=driversOnline[0];
+  window.open('https://www.google.com/maps?q='+d.lat+','+d.lng,'_blank');
+};
+
+/* ── NOTIFICATIONS ── */
+window.pickNotifTarget=function(t){
+  notifTarget=t;
+  ['drivers','customers','approved','all'].forEach(function(k){var el=$('nt-'+k);if(el)el.classList.remove('on');});
+  var sel=$('nt-'+t);if(sel)sel.classList.add('on');
+};
+
+window.sendBroadcast=function(){
+  var title=(($('notif-title')||{}).value||'').trim();
+  var body=(($('notif-body')||{}).value||'').trim();
+  if(!title){toast('⚠️ Enter a notification title');return;}
+  if(!body){toast('⚠️ Enter a message body');return;}
+  var targets=[];
+  if(notifTarget==='drivers')targets=allDrivers.filter(function(d){return d.fcmToken;});
+  else if(notifTarget==='customers')targets=allCustomers.filter(function(c){return c.fcmToken;});
+  else if(notifTarget==='approved')targets=allDrivers.filter(function(d){return d.status==='approved'&&d.fcmToken;});
+  else targets=allDrivers.filter(function(d){return d.fcmToken;}).concat(allCustomers.filter(function(c){return c.fcmToken;}));
+  var sent=0;targets.forEach(function(t){if(t.fcmToken){sendFCM(t.fcmToken,title,body);sent++;}});
+  var FB=window._FB;
+  if(FB)FB.addDoc(FB.collection(FB.db,'notifications'),{title:title,body:body,target:notifTarget,sentCount:sent,sentAt:new Date().toISOString(),sentBy:'admin'}).catch(function(){});
+  toast('📤 Dispatched to '+sent+' device'+(sent!==1?'s':''));
+  if($('notif-title'))$('notif-title').value='';
+  if($('notif-body'))$('notif-body').value='';
+  setTimeout(loadNotifHistory,800);
+};
+
+function loadNotifHistory(){
+  var w=$('notif-history');if(!w)return;
+  var FB=window._FB;if(!FB)return;
+  FB.getDocs(FB.collection(FB.db,'notifications')).then(function(snap){
+    var list=[];snap.forEach(function(d){list.push(Object.assign({id:d.id},d.data()));});
+    list.sort(function(a,b){return(b.sentAt||'')>(a.sentAt||'')?1:-1;});
+    if(!list.length){w.innerHTML='<div class="empty"><div class="empty-ico">📨</div><div class="empty-txt">No notifications sent yet.</div></div>';return;}
+    w.innerHTML='';
+    list.slice(0,15).forEach(function(n){
+      var item=make('div','li');
+      item.innerHTML='<div class="li-row"><div class="li-av emoji" style="font-size:18px;">🔔</div><div class="li-info"><div class="li-name">'+safe(n.title)+'</div><div class="li-meta">'+safe(n.body)+'</div></div><div class="li-right"><span style="font-size:10px;color:var(--muted2);">'+tAgo(n.sentAt)+'</span></div></div><div style="margin-top:6px;font-size:10px;color:var(--muted2);">To: '+safe(n.target)+' · '+(n.sentCount||0)+' sent</div>';
+      w.appendChild(item);
+    });
+  }).catch(function(){});
+}
+
+/* ── APPROVE / REJECT / SUSPEND / REINSTATE ── */
+function approveDriver(uid_){
+  var FB=window._FB;if(!FB)return;
+  FB.updateDoc(FB.doc(FB.db,'drivers',uid_),{status:'approved'}).then(function(){
+    toast('✅ Driver approved');
+    var d=allDrivers.find(function(x){return uid(x)===uid_;});
+    if(d&&d.fcmToken)sendFCM(d.fcmToken,'🎉 Application Approved!','Welcome to TruckConnect. You can now start accepting loads.');
+  }).catch(function(e){toast('Error: '+e.message);});
+}
+function rejectDriver(uid_){
+  var FB=window._FB;if(!FB)return;
+  FB.updateDoc(FB.doc(FB.db,'drivers',uid_),{status:'rejected'}).then(function(){
+    toast('Driver rejected.');
+    var d=allDrivers.find(function(x){return uid(x)===uid_;});
+    if(d&&d.fcmToken)sendFCM(d.fcmToken,'Application Update','Your application was unsuccessful. Please contact support.');
+  }).catch(function(e){toast('Error: '+e.message);});
+}
+function suspendDriver(uid_){
+  if(!confirm('Suspend this driver? They will lose access to new bookings.'))return;
+  var FB=window._FB;if(!FB)return;
+  FB.updateDoc(FB.doc(FB.db,'drivers',uid_),{status:'suspended',suspendedAt:new Date().toISOString()}).then(function(){
+    toast('⏸ Driver suspended');
+    var d=allDrivers.find(function(x){return uid(x)===uid_;});
+    if(d&&d.fcmToken)sendFCM(d.fcmToken,'Account Suspended','Your account has been temporarily suspended. Contact support.');
+  }).catch(function(e){toast('Error: '+e.message);});
+}
+function reinstateDriver(uid_){
+  var FB=window._FB;if(!FB)return;
+  FB.updateDoc(FB.doc(FB.db,'drivers',uid_),{status:'approved',reinstatedAt:new Date().toISOString()}).then(function(){
+    toast('▶ Driver reinstated ✅');
+    var d=allDrivers.find(function(x){return uid(x)===uid_;});
+    if(d&&d.fcmToken)sendFCM(d.fcmToken,'Account Reinstated','Your TruckConnect account is active again. Welcome back!');
+  }).catch(function(e){toast('Error: '+e.message);});
+}
+
+/* ── VIEW DRIVER ── */
+function viewDriver(uid_){
+  var d=allDrivers.find(function(x){return uid(x)===uid_;});if(!d)return;
+  openModal(function(m){m.innerHTML+='<div class="modal-title">Loading...</div>';});
+  decryptDriver(uid_,d).then(function(dec){buildDriverModal(uid_,dec);}).catch(function(){buildDriverModal(uid_,d);});
+}
+function buildDriverModal(uid_,d){
+  var m=$('modal');m.innerHTML='<div class="modal-handle"></div>';
+  m.innerHTML+='<div class="modal-title">'+safe(d.name)+'</div>';
+  m.innerHTML+='<div class="modal-sub">Driver Profile &nbsp;'+pillHtml(d.status||'pending')+'</div>';
+  var rows=[['Email',d.email],['Phone',d.phone],['SA ID',d.idNumber||'—'],['Truck',d.truck],['Type',d.truckType],['Plate',d.plate],['Province',d.province],['Bank',d.bank||'—'],['Account Holder',d.accountHolder||'—'],['Account No.',d.accountNumber||'—'],['Account Type',d.accountType||'—'],['Branch Code',d.branchCode||'—'],['Plan',d.subscription||'None'],['Status',d.status],['Applied',d.applied]];
+  rows.forEach(function(r){m.innerHTML+='<div class="mrow"><span class="mkey">'+r[0]+'</span><span class="mval">'+safe(r[1])+'</span></div>';});
+
+  // doc images
+  m.innerHTML+='<div class="msec-lbl">Uploaded Documents</div>';
+  if(d.selfiePhoto&&!d.selfiePhoto.startsWith('pdf:')){
+    m.innerHTML+='<div style="text-align:center;margin-bottom:14px;"><div style="font-size:9px;color:var(--muted2);margin-bottom:8px;font-weight:700;text-transform:uppercase;">SELFIE</div><img src="'+d.selfiePhoto+'" style="width:76px;height:76px;border-radius:50%;object-fit:cover;border:2px solid var(--sky);display:block;margin:0 auto;" onerror="this.style.display=\'none\'"/></div>';
+  }
+  function docBlock(label,src){
+    var html='<div style="margin-bottom:12px;"><div style="font-size:9px;color:var(--muted2);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">'+label+'</div>';
+    if(!src){html+='<div style="background:var(--bg3);border:1px dashed var(--border);border-radius:10px;padding:16px;text-align:center;font-size:12px;color:var(--muted);">Not uploaded</div>';}
+    else if(src.startsWith('pdf:')){html+='<div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:12px;color:var(--muted2);display:flex;align-items:center;gap:8px;"><span>📄</span><span>'+safe(src.replace('pdf:',''))+'</span></div>';}
+    else{html+='<img src="'+src+'" style="width:100%;max-height:170px;object-fit:contain;border-radius:10px;border:1px solid var(--border);background:var(--bg3);" onerror="this.parentElement.innerHTML=\'<div style=\'text-align:center;color:var(--muted);padding:20px;\'>Image unavailable</div>\'"/>';}
+    html+='</div>';return html;
+  }
+  m.innerHTML+=docBlock('PRDP / Licence',d.prdpPhoto||null);
+  m.innerHTML+=docBlock('Licence Disc',d.discPhoto||null);
+
+  var acts=make('div','modal-actions');
+  acts.appendChild(mkMbtn('Close','mbtn mbtn-close',window._closeModal));
+  if(d.status==='pending'){
+    acts.appendChild(mkMbtn('✓ Approve','mbtn mbtn-approve',function(){approveDriver(uid_);window._closeModal();}));
+    acts.appendChild(mkMbtn('✕ Reject','mbtn mbtn-reject',function(){rejectDriver(uid_);window._closeModal();}));
+  }else if(d.status==='approved'){
+    acts.appendChild(mkMbtn('⏸ Suspend','mbtn mbtn-suspend',function(){suspendDriver(uid_);window._closeModal();}));
+  }else if(d.status==='suspended'){
+    acts.appendChild(mkMbtn('▶ Reinstate','mbtn mbtn-approve',function(){reinstateDriver(uid_);window._closeModal();}));
+  }
+
+  // ── Subscription payment controls ──
+  var subSec=make('div','');
+  subSec.style.cssText='margin-top:16px;padding-top:16px;border-top:1px solid var(--border);';
+  var subLabel=make('div','');
+  subLabel.style.cssText='font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted2);margin-bottom:10px;';
+  subLabel.textContent='Subscription & Payments';
+  subSec.appendChild(subLabel);
+
+  var currentSub=d.subscription||'none';
+  var subInfo=make('div','');
+  subInfo.style.cssText='font-size:12px;color:var(--muted);margin-bottom:10px;';
+
+  if(currentSub==='pending_payment'){
+    subInfo.innerHTML='⏳ <strong>Payment submitted</strong> — driver paid via SnapScan, awaiting verification<br/><span style="font-size:11px;color:var(--sky);">Ref: '+(d.subscriptionRef||'—')+'</span>';
+    var markPaidBtn=mkMbtn('💳 Activate Subscription','mbtn mbtn-approve',function(){
+      if(!confirm('Confirm SnapScan payment received and activate this driver\'s subscription?'))return;
+      var FB=window._FB;
+      FB.updateDoc(FB.doc(FB.db,'drivers',uid_),{
+        subscription:'basic',
+        subscriptionActivatedAt:new Date().toISOString(),
+        subscriptionActivatedBy:'admin'
+      }).then(function(){
+        toast('✅ Subscription activated for '+safe(d.name));
+        if(d.fcmToken)sendFCM(d.fcmToken,'🎉 Subscription Activated!','Your TruckConnect subscription is now active. Start accepting jobs!');
+        window._closeModal();
+      }).catch(function(e){toast('Error: '+e.message);});
+    });
+    subSec.appendChild(subInfo);
+    subSec.appendChild(markPaidBtn);
+  } else if(currentSub==='basic'||currentSub==='standard'){
+    subInfo.innerHTML='✅ <strong>Subscription active</strong> ('+currentSub+')';
+    subSec.appendChild(subInfo);
+    var deactivateBtn=mkMbtn('⛔ Deactivate Sub','mbtn mbtn-suspend',function(){
+      if(!confirm('Deactivate this driver\'s subscription?'))return;
+      window._FB.updateDoc(window._FB.doc(window._FB.db,'drivers',uid_),{subscription:'none'})
+        .then(function(){toast('Subscription deactivated');window._closeModal();})
+        .catch(function(e){toast('Error: '+e.message);});
+    });
+    subSec.appendChild(deactivateBtn);
+  } else {
+    subInfo.innerHTML='❌ <strong>No active subscription</strong>';
+    subSec.appendChild(subInfo);
+    var manualActivateBtn=mkMbtn('💳 Manual Activate','mbtn mbtn-approve',function(){
+      if(!confirm('Manually activate subscription for this driver?'))return;
+      window._FB.updateDoc(window._FB.doc(window._FB.db,'drivers',uid_),{
+        subscription:'basic',
+        subscriptionActivatedAt:new Date().toISOString(),
+        subscriptionActivatedBy:'admin-manual'
+      }).then(function(){
+        toast('✅ Subscription manually activated');
+        window._closeModal();
+      }).catch(function(e){toast('Error: '+e.message);});
+    });
+    subSec.appendChild(manualActivateBtn);
+  }
+
+
+  m.appendChild(subSec);
+  m.appendChild(acts);
+}
+
+/* ── CHAT ── */
+function openChat(uid_,name){
+  chatUid=uid_;chatName=name||'User';
+  txt('chat-conv-title','💬 '+safe(chatName));
+  var cv=$('chat-conv-view');var lv=$('chat-list-view');
+  if(cv)cv.style.display='block';if(lv)lv.style.display='none';
+  goTab('chat',null);
+  if(chatUnsub){chatUnsub();chatUnsub=null;}
+  var FB=window._FB;if(!FB||!uid_)return;
+  var chatId='admin_'+uid_;
+  chatUnsub=FB.onSnapshot(
+    FB.query(FB.collection(FB.db,'chats',chatId,'messages'),FB.orderBy('at','asc')),
+    function(snap){
+      var msgs=[];snap.forEach(function(d){msgs.push(Object.assign({id:d.id},d.data()));});
+      renderMsgs(msgs);
+    },function(){}
+  );
+}
+
+window.closeChatConv=function(){
+  if(chatUnsub){chatUnsub();chatUnsub=null;}chatUid=null;
+  var cv=$('chat-conv-view');var lv=$('chat-list-view');
+  if(cv)cv.style.display='none';if(lv)lv.style.display='block';
+};
+
+function renderMsgs(msgs){
+  var w=$('chat-msgs');if(!w)return;
+  if(!msgs.length){w.innerHTML='<div style="text-align:center;color:var(--muted);font-size:12px;padding:20px;">No messages yet.</div>';return;}
+  w.innerHTML='';
+  msgs.forEach(function(m){
+    var isMe=m.from==='admin';
+    var b=make('div','chat-bubble '+(isMe?'me':'them'));
+    b.innerHTML=safe(m.text)+'<div class="chat-time">'+(isMe?'You':'Driver/Customer')+' · '+tAgo(m.at)+'</div>';
+    w.appendChild(b);
+  });
+  w.scrollTop=w.scrollHeight;
+}
+
+window.sendMsg=function(){
+  var inp=$('chat-inp');if(!inp||!inp.value.trim()||!chatUid)return;
+  var text=inp.value.trim();inp.value='';
+  var FB=window._FB;if(!FB)return;
+  var chatId='admin_'+chatUid;
+  FB.addDoc(FB.collection(FB.db,'chats',chatId,'messages'),{text:text,from:'admin',at:new Date().toISOString()}).catch(function(){toast('Failed to send');});
+};
+
+window.renderChatList=function(){
+  var card=$('chat-list-card');if(!card)return;
+  var search=(($('chat-search')||{}).value||'').toLowerCase();
+  var all=allDrivers.map(function(d){return Object.assign({},d,{_type:'driver'});}).concat(allCustomers.map(function(c){return Object.assign({},c,{_type:'customer'});}));
+  var filtered=all.filter(function(p){return!search||(p.name||'').toLowerCase().includes(search)||(p.email||'').toLowerCase().includes(search);}).slice(0,30);
+  if(!filtered.length){card.innerHTML='<div class="empty"><div class="empty-ico">💬</div><div class="empty-txt">No users found.</div></div>';return;}
+  card.innerHTML='';
+  filtered.forEach(function(p){
+    var uid_=uid(p);
+    var item=make('div','chat-li');
+    var avCls='li-av'+(p._type==='driver'?' g':' a');
+    var av=make('div',avCls);av.style.cssText='width:36px;height:36px;flex-shrink:0;font-size:14px;font-weight:800;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;';
+    if(p._type==='driver')av.style.background='linear-gradient(135deg,#15803d,#14532d)';else av.style.background='linear-gradient(135deg,#d97706,#78350f)';
+    av.textContent=p.name?p.name[0].toUpperCase():'?';
+    var inf=make('div','li-info');
+    inf.innerHTML='<div class="li-name">'+safe(p.name)+'</div><div class="li-meta">'+safe(p.email)+'</div>';
+    var typePill=make('span','chat-li-type '+(p._type==='driver'?'chat-li-driver':'chat-li-customer'));typePill.textContent=p._type==='driver'?'Driver':'Customer';
+    item.appendChild(av);item.appendChild(inf);item.appendChild(typePill);
+    item.onclick=(function(u,n){return function(){openChat(u,n);};})(uid_,p.name);
+    card.appendChild(item);
+  });
+};
+
+/* ── VEHICLES ── */
+window.renderVehicles=function(){
+  var w=$('vehicles-list');if(!w)return;
+  var search=(($('vehicle-search')||{}).value||'').toLowerCase();
+  var vf=filters.vehicleFilter;
+  var list=allDrivers.filter(function(d){
+    var mt=vf==='all'||(d.truckType||'').toLowerCase().includes(vf);
+    var ms=!search||(d.name||'').toLowerCase().includes(search)||(d.plate||'').toLowerCase().includes(search);
+    return mt&&ms&&(d.truck||d.truckType);
+  });
+  if(!list.length){w.innerHTML='<div class="empty"><div class="empty-ico">🚛</div><div class="empty-txt">No vehicles match your search.</div></div>';return;}
+  w.innerHTML='';
+  list.forEach(function(d){
+    var item=make('div','li');
+    var row=make('div','li-row');
+    var av=make('div','li-av emoji');av.textContent='🚛';
+    var inf=make('div','li-info');
+    inf.innerHTML='<div class="li-name">'+safe(d.truck||'Unknown Vehicle')+'</div><div class="li-meta">Driver: '+safe(d.name)+' · '+safe(d.province||'—')+'</div>';
+    row.appendChild(av);row.appendChild(inf);item.appendChild(row);
+    var specs=make('div','specs-grid');
+    [['Plate',d.plate],['Type',d.truckType],['Plan',d.subscription||'none'],['Status',d.status]].forEach(function(sp){
+      var s=make('div','spec');
+      s.innerHTML='<div class="spec-lbl">'+sp[0]+'</div><div class="spec-val">'+safe(sp[1])+'</div>';
+      specs.appendChild(s);
+    });
+    item.appendChild(specs);w.appendChild(item);
+  });
+};
+
+/* ── RATINGS ── */
+function renderRatings(){
+  // Build driver rating map
+  var drMap={};
+  allRatings.forEach(function(r){
+    var k=r.driverId||'unknown';
+    if(!drMap[k])drMap[k]={sum:0,cnt:0,name:r.driverName||'Unknown'};
+    drMap[k].sum+=(r.rating||0);drMap[k].cnt++;
+  });
+  var total=allRatings.length;
+  var avg=total?allRatings.reduce(function(s,r){return s+(r.rating||0);},0)/total:0;
+  txt('rat-avg',total?avg.toFixed(1)+'★':'—');
+  txt('rat-total',total);
+  // Breakdown
+  var bd=$('rat-breakdown');
+  if(bd){
+    if(!total){bd.innerHTML='<div class="empty"><div class="empty-ico">⭐</div><div class="empty-txt">No ratings yet.</div></div>';}
+    else{
+      var counts={5:0,4:0,3:0,2:0,1:0};
+      allRatings.forEach(function(r){var s=Math.round(r.rating||0);if(counts[s]!==undefined)counts[s]++;});
+      bd.innerHTML='';
+      [5,4,3,2,1].forEach(function(s){
+        var cnt=counts[s]||0;var pct=total?Math.round(cnt/total*100):0;
+        var row=make('div','rb-wrap');
+        row.innerHTML='<div class="rb-lbl">'+s+'</div><div class="rb-bg"><div class="rb-fill" style="width:'+pct+'%"></div></div><div class="rb-cnt">'+cnt+'</div>';
+        bd.appendChild(row);
+      });
+    }
+  }
+  // Leaderboard
+  var lb=$('rat-leaderboard');
+  if(lb){
+    var list=Object.keys(drMap).map(function(k){return{uid:k,name:drMap[k].name,avg:drMap[k].sum/drMap[k].cnt,cnt:drMap[k].cnt};}).sort(function(a,b){return b.avg-a.avg;});
+    if(!list.length){lb.innerHTML='<div class="empty"><div class="empty-ico">🏆</div><div class="empty-txt">No ratings yet.</div></div>';return;}
+    lb.innerHTML='';
+    list.slice(0,10).forEach(function(d,i){
+      var item=make('div','li');
+      var row=make('div','li-row');
+      var av=make('div','li-av');av.style.background='none';av.style.fontSize='20px';av.textContent=i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
+      if(i>2){av.style.fontSize='13px';av.style.fontWeight='800';av.style.color='var(--muted2)';av.style.background='var(--bg3)';av.style.border='1px solid var(--border)';}
+      var inf=make('div','li-info');
+      inf.innerHTML='<div class="li-name">'+safe(d.name)+'</div><div class="li-meta">'+d.cnt+' reviews</div>';
+      var right=make('div','li-right');right.innerHTML='<span style="font-size:18px;font-weight:900;color:var(--amber);font-family:var(--mono);">'+d.avg.toFixed(1)+'★</span>';
+      row.appendChild(av);row.appendChild(inf);row.appendChild(right);item.appendChild(row);lb.appendChild(item);
+    });
+  }
+}
+
+/* ── DISPUTES ── */
+function renderDisputes(){
+  var w=$('disputes-list');if(!w)return;
+  var df=filters.disputeFilter;
+  var list=allDisputes.filter(function(d){return df==='all'||d.status===df;}).sort(function(a,b){return(b.createdAt||'')>(a.createdAt||'')?1:-1;});
+  if(!list.length){w.innerHTML='<div class="empty"><div class="empty-ico">📋</div><div class="empty-txt">No disputes '+(df!=='all'?'with status "'+df+'"':'')+' found.</div></div>';return;}
+  w.innerHTML='';
+  list.forEach(function(d){
+    var avCls='li-av'+(d.status==='open'?' r':d.status==='resolved'?' g':' a');
+    var item=make('div','li');
+    var row=make('div','li-row');
+    var av=make('div',avCls);av.style.fontSize='16px';av.style.background='none';av.textContent='📋';
+    var inf=make('div','li-info');
+    inf.innerHTML='<div class="li-name">Dispute #'+safe((d.id||'').slice(-6))+'</div><div class="li-meta">'+safe(d.reason||'No reason given')+' · '+tAgo(d.createdAt)+'</div>';
+    var right=make('div','li-right');right.innerHTML=pillHtml(d.status||'open');
+    row.appendChild(av);row.appendChild(inf);row.appendChild(right);item.appendChild(row);
+    var acts=make('div','li-acts');
+    if(d.status==='open'){acts.appendChild(mkBtn('🔍 Investigate','btn btn-suspend',(function(id){return function(){updateDispute(id,'investigating');};})(d.id)));}
+    if(d.status!=='resolved'){acts.appendChild(mkBtn('✓ Resolve','btn btn-approve',(function(id){return function(){updateDispute(id,'resolved');};})(d.id)));}
+    acts.appendChild(mkBtn('Details','btn btn-view',(function(disp){return function(){showDispute(disp);};})(d)));
+    item.appendChild(acts);w.appendChild(item);
+  });
+}
+function updateDispute(id,status){
+  var FB=window._FB;if(!FB)return;
+  FB.updateDoc(FB.doc(FB.db,'disputes',id),{status:status,updatedAt:new Date().toISOString()}).then(function(){toast('Dispute marked as '+status);}).catch(function(e){toast('Error: '+e.message);});
+}
+function showDispute(d){
+  openModal(function(m){
+    m.innerHTML+='<div class="modal-title">Dispute #'+safe((d.id||'').slice(-6))+'</div><div class="modal-sub">Booking dispute details</div>';
+    [['Status',d.status||'open'],['Reason',d.reason||'—'],['Booking ID',(d.bookingId||'—').slice(-6)],['Filed By',d.filedBy||'—'],['Filed At',d.createdAt||'—'],['Notes',d.notes||'—']].forEach(function(r){
+      m.innerHTML+='<div class="mrow"><span class="mkey">'+r[0]+'</span><span class="mval">'+safe(r[1])+'</span></div>';
+    });
+    var acts=make('div','modal-actions');acts.appendChild(mkMbtn('Close','mbtn mbtn-close',window._closeModal));m.appendChild(acts);
+  });
+}
+
+function openDisputeForm(bookingId,from_,to_){
+  openModal(function(m){
+    m.innerHTML+='<div class="modal-title">Raise a Dispute</div><div class="modal-sub">Booking: '+safe(from_)+' → '+safe(to_)+'</div>';
+    m.innerHTML+='<label class="fl" style="margin-bottom:5px;">Reason</label>';
+    var ta=make('textarea','fi');ta.rows=3;ta.placeholder='Describe the issue...';ta.style.resize='none';m.appendChild(ta);
+    var acts=make('div','modal-actions');
+    acts.appendChild(mkMbtn('Cancel','mbtn mbtn-close',window._closeModal));
+    var sb=mkMbtn('Submit','mbtn mbtn-approve',function(){
+      var reason=ta.value.trim();if(!reason){toast('⚠️ Enter a reason');return;}
+      var FB=window._FB;if(!FB)return;
+      FB.addDoc(FB.collection(FB.db,'disputes'),{bookingId:bookingId,reason:reason,status:'open',filedBy:'admin',createdAt:new Date().toISOString()}).then(function(){toast('📋 Dispute filed');window._closeModal();}).catch(function(e){toast('Error: '+e.message);});
+    });
+    acts.appendChild(sb);m.appendChild(acts);
+  });
+}
+
+/* ── ANALYTICS ── */
+function renderAnalytics(){
+  var done=allBookings.filter(function(b){return b.ds==='completed';}).length;
+  var total=allBookings.length;
+  var rate=total?Math.round(done/total*100):0;
+  txt('an-comp',rate+'%');
+  var basic=allDrivers.filter(function(d){return d.subscription==='basic';}).length;
+  var std=allDrivers.filter(function(d){return d.subscription==='standard';}).length;
+  var sub=(basic*699)+(std*899);
+  var comm=allBookings.reduce(function(s,b){return s+(b.priceNum||0)*0.2;},0);
+  var rev=sub+comm;
+  txt('an-rev','R'+Math.round(rev).toLocaleString());
+  var months=['Nov','Dec','Jan','Feb','Mar','Now'];
+  buildBarChart('an-rev-chart',months,[.5,.6,.7,.8,.9,1].map(function(f){return Math.max(1,Math.round(rev*f));}),
+    'linear-gradient(180deg,rgba(37,99,235,.9),rgba(56,189,248,.2))','R');
+  buildBarChart('an-driver-chart',months,[.4,.55,.65,.75,.88,1].map(function(f){return Math.max(1,Math.round(allDrivers.length*f));}),
+    'linear-gradient(180deg,rgba(34,197,94,.8),rgba(34,197,94,.15))','');
+  // booking breakdown
+  var bc=$('an-booking-chart');
+  if(bc){
+    var statuses=[['avail','Finding Driver'],['accepted','Accepted'],['in_progress','In Transit'],['completed','Completed'],['cancelled','Cancelled']];
+    bc.innerHTML='';
+    statuses.forEach(function(s){
+      var cnt=allBookings.filter(function(b){return b.ds===s[0];}).length;
+      var pct=total?Math.round(cnt/total*100):0;
+      var row=make('div','rb-wrap');row.style.marginBottom='9px';
+      row.innerHTML='<div style="font-size:10px;color:var(--muted2);font-weight:600;width:88px;flex-shrink:0;">'+s[1]+'</div><div class="rb-bg" style="flex:1;"><div class="rb-fill" style="width:'+pct+'%;background:linear-gradient(90deg,rgba(37,99,235,.8),rgba(56,189,248,.5));"></div></div><div style="font-size:10px;color:var(--muted2);font-family:var(--mono);width:24px;text-align:right;">'+cnt+'</div>';
+      bc.appendChild(row);
+    });
+    if(!total)bc.innerHTML='<div class="empty"><div class="empty-ico">📦</div><div class="empty-txt">No booking data yet.</div></div>';
+  }
+}
+
+/* ── REVENUE ── */
+function renderRevenue(){
+  var basic=allDrivers.filter(function(d){return d.subscription==='basic';}).length;
+  var std=allDrivers.filter(function(d){return d.subscription==='standard';}).length;
+  var sub=(basic*699)+(std*899);
+  var comm=allBookings.reduce(function(s,b){return s+(b.priceNum||0)*0.2;},0);
+  var total=sub+comm;
+  txt('rv-total','R'+Math.round(total).toLocaleString());
+  txt('rv-basic-n',basic);txt('rv-basic-note','R'+(basic*699).toLocaleString()+'/mo');
+  txt('rv-std-n',std);txt('rv-std-note','R'+(std*899).toLocaleString()+'/mo');
+  txt('rv-basic-detail',basic+' drivers · R'+(basic*699).toLocaleString());
+  txt('rv-std-detail',std+' drivers · R'+(std*899).toLocaleString());
+  txt('rv-comm-detail','R'+Math.round(comm).toLocaleString());
+  txt('rv-grand','R'+Math.round(total).toLocaleString());
+}
+
+/* ── ROLES ── */
+window.sendInvite=function(){
+  var email=(($('invite-email')||{}).value||'').trim();
+  var role=($('invite-role')||{}).value||'support';
+  if(!email||!email.includes('@')){toast('⚠️ Enter a valid email');return;}
+  var FB=window._FB;if(!FB)return;
+  FB.addDoc(FB.collection(FB.db,'admin_invites'),{email:email,role:role,invitedAt:new Date().toISOString(),status:'pending'}).then(function(){
+    toast('📧 Invite sent for '+email);if($('invite-email'))$('invite-email').value='';
+    loadInvitedAdmins();
+  }).catch(function(e){toast('Error: '+e.message);});
+};
+
+function loadInvitedAdmins(){
+  var FB=window._FB;if(!FB)return;
+  FB.getDocs(FB.collection(FB.db,'admin_invites')).then(function(snap){
+    var list=[];snap.forEach(function(d){list.push(Object.assign({id:d.id},d.data()));});
+    var w=$('invited-admins-list');if(!w)return;w.innerHTML='';
+    txt('admin-count',1+list.length);
+    list.forEach(function(inv){
+      var item=make('div','li');
+      var row=make('div','li-row');
+      var av=make('div','li-av');av.textContent=inv.email?inv.email[0].toUpperCase():'A';
+      var inf=make('div','li-info');
+      inf.innerHTML='<div class="li-name">'+safe(inv.email)+'</div><div class="li-meta">Invited · '+tAgo(inv.invitedAt)+'</div>';
+      var right=make('div','li-right');
+      var rbCls='rbadge rb-'+(inv.role==='finance'?'finance':inv.role==='support'?'support':'ops');
+      right.innerHTML='<span class="'+rbCls+'">'+String(inv.role||'').toUpperCase()+'</span>';
+      row.appendChild(av);row.appendChild(inf);row.appendChild(right);item.appendChild(row);w.appendChild(item);
+    });
+  }).catch(function(){});
+}
+
+/* ── BAR CHART ── */
+function buildBarChart(id,labels,vals,style,prefix){
+  var w=$(id);if(!w)return;
+  var max=Math.max.apply(null,vals)||1;
+  w.innerHTML='';
+  vals.forEach(function(v,i){
+    var col=make('div','bar-col');
+    var vl=make('div','bar-val');vl.textContent=(prefix||'')+(v>=1000?Math.round(v/1000)+'k':v);
+    var bar=make('div','bar-fill');bar.style.cssText='height:'+(v/max*80)+'px;background:'+style+';border-radius:4px 4px 0 0;transition:height .5s ease;width:100%;';
+    var lbl=make('div','bar-lbl');lbl.textContent=labels[i];
+    col.appendChild(vl);col.appendChild(bar);col.appendChild(lbl);w.appendChild(col);
+  });
+}
+
+/* ── ENCRYPTION ── */
+var _SALT='TruckConnect-ZA-2024-v1';
+async function _dk(uid_){var enc=new TextEncoder();var km=await window.crypto.subtle.importKey('raw',enc.encode(uid_+_SALT),{name:'PBKDF2'},false,['deriveKey']);return window.crypto.subtle.deriveKey({name:'PBKDF2',salt:enc.encode(_SALT),iterations:100000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);}
+async function decField(uid_,ct){if(!ct||!ct.includes(':'))return ct;try{var p=ct.split(':');if(p.length!==2)return ct;var b64=function(s){var bin=atob(s);var a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;};var key=await _dk(uid_);var plain=await window.crypto.subtle.decrypt({name:'AES-GCM',iv:b64(p[0])},key,b64(p[1]));return new TextDecoder().decode(plain);}catch(e){return'[decrypt failed]';}}
+async function decryptDriver(uid_,d){if(!d._encrypted)return d;var fields=['idNumber','accountNumber','branchCode','accountHolder','accountType','bank'];var r=Object.assign({},d);for(var i=0;i<fields.length;i++){var f=fields[i];if(r[f])r[f]=await decField(uid_,r[f]);}return r;}
+
+/* ── DOM BUILDER HELPERS ── */
+function make(tag,cls){var el=document.createElement(tag);if(cls)el.className=cls;return el;}
+function mkBtn(txt_,cls,fn){var b=make('button',cls);b.textContent=txt_;b.onclick=fn;return b;}
+function mkMbtn(txt_,cls,fn){var b=make('button',cls);b.textContent=txt_;b.onclick=fn;return b;}
+function mkFn(fn,arg){return function(){fn(arg);};}
+
+/* ── AUTH & INIT ── */
+document.addEventListener('DOMContentLoaded',function(){
+  // Login
+  var loginBtn=$('login-btn');
+  if(loginBtn){
+    loginBtn.addEventListener('click',function(){
+      var FB=window._FB;if(!FB){toast('⚠️ App loading, please wait...');return;}
+      var email=(($('li-email')||{}).value||'').trim();
+      var pass=($('li-pass')||{}).value||'';
+      var err=$('login-err');if(err)err.style.display='none';
+      if(!email){if(err){err.textContent='Enter your email.';err.style.display='block';}return;}
+      if(!pass){if(err){err.textContent='Enter your password.';err.style.display='block';}return;}
+      loginBtn.disabled=true;loginBtn.textContent='Signing in…';
+      FB.signInWithEmailAndPassword(FB.auth,email,pass).catch(function(e){
+        loginBtn.disabled=false;loginBtn.textContent='Sign In →';
+        var msg='Sign in failed. Check your credentials.';
+        if(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')msg='Wrong email or password.';
+        else if(e.code==='auth/user-not-found')msg='No account with this email.';
+        else if(e.code==='auth/too-many-requests')msg='Too many attempts. Try again later.';
+        if(err){err.textContent=msg;err.style.display='block';}
+      });
+    });
+    // Enter key on password
+    var passInp=$('li-pass');
+    if(passInp)passInp.addEventListener('keydown',function(e){if(e.key==='Enter')loginBtn.click();});
+  }
+
+  // Sign out
+  var soBtn=$('signout-btn');
+  if(soBtn){soBtn.addEventListener('click',function(){var FB=window._FB;if(!FB)return;FB.signOut(FB.auth).then(function(){goScreen('s-login');listenersOn=false;allDrivers=[];allCustomers=[];allBookings=[];allDisputes=[];allRatings=[];if(chatUnsub){chatUnsub();chatUnsub=null;}});});}
+
+  // Load saved FCM key
+  if(FCM_KEY){var ki=$('fcm-key');if(ki)ki.value=FCM_KEY;}
+
+  // Overlay close on backdrop click already handled inline
+});
+
+// Auth state watcher
+var _authDone=false;
+var _authTimer=setTimeout(function(){if(!_authDone){_authDone=true;goScreen('s-login');}},9000);
+var _fbPoll=setInterval(function(){
+  if(!window._FB)return;
+  clearInterval(_fbPoll);
+  window._FB.onAuthStateChanged(window._FB.auth,function(user){
+    if(_authDone)return;
+    _authDone=true;clearTimeout(_authTimer);
+    if(user){
+      goScreen('s-admin');
+      startListeners();
+      txt('admin-email',user.email||'—');
+      var lb=$('login-btn');if(lb){lb.disabled=false;lb.textContent='Sign In →';}
+    } else {
+      goScreen('s-login');
+      listenersOn=false;allDrivers=[];allCustomers=[];allBookings=[];
+    }
+  });
+},100);
+
+})();
+</script>
+</body>
+</html>
