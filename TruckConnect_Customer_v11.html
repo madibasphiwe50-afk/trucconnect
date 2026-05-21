@@ -473,9 +473,10 @@ body.light-mode .hfp-truck-row.selected{border-color:#111;background:#efefef;}
     await OneSignal.init({
       appId: "a04fdcf0-5bbe-4047-a217-8437f36d82d2",
       serviceWorkerParam: { scope: '/trucconnect/' },
-      notifyButton: { enable: false },
-      promptOptions: { slidedown: { prompts: [] } }
+      notifyButton: { enable: false }
     });
+    // Show permission prompt automatically
+    OneSignal.Slidedown.promptPush();
   });
 </script>
 </head>
@@ -2265,7 +2266,7 @@ function initBookForm(){
       .then(function(r){return r.json();})
       .then(function(data){
         if(data&&data.features&&data.features[0]){
-          var addr=_mbShortAddr(data.features[0]);
+          var addr=_photonAddr(data.features[0].properties);
           if($('b-from')&&!$('b-from').value){$('b-from').value=addr;bookingData.from=addr;}
         }
       }).catch(function(){});
@@ -2663,36 +2664,44 @@ function chooseDriver(driver){
 var _SA_BBOX = '16.4,-34.9,32.9,-22.1'; // west,south,east,north
 
 // Format a Photon feature into a readable address string
+// Full address string used when user selects a result (what goes into the input field)
 function _photonAddr(props) {
   var parts = [];
+  // For named POIs (schools, hospitals, etc.) — name comes first
+  if (props.name) parts.push(props.name);
+  // Street address
   if (props.housenumber && props.street) parts.push(props.housenumber + ' ' + props.street);
   else if (props.street) parts.push(props.street);
-  if (props.name && !parts.length) parts.push(props.name);
+  // Area
   if (props.suburb) parts.push(props.suburb);
   if (props.city || props.town || props.village) parts.push(props.city || props.town || props.village);
-  if (props.state) parts.push(props.state);
   return parts.filter(Boolean).join(', ');
 }
 
-// Main display line for a Photon feature
+// Main (bold) line shown in dropdown — the place name or street
 function _photonMain(props) {
   if (props.name) return props.name;
   if (props.housenumber && props.street) return props.housenumber + ' ' + props.street;
   return props.street || props.city || props.town || 'Unknown';
 }
 
-// Subtitle line for a Photon feature
+// Subtitle line shown below the name — street + city, like InDrive/Bolt
 function _photonSub(props) {
   var parts = [];
+  // Show street address in subtitle when main line is a POI name
+  if (props.name) {
+    if (props.housenumber && props.street) parts.push(props.housenumber + ' ' + props.street);
+    else if (props.street) parts.push(props.street);
+  }
   if (props.suburb) parts.push(props.suburb);
   if (props.city || props.town || props.village) parts.push(props.city || props.town || props.village);
-  if (props.state) parts.push(props.state);
   return parts.filter(Boolean).slice(0, 3).join(', ');
 }
 
 // Reverse geocode: lng, lat → address string (returns Promise<string>)
+// Uses location_bias_radius=50 to stay close to exact GPS point
 function _mbReverseGeocode(lng, lat) {
-  var url = 'https://photon.komoot.io/reverse?lon=' + lng + '&lat=' + lat + '&lang=en&limit=1';
+  var url = 'https://photon.komoot.io/reverse?lon=' + lng + '&lat=' + lat + '&lang=en&limit=1&radius=0.1';
   return fetch(url)
     .then(function(r){ return r.json(); })
     .then(function(data){
@@ -2708,7 +2717,8 @@ function _mbReverseGeocode(lng, lat) {
 function _photonSearch(q, lng, lat) {
   var url = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(q) +
             '&limit=7&lang=en&bbox=' + _SA_BBOX;
-  if (lng && lat) url += '&lon=' + lng + '&lat=' + lat;
+  // Bias results toward user's current location for better relevance
+  if (lng && lat) url += '&lon=' + lng + '&lat=' + lat + '&location_bias_scale=0.5';
   return fetch(url)
     .then(function(r){ return r.json(); })
     .then(function(data){ return (data && data.features) ? data.features : []; })
