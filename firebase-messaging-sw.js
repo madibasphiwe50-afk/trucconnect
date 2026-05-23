@@ -1,8 +1,7 @@
-// TruckConnect — Combined Service Worker
-// OneSignal handles all push delivery (web + Android PWA)
-// Firebase background messaging is bridged through OneSignal
-
-importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
+// TruckConnect — Firebase Background Messaging Service Worker
+// NOTE: OneSignalSDKWorker.js handles all OneSignal push delivery.
+// This file handles Firebase Cloud Messaging background messages ONLY
+// (e.g. direct FCM sends from Cloud Functions that bypass OneSignal).
 
 // Firebase compat for background message fallback
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
@@ -23,7 +22,7 @@ try {
 
   // Background message handler — fires when app is closed or in background
   messaging.onBackgroundMessage(function(payload) {
-    console.log('[TruckConnect SW] Background message received:', payload);
+    console.log('[TruckConnect SW] Background FCM message received:', payload);
     var n = payload.notification || {};
     var title = n.title || 'TruckConnect';
     var body  = n.body  || '';
@@ -31,7 +30,7 @@ try {
       body: body,
       icon: '/trucconnect/icon-192.png',
       badge: '/trucconnect/icon-192.png',
-      tag: 'truckconnect-notification',
+      tag: 'truckconnect-fcm',
       renotify: true,
       data: payload.data || {}
     });
@@ -51,10 +50,10 @@ self.addEventListener('notificationclick', function(event) {
         }
       }
       if (clients.openWindow) {
-        return clients.openWindow('https://madibasphiwe50-afk.github.io/trucconnect/TruckConnect_Customer_v12-1.html');
+        return clients.openWindow('https://madibasphiwe50-afk.github.io/trucconnect/');
       }
     })
   );
 });
 
-console.log('[TruckConnect SW] Service worker loaded successfully');
+console.log('[TruckConnect SW] firebase-messaging-sw.js loaded');
