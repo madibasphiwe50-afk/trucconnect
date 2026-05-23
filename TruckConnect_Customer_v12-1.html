@@ -489,30 +489,32 @@ if ('serviceWorker' in navigator) {
         allowLocalhostAsSecureOrigin: true
       });
       console.log('[TC] OneSignal initialized');
-
-      // Request permission — triggers native browser "Allow notifications?" dialog
-      var permission = await Notification.requestPermission();
-      console.log('[TC] Notification permission:', permission);
-
-      if (permission === 'granted') {
-        // Opt the user into OneSignal push
-        try {
-          await OneSignal.User.PushSubscription.optIn();
-          console.log('[TC] OneSignal push opted in');
-        } catch(oe) {
-          console.warn('[TC] OneSignal optIn failed:', oe.message || oe);
-        }
-      }
-
-      // Tag user role for targeted pushes
-      OneSignal.User.PushSubscription.addEventListener('change', function(e) {
-        console.log('[TC] Push subscription changed:', e.current.optedIn);
-      });
-
+      // Permission is requested after login — see requestNotifPermission()
     } catch(e) {
       console.warn('[TC] OneSignal init error:', e.message || e);
     }
   });
+
+  // Called after successful login — user gesture satisfies Chrome's requirement
+  window.requestNotifPermission = async function() {
+    try {
+      if (!('Notification' in window)) return;
+      if (Notification.permission === 'granted') return;
+      if (Notification.permission === 'denied') return;
+      var permission = await Notification.requestPermission();
+      console.log('[TC] Notification permission:', permission);
+      if (permission === 'granted' && window.OneSignalDeferred) {
+        window.OneSignalDeferred.push(async function(OS) {
+          try {
+            await OS.User.PushSubscription.optIn();
+            console.log('[TC] OneSignal opted in');
+          } catch(e) {}
+        });
+      }
+    } catch(e) {
+      console.warn('[TC] requestNotifPermission error:', e);
+    }
+  };
 </script>
 </head>
 <body>
@@ -1940,7 +1942,9 @@ function goToHome(){
   loadMyBookings();
   if(currentUid) listenNotifications(currentUid);
   if(currentUid) initFCM(currentUid);
-  // Tag user in OneSignal on every login so push targeting is always current
+  // Request notification permission after login (user gesture already happened)
+  if(window.requestNotifPermission) window.requestNotifPermission();
+  // Tag user in OneSignal
   if(currentUid&&window.OneSignalDeferred){window.OneSignalDeferred.push(function(OS){try{OS.User.addTag('uid',currentUid);OS.User.addTag('role','customer');}catch(e){}});}
 }
 

@@ -1367,30 +1367,32 @@ if ('serviceWorker' in navigator) {
         allowLocalhostAsSecureOrigin: true
       });
       console.log('[TC] OneSignal initialized');
-
-      // Request permission — triggers native browser "Allow notifications?" dialog
-      var permission = await Notification.requestPermission();
-      console.log('[TC] Notification permission:', permission);
-
-      if (permission === 'granted') {
-        // Opt the user into OneSignal push
-        try {
-          await OneSignal.User.PushSubscription.optIn();
-          console.log('[TC] OneSignal push opted in');
-        } catch(oe) {
-          console.warn('[TC] OneSignal optIn failed:', oe.message || oe);
-        }
-      }
-
-      // Tag user role for targeted pushes
-      OneSignal.User.PushSubscription.addEventListener('change', function(e) {
-        console.log('[TC] Push subscription changed:', e.current.optedIn);
-      });
-
+      // Permission is requested after login — see requestNotifPermission()
     } catch(e) {
       console.warn('[TC] OneSignal init error:', e.message || e);
     }
   });
+
+  // Called after successful login — user gesture satisfies Chrome requirement
+  window.requestNotifPermission = async function() {
+    try {
+      if (!('Notification' in window)) return;
+      if (Notification.permission === 'granted') return;
+      if (Notification.permission === 'denied') return;
+      var permission = await Notification.requestPermission();
+      console.log('[TC] Notification permission:', permission);
+      if (permission === 'granted' && window.OneSignalDeferred) {
+        window.OneSignalDeferred.push(async function(OS) {
+          try {
+            await OS.User.PushSubscription.optIn();
+            console.log('[TC] OneSignal opted in');
+          } catch(e) {}
+        });
+      }
+    } catch(e) {
+      console.warn('[TC] requestNotifPermission error:', e);
+    }
+  };
 </script>
 </head>
 <body class="dark-mode">
@@ -2982,6 +2984,8 @@ function handleGoogleAuth(mode){
             dData=snap.data();dData._wasGoogle=true;
             saveSession();
         if(window.OneSignalDeferred) OneSignalDeferred.push(function(OS){ try{OS.User.addTag('uid',currentUid); OS.User.addTag('role','driver');}catch(e){} });
+  // Request notification permission after login
+  if(window.requestNotifPermission) window.requestNotifPermission();
             if(dData.status==='approved')goToDriverHome();
             else{goTo('s-pending');txt('pend-sub-val', dData.trialStartDate ? '✅ Free Trial Active (' + trialDaysLeft() + ' days left)' : '—');}
           } else {
@@ -3767,25 +3771,27 @@ window.completeTrip=function(jobId){
 };
 
 window.cancelTrip=function(jobId){
-  // Custom confirm modal
+  // Custom confirm modal — native confirm() blocked in PWA/WebView
   var _ov=document.createElement('div');
   _ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:flex;align-items:flex-end;';
   _ov.innerHTML='<div style="width:100%;background:#1a1a1a;border-radius:22px 22px 0 0;padding:28px 20px 40px;"><div style="font-size:17px;font-weight:800;color:#fff;margin-bottom:8px;">Return Job to Pool?</div><div style="font-size:13px;color:#888;margin-bottom:24px;line-height:1.6;">This job will be returned to pending. Another driver will be able to accept it.</div><button id="_dv_yes" style="width:100%;background:#f87171;color:#fff;border:none;border-radius:13px;padding:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:Sora,sans-serif;margin-bottom:10px;">Yes, Return Job</button><button id="_dv_no" style="width:100%;background:transparent;border:1.5px solid #333;border-radius:13px;padding:15px;font-size:14px;font-weight:700;color:#888;cursor:pointer;font-family:Sora,sans-serif;">Keep Job</button></div>';
   document.body.appendChild(_ov);
-  document.getElementById('_dv_no').onclick=function(){_ov.remove();return;};
-  document.getElementById('_dv_yes').onclick=function(){_ov.remove();
-  var FB=window._FB;
-  if(FB){
-    FB.updateDoc(FB.doc(FB.db,'bookings',jobId),{ds:'avail',driverUid:null,driverName:null,driverTruck:null,acceptedAt:null})
-      .then(function(){
-        acceptedJobs=acceptedJobs.filter(function(x){return x.id!==jobId;});
-        renderJobs();toast('Job returned to available pool.');
-      })
-      .catch(function(e){toast('Error: '+e.message);});
-  } else {
-    acceptedJobs=acceptedJobs.filter(function(x){return x.id!==jobId;});
-    renderJobs();toast('Job cancelled.');
-  }
+  document.getElementById('_dv_no').onclick=function(){_ov.remove();};
+  document.getElementById('_dv_yes').onclick=function(){
+    _ov.remove();
+    var FB=window._FB;
+    if(FB){
+      FB.updateDoc(FB.doc(FB.db,'bookings',jobId),{ds:'avail',driverUid:null,driverName:null,driverTruck:null,acceptedAt:null})
+        .then(function(){
+          acceptedJobs=acceptedJobs.filter(function(x){return x.id!==jobId;});
+          renderJobs();toast('Job returned to available pool.');
+        })
+        .catch(function(e){toast('Error: '+e.message);});
+    } else {
+      acceptedJobs=acceptedJobs.filter(function(x){return x.id!==jobId;});
+      renderJobs();toast('Job cancelled.');
+    }
+  };
 };
 
 // ── Active job strip ──────────────────────────────────────────
