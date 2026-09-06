@@ -665,7 +665,7 @@ window._FB={auth:getAuth(app),db:getFirestore(app),signInWithEmailAndPassword,si
             <textarea class="fi" id="notif-body" rows="3" placeholder="Write your message..." maxlength="200" style="resize:none;"></textarea>
           </div>
           <button class="btn-primary" onclick="sendBroadcast()">📤 Send Notification</button>
-          <p style="font-size:10px;color:var(--muted);margin-top:9px;text-align:center;">Add OneSignal REST API Key in Settings to enable push · Always logged to Firestore</p>
+          <p style="font-size:10px;color:var(--muted);margin-top:9px;text-align:center;">Add Admin API Secret in Settings to enable push · Always logged to Firestore</p>
         </div>
       </div>
 
@@ -924,8 +924,8 @@ window._FB={auth:getAuth(app),db:getFirestore(app),signInWithEmailAndPassword,si
             Both the Customer and Driver apps use <strong>OneSignal</strong> for push notifications.<br>
             Get your REST API Key from <strong>OneSignal Dashboard → Your App → Settings → Keys &amp; IDs</strong>.
           </div>
-          <label class="fl">OneSignal REST API Key</label>
-          <input class="fi" id="os-rest-key" type="password" placeholder="Paste your OneSignal REST API Key here…" autocomplete="off"/>
+          <label class="fl">Admin API Secret</label>
+          <input class="fi" id="os-rest-key" type="password" placeholder="Enter your admin API secret here…" autocomplete="off"/>
           <button class="btn-secondary" style="margin-top:8px;" onclick="saveOsKey()">💾 Save API Key</button>
           <p style="font-size:10px;color:var(--muted);margin-top:8px;">Stored in your browser only · Never uploaded anywhere · OneSignal App ID: a04fdcf0-5bbe-4047-a217-8437f36d82d2</p>
         </div>
@@ -988,7 +988,11 @@ window._FB={auth:getAuth(app),db:getFirestore(app),signInWithEmailAndPassword,si
 var allDrivers=[],allCustomers=[],allBookings=[],allDisputes=[],allRatings=[],allErrorReports=[];
 var filters={driverFilter:'all',bookingFilter:'all',vehicleFilter:'all',disputeFilter:'all',errorFilter:'all'};
 var listenersOn=false;
-var OS_REST_KEY=localStorage.getItem('tc_os_rest_key')||'os_v2_app_ubh5z4c3xzaepiqxqq37g3mc2jqrncdwu75uisvrhczavdsv6jagjhenmc6g7eufetv52syxt5us4bcym7r2pr6wkeizvkh4d4l2jwq';
+// This is a password YOU make up yourself (not from OneSignal or Google) —
+// it just proves to the Cloudflare Worker that a broadcast request really
+// came from this Admin app. Entered once in Settings, kept in localStorage
+// on this admin's device only.
+var ADMIN_API_SECRET=localStorage.getItem('tc_admin_api_secret')||'';
 var OS_APP_ID='a04fdcf0-5bbe-4047-a217-8437f36d82d2';
 var notifTarget='drivers';
 var chatUid=null,chatName='',chatUnsub=null;
@@ -1065,7 +1069,7 @@ window.goTab=function(tab,btn){
   if(tab==='tracking')renderTracking();
   if(tab==='chat')renderChatList();
   if(tab==='notifications')loadNotifHistory();
-  if(tab==='settings'){var inp=$('os-rest-key');if(inp&&OS_REST_KEY)inp.value=OS_REST_KEY;}
+  if(tab==='settings'){var inp=$('os-rest-key');if(inp&&ADMIN_API_SECRET)inp.value=ADMIN_API_SECRET;}
   if(tab==='roles')loadInvitedAdmins();
 };
 
@@ -1096,55 +1100,53 @@ function renderSos(){
   try{var ctx=new(window.AudioContext||window.webkitAudioContext)();var o=ctx.createOscillator();var g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.setValueAtTime(880,ctx.currentTime);o.frequency.setValueAtTime(600,ctx.currentTime+.15);g.gain.setValueAtTime(.2,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.4);o.start();o.stop(ctx.currentTime+.4);}catch(e){}
 }
 
-/* ── OneSignal REST API Push Notifications ───────────────────────────────────
-   Both customer and driver apps use OneSignal (App ID: a04fdcf0-...).
-   Admin sends via the OneSignal REST API — no backend, no service account.
-   Get REST API Key: OneSignal Dashboard → Your App → Settings → Keys & IDs
+/* ── Push Notifications, sent via the shared Cloudflare Worker ───────────────
+   The real OneSignal key lives only inside the Worker, never in this app.
+   ADMIN_API_SECRET below is a password you make up yourself and set as a
+   Secret on the Worker (name it ADMIN_API_SECRET there too, matching).
 ────────────────────────────────────────────────────────────────────────────── */
 
 window.saveOsKey = function(){
   var key = (($('os-rest-key')||{}).value||'').trim();
-  if(!key){ toast('⚠️ Paste your OneSignal REST API Key first'); return; }
-  OS_REST_KEY = key;
-  localStorage.setItem('tc_os_rest_key', key);
-  toast('✅ OneSignal REST API key saved — notifications ready!');
+  if(!key){ toast('⚠️ Enter your admin API secret first'); return; }
+  ADMIN_API_SECRET = key;
+  localStorage.setItem('tc_admin_api_secret', key);
+  toast('✅ Saved — notifications ready!');
 };
 
 // Load saved key into input on settings tab open
 (function(){
   var saved = localStorage.getItem('tc_os_rest_key')||'';
-  if(saved){ OS_REST_KEY=saved; }
+  // TruckConnect Worker — same one used by the Customer/Driver apps and your
+// existing OTP/AI-agent Workers.
+var TC_WORKER_URL='https://truckconnect-api.madibasphiwe50.workers.dev'; // update if your Worker name/subdomain differs
+if(saved){ ADMIN_API_SECRET=saved; }
 })();
 
-// Send push to a specific OneSignal segment
+// Send push to a specific OneSignal segment, via the Cloudflare Worker
+// (the real OneSignal key lives only inside the Worker, never in this app —
+// ADMIN_API_SECRET is just a shared password you made up yourself so random
+// people can't trigger broadcasts even if they found this Worker's URL)
 // segment: 'All' | 'drivers' | 'customers' | 'approved_drivers'
 async function _osSendSegment(title, body, segment, extraFilters){
-  if(!OS_REST_KEY){ return {ok:false,reason:'no_key'}; }
-  var payload = {
-    app_id: OS_APP_ID,
-    headings: { en: title },
-    contents: { en: body },
-    android_accent_color: 'FF4285F4',
-    android_sound: 'default',
-    ios_sound: 'default',
-  };
+  if(!ADMIN_API_SECRET){ return {ok:false,reason:'no_key'}; }
+  var payload = {title:title, body:body};
   if(extraFilters && extraFilters.length){
-    // Tag-based targeting
-    payload.filters = extraFilters;
+    payload.extraFilters = extraFilters;
   } else {
-    payload.included_segments = [segment||'All'];
+    payload.segment = segment||'All';
   }
   try {
-    var res = await fetch('https://onesignal.com/api/v1/notifications', {
+    var res = await fetch(TC_WORKER_URL+'/admin-push', {
       method:'POST',
       headers:{
         'Content-Type':'application/json',
-        'Authorization':'Basic '+OS_REST_KEY
+        'Authorization':'Bearer '+ADMIN_API_SECRET
       },
       body: JSON.stringify(payload)
     });
     var d = await res.json();
-    if(d.errors){ console.warn('[OS]',d.errors); return {ok:false,reason:JSON.stringify(d.errors)}; }
+    if(d.errors || d.ok===false){ console.warn('[OS]',d.reason||d.errors); return {ok:false,reason:JSON.stringify(d.reason||d.errors)}; }
     return {ok:true, recipients: d.recipients||0, id: d.id};
   } catch(e){
     console.warn('[OS] send error:',e.message);
@@ -1579,7 +1581,7 @@ window.sendBroadcast = async function(){
   if(result.ok){
     toast('✅ Push sent to '+result.recipients+' subscriber'+(result.recipients!==1?'s':'')+' + in-app broadcast done');
   } else if(result.reason==='no_key'){
-    toast('ℹ️ In-app broadcast sent. Add OneSignal REST API Key in Settings to enable push.');
+    toast('ℹ️ In-app broadcast sent. Add Admin API Secret in Settings to enable push.');
   } else {
     toast('⚠️ Push error: '+result.reason+' · In-app broadcast still sent.');
   }

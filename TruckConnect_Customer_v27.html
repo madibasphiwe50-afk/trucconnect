@@ -507,21 +507,6 @@ body.light-mode .hcb-divider{background:#E5E5EA;}
 body.light-mode .hcb-whereto span{color:#1C1C1E;}
 .hcb-whereto svg{flex-shrink:0;}
 
-/* ── Fare panel (after route calculated) ── */
-#home-fare-panel{
-  position:absolute;bottom:0;left:0;right:0;z-index:12;
-  background:rgba(22,22,24,.98) !important;
-  backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
-  border-radius:24px 24px 0 0 !important;
-  border-top:1px solid rgba(255,255,255,.08) !important;
-  box-shadow:0 -10px 40px rgba(0,0,0,.5) !important;
-}
-body.light-mode #home-fare-panel{
-  background:rgba(255,255,255,.98) !important;
-  border-top:1px solid rgba(0,0,0,.06) !important;
-  box-shadow:0 -6px 24px rgba(0,0,0,.1) !important;
-}
-
 /* ── Home map top controls ── */
 #s-home .map-top-controls{
   position:absolute;top:0;left:0;right:0;z-index:10;
@@ -686,14 +671,6 @@ body.light-mode .dcard-truck-placeholder{background:linear-gradient(135deg,#e8e8
 #home-booking-sheet.open{transform:translateY(0);}
 #booking-sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:290;display:none;opacity:0;transition:opacity .42s;}
 #booking-sheet-backdrop.show{opacity:1;}
-
-/* ── HOME FARE PANEL ── */
-#home-fare-panel{animation:slideUpPanel .38s cubic-bezier(0.25,0.8,0.25,1);}
-@keyframes slideUpPanel{from{transform:translateY(80px);opacity:0}to{transform:translateY(0);opacity:1}}
-.hfp-truck-row{display:flex;align-items:center;gap:14px;background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:14px;cursor:pointer;transition:all .2s;}
-.hfp-truck-row.selected{border-color:#fff;background:#1a1a1a;}
-body.light-mode .hfp-truck-row.selected{border-color:#111;background:#efefef;}
-.hfp-truck-row:active{transform:scale(.98);}
 
 /* ── AUTOCOMPLETE INNER ── */
 .ac-main{font-size:13px;font-weight:700;color:var(--text);}
@@ -860,10 +837,7 @@ function openBookingSheet(){_dispatch('openBookingSheet',[]);}
 function closeBookingSheet(){_dispatch('closeBookingSheet',[]);}
 function openFullBooking(){_dispatch('openFullBooking',[]);}
 function hsSelectTruck(s){_dispatch('hsSelectTruck',[s]);}
-function closeHomeFare(){_dispatch('closeHomeFare',[]);}
-function proceedFromHomefare(){_dispatch('proceedFromHomefare',[]);}
 function selectHomeTruck(s){_dispatch('selectHomeTruck',[s]);}
-function hfpSelectTruck(a,b,c,d){_dispatch('hfpSelectTruck',[a,b,c,d]);}
 function hsGetPrices(){_dispatch('hsGetPrices',[]);}
 </script>
 
@@ -952,9 +926,9 @@ window._tcFlushErrors();
 .tc-ob-wordmark{position:absolute;top:22px;left:24px;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;font-weight:800;font-size:22px;color:#fff;letter-spacing:-.5px;z-index:2;}
 .tc-ob-sheet{flex:1;background:#fff;position:relative;z-index:2;padding:22px 24px 28px;display:flex;flex-direction:column;}
 .tc-ob-title{font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;font-size:26px;font-weight:800;color:#111;margin:0 0 auto;line-height:1.25;}
-.tc-ob-btn-primary{width:100%;background:#000;color:#fff;border:none;border-radius:12px;padding:17px;font-size:16px;font-weight:700;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;}
+.tc-ob-btn-primary{width:100%;background:#000;color:#fff;border:none;border-radius:8px;padding:17px;font-size:16px;font-weight:700;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;}
 .tc-ob-btn-primary:active{transform:scale(.98);}
-.tc-ob-btn-secondary{width:100%;background:#f3f3f3;color:#111;border:none;border-radius:12px;padding:15px;font-size:14px;font-weight:700;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;}
+.tc-ob-btn-secondary{width:100%;background:#f3f3f3;color:#111;border:none;border-radius:8px;padding:15px;font-size:14px;font-weight:700;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;}
 .tc-ob-btn-secondary:active{transform:scale(.98);}
 .tc-ob-divider{display:flex;align-items:center;gap:14px;color:#999;font-size:12px;margin:18px 0;}
 .tc-ob-divider::before,.tc-ob-divider::after{content:'';flex:1;height:1px;background:#e5e5e5;}
@@ -962,13 +936,13 @@ window._tcFlushErrors();
 .tc-ob-back{width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border:none;background:rgba(0,0,0,.06);border-radius:50%;font-size:20px;cursor:pointer;color:#111;padding:0;margin-bottom:8px;transition:background .15s,transform .1s;}
 .tc-ob-back:active{transform:scale(.88);background:rgba(0,0,0,.12);}
 .tc-ob-h1{font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;font-size:24px;font-weight:700;color:#111;margin:0 0 22px;}
-.tc-ob-phone-row{display:flex;gap:10px;border:1.5px solid #111;border-radius:12px;overflow:hidden;}
+.tc-ob-phone-row{display:flex;gap:10px;border:1.5px solid #111;border-radius:8px;overflow:hidden;}
 .tc-ob-flag{display:flex;align-items:center;gap:6px;padding:0 12px;background:#f7f7f7;font-size:15px;font-weight:700;color:#111;white-space:nowrap;border-right:1px solid #e5e5e5;}
 .tc-ob-phone-row input{flex:1;border:none;outline:none;padding:15px 14px 15px 0;font-size:16px;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;color:#111;min-width:0;}
 .tc-ob-err{font-size:12px;color:#dc2626;font-weight:600;margin-top:8px;min-height:16px;}
 .tc-ob-consent{font-size:11.5px;color:#888;line-height:1.6;margin-top:22px;}
 .tc-ob-otp-boxes{display:flex;gap:12px;margin:20px 0 6px;}
-.tc-ob-otp-boxes input{width:52px;height:56px;text-align:center;font-size:22px;font-weight:700;border:1.5px solid #ccc;border-radius:10px;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;color:#111;outline:none;}
+.tc-ob-otp-boxes input{width:52px;height:56px;text-align:center;font-size:22px;font-weight:700;border:1.5px solid #ccc;border-radius:8px;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;color:#111;outline:none;}
 .tc-ob-otp-boxes input:focus{border-color:#111;}
 .tc-ob-chip{background:#f0f0f0;border:none;border-radius:20px;padding:9px 16px;font-size:13px;font-weight:700;color:#111;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;}
 .tc-ob-chip:disabled{color:#bbb;cursor:default;}
@@ -1053,6 +1027,8 @@ body.light-mode .chat-input-row input{background:#f0f0f0;color:#111;}
       <div style="flex:1;"></div>
       <button class="tc-ob-btn-primary" id="btn-hero-continue">Continue →</button>
       <button class="btn-land-s" id="btn-signin-land" style="margin-top:12px;background:transparent;border:none;color:#666;">Already have an account? Sign In</button>
+      <button class="tc-ob-btn-primary" id="cust-quickbio-btn" onclick="window._tcQuickFingerprintSignIn('customer')" style="display:none;margin-top:10px;background:#111;">🔓 Sign in with Fingerprint</button>
+      <div id="cust-quickbio-status" style="font-size:12px;color:#888;min-height:16px;margin-top:6px;text-align:center;"></div>
     </div>
   </div>
 
@@ -1166,48 +1142,21 @@ body.light-mode .chat-input-row input{background:#f0f0f0;color:#111;}
       <button class="tc-ob-btn-primary" id="tc-final-create">Create Account →</button>
     </div>
   </div>
-    <div class="land-badge"><div class="land-dot"></div> Customer · South Africa</div>
-    <div style="font-size:44px;margin-bottom:10px;"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="6.5" r="3.2"/><path d="M3.5 17c0-3.3 3-5.5 6.5-5.5s6.5 2.2 6.5 5.5"/></svg></div>
-    <h1 class="land-title" style="font-size:28px;margin-bottom:6px;">Welcome back</h1>
-    <p class="land-sub" style="margin-bottom:24px;">Enter your name, then verify with your fingerprint or face.</p>
 
-    <!-- Name input -->
-    <div style="width:100%;max-width:340px;margin-bottom:18px;text-align:left;">
-      <span style="font-size:12px;font-weight:700;color:rgba(255,255,255,.45);letter-spacing:.5px;display:block;margin-bottom:6px;">YOUR NAME</span>
-      <input id="cbl-name" type="text" placeholder="e.g. Sipho Dlamini" autocomplete="name"
-        style="width:100%;box-sizing:border-box;padding:14px 16px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:14px;color:#fff;font-size:15px;font-weight:600;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;outline:none;"/>
-      <div id="cbl-name-err" style="display:none;font-size:12px;color:#f87171;margin-top:6px;font-weight:600;"></div>
-    </div>
-
-    <!-- Fingerprint / Passkey button -->
-    <div style="margin-bottom:10px;">
-      <button id="cbl-bio-btn" onclick="window._tcNameBioLogin('customer')"
-        style="width:82px;height:82px;border-radius:50%;background:rgba(10,132,255,.15);border:2px solid rgba(10,132,255,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;margin:0 auto;transition:all .25s;gap:5px;">
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0A84FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2C9 2 6.5 4.5 6.5 7.5V10"/>
-          <path d="M17.5 10V7.5a5.5 5.5 0 00-2-.8"/>
-          <path d="M12 10c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2s2-.9 2-2v-4c0-1.1-.9-2-2-2z"/>
-          <path d="M8.5 13c0 2 .7 3.7 1.8 5"/>
-          <path d="M15.5 13c0 2-.7 3.7-1.8 5"/>
-          <path d="M5 10.5C5 6.4 8.1 3 12 3s7 3.4 7 7.5"/>
-        </svg>
-        <span style="font-size:9px;font-weight:800;color:#0A84FF;letter-spacing:.6px;">VERIFY</span>
-      </button>
-    </div>
-    <div id="cbl-status" style="font-size:12px;color:rgba(255,255,255,.4);min-height:18px;margin-bottom:22px;"></div>
-
-    <!-- Fallback: sign in with email -->
-    <div style="width:100%;max-width:340px;display:flex;flex-direction:column;gap:10px;">
-      <button onclick="window._tcShowEmailSignIn('customer')"
-        style="background:transparent;border:1.5px solid rgba(255,255,255,.15);border-radius:14px;padding:13px;color:rgba(255,255,255,.55);font-size:13px;font-weight:700;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;">
-        Sign in with email instead
-      </button>
-      <button onclick="window._tcBackToWelcome('customer')"
-        style="background:transparent;border:none;color:rgba(255,255,255,.3);font-size:12px;font-weight:600;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;padding:8px;">
-        <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 4 6 10 12 16"/></svg> Back
-      </button>
-    </div>
+<!-- ══════════ FINGERPRINT GATE (WebAuthn) — simple confirm, same idea as Admin app ══════════ -->
+<div id="s-biogate" class="screen" style="background:#0B0B0F;">
+  <div class="screen-body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;">
+    <div id="bio-pulse" style="width:96px;height:96px;border-radius:50%;background:rgba(37,99,235,.15);border:2px solid #2563EB;display:flex;align-items:center;justify-content:center;margin-bottom:22px;font-size:42px;animation:bioPulse 1.8s ease-in-out infinite;">👆</div>
+    <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:6px;">Welcome Back</div>
+    <div id="bio-status" style="font-size:13px;color:rgba(255,255,255,.55);margin-bottom:24px;text-align:center;line-height:1.6;max-width:280px;">Touch your fingerprint sensor to continue</div>
+    <div class="tc-ob-err" id="bio-err" style="margin-bottom:14px;color:#f87171;display:none;text-align:center;"></div>
+    <button class="tc-ob-btn-primary" id="bio-retry-btn" style="width:100%;max-width:320px;">🔓 Use Fingerprint</button>
+    <button class="btn-land-s" id="bio-signout-btn" style="margin-top:10px;background:transparent;border:none;color:rgba(255,255,255,.45);">Cancel &amp; Sign Out</button>
   </div>
+</div>
+<style>
+@keyframes bioPulse{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.35);}50%{box-shadow:0 0 0 14px rgba(37,99,235,0);}}
+</style>
 </div>
 
 <!-- NOTIFICATIONS -->
@@ -1275,29 +1224,6 @@ body.light-mode .chat-input-row input{background:#f0f0f0;color:#111;}
       <button class="btn tc-btn-primary" id="signin-btn">Sign In →</button>
       <button class="btn btn-outline" id="goto-signup-btn">Don't have an account? Sign Up</button>
     </div>
-
-    <!-- ── BIOMETRIC LOCK PANEL (shown instead of sign-in when passkey enrolled) ── -->
-    <div id="auth-bio-view" style="display:none;text-align:center;padding:20px 0;">
-      <div id="bio-avatar-c" style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#0A84FF,#34C759);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#fff;margin:0 auto 14px;">C</div>
-      <div id="bio-name-c" style="font-size:22px;font-weight:900;color:var(--text);margin-bottom:4px;">Welcome back</div>
-      <div id="bio-email-c" style="font-size:13px;color:var(--muted);margin-bottom:32px;"></div>
-
-      <button id="bio-btn-c" onclick="window._tcBioUnlock('customer')" style="width:80px;height:80px;border-radius:50%;background:rgba(10,132,255,.1);border:2px solid rgba(10,132,255,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;margin:0 auto 10px;transition:all .25s;gap:4px;">
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0A84FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2C9 2 6.5 4.5 6.5 7.5V10"/>
-          <path d="M17.5 10V7.5a5.5 5.5 0 00-2-.8"/>
-          <path d="M12 10c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2s2-.9 2-2v-4c0-1.1-.9-2-2-2z"/>
-          <path d="M8.5 13c0 2 .7 3.7 1.8 5"/>
-          <path d="M15.5 13c0 2-.7 3.7-1.8 5"/>
-          <path d="M5 10.5C5 6.4 8.1 3 12 3s7 3.4 7 7.5"/></svg>
-        <span style="font-size:9px;font-weight:700;color:#0A84FF;letter-spacing:.5px;">UNLOCK</span>
-      </button>
-      <div id="bio-status-c" style="font-size:12px;color:var(--muted);margin-bottom:28px;">Touch sensor or use passkey</div>
-
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <button onclick="window._tcBioSignOut('customer')" style="background:transparent;border:1.5px solid var(--border);border-radius:12px;padding:12px;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;">Not you? Use a different account</button>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -1324,37 +1250,6 @@ body.light-mode .chat-input-row input{background:#f0f0f0;color:#111;}
   <!-- Active booking floating card -->
   <div id="active-bk-wrap" style="position:absolute;top:74px;left:16px;right:16px;z-index:10;display:none;"></div>
 
-  <!-- ── FARE RESULT PANEL ── -->
-  <div id="home-fare-panel" style="display:none;position:absolute;bottom:0;left:0;right:0;z-index:12;padding:6px 16px 0;">
-    <!-- Drag handle -->
-    <div style="width:36px;height:4px;background:rgba(255,255,255,.18);border-radius:2px;margin:4px auto 14px;"></div>
-    <!-- Route header -->
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-      <button onclick="closeHomeFare()" style="width:36px;height:36px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:50%;color:rgba(255,255,255,.6);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg></button>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:10px;color:rgba(255,255,255,.38);font-weight:700;text-transform:uppercase;letter-spacing:.7px;margin-bottom:2px;">Your Route</div>
-        <div id="hfp-route" style="font-size:13px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
-      </div>
-      <button onclick="openBookingSheet()" style="background:rgba(0,122,255,.15);border:1px solid rgba(0,122,255,.25);border-radius:10px;padding:7px 13px;color:#007AFF;font-size:12px;font-weight:700;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;flex-shrink:0;">Edit</button>
-    </div>
-    <!-- Truck price options -->
-    <div id="hfp-truck-options" style="display:flex;flex-direction:column;gap:9px;margin-bottom:14px;max-height:38vh;overflow-y:auto;"></div>
-    <!-- Pay + Book row -->
-    <div style="display:flex;gap:10px;align-items:stretch;padding-bottom:10px;">
-      <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:13px 16px;display:flex;align-items:center;gap:8px;cursor:pointer;flex-shrink:0;" onclick="switchTab2('book')">
-        <span style="font-size:16px;"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5.5" width="16" height="9" rx="1.3"/><circle cx="10" cy="10" r="2.3"/></svg></span><span style="font-size:13px;font-weight:700;color:rgba(255,255,255,.7);">Cash</span>
-      </div>
-      <button id="hfp-book-btn" onclick="proceedFromHomefare()" style="flex:1;background:#007AFF;color:#fff;border:none;border-radius:20px;padding:14px;font-size:15px;font-weight:900;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;letter-spacing:-.3px;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:transform .15s cubic-bezier(.34,1.56,.64,1),box-shadow .15s ease;" ontouchstart="" onmousedown="this.style.transform='scale(0.96) translateY(2px)';this.style.boxShadow='none'" onmouseup="this.style.transform='';this.style.boxShadow=''" ontouchend="this.style.transform='';this.style.boxShadow=''">Book Now →</button>
-    </div>
-    <!-- Bottom nav -->
-    <div style="display:flex;border-top:1px solid rgba(255,255,255,.07);padding:4px 0 14px;">
-      <button class="btm-btn active" onclick="switchTab2('home')"><div class="btm-btn-icon"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 10 3l7 6.5"/><path d="M5 8.5V17h10V8.5"/></svg></div><div class="btm-btn-lbl">Home</div></button>
-      <button class="btm-btn" onclick="switchTab2('history')"><div class="btm-btn-icon"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="10" height="13.5" rx="1.2"/><rect x="7.5" y="2" width="5" height="2.5" rx="0.6"/><line x1="7.5" y1="9" x2="12.5" y2="9"/><line x1="7.5" y1="12" x2="12.5" y2="12"/></svg></div><div class="btm-btn-lbl">Bookings</div></button>
-      <button class="btm-btn" onclick="goTo('s-notifications')"><div class="bell-wrap"><div class="btm-btn-icon"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8a5 5 0 0 1 10 0c0 3.5 1.2 4.8 1.2 4.8H3.8S5 11.5 5 8Z"/><path d="M8.2 15.5a1.8 1.8 0 0 0 3.6 0"/></svg></div><span class="bell-badge" id="bell-badge-1"></span></div><div class="btm-btn-lbl">Alerts</div></button>
-      <button class="btm-btn" onclick="switchTab2('history')"><div class="btm-btn-icon"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="10" height="13.5" rx="1.2"/><rect x="7.5" y="2" width="5" height="2.5" rx="0.6"/><line x1="7.5" y1="9" x2="12.5" y2="9"/><line x1="7.5" y1="12" x2="12.5" y2="12"/></svg></div><div class="btm-btn-lbl">History</div></button>
-      <button class="btm-btn" onclick="switchTab2('profile')"><div class="btm-btn-icon"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="6.5" r="3.2"/><path d="M3.5 17c0-3.3 3-5.5 6.5-5.5s6.5 2.2 6.5 5.5"/></svg></div><div class="btm-btn-lbl">Profile</div></button>
-    </div>
-  </div>
 
   <!-- ── COMPACT BOTTOM BAR (idle "Where to?" state) ── -->
   <div id="home-compact-bar">
@@ -1435,7 +1330,7 @@ body.light-mode .chat-input-row input{background:#f0f0f0;color:#111;}
     <!-- Add a stop button -->
     <button id="hs-add-stop-btn" onclick="hsShowStop()" style="width:100%;background:transparent;border:1.5px dashed var(--border);border-radius:13px;padding:11px;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px;">+ Add a stop</button>
 
-    <!-- Tonnage Picker — 1 to 34 tons, any value -->
+    <!-- Tonnage Picker — 1 to 6 tons, any value -->
     <div style="margin-bottom:16px;">
       <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;">How many tons do you need?</div>
       <div style="background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:16px;">
@@ -1454,10 +1349,10 @@ body.light-mode .chat-input-row input{background:#f0f0f0;color:#111;}
           <button onclick="hsTonStep(1)" style="background:none;border:none;color:var(--text);font-size:24px;font-weight:900;padding:14px 22px;cursor:pointer;flex-shrink:0;line-height:1;">+</button>
         </div>
         <!-- Slider -->
-        <input id="hs-ton-slider" type="range" min="1" max="34" value="1" oninput="hsTonSlide(this.value)" style="width:100%;margin-top:12px;accent-color:#4ade80;"/>
+        <input id="hs-ton-slider" type="range" min="1" max="6" value="1" oninput="hsTonSlide(this.value)" style="width:100%;margin-top:12px;accent-color:#4ade80;"/>
         <div style="display:flex;justify-content:space-between;margin-top:2px;">
           <span style="font-size:9px;color:var(--muted);">1 ton</span>
-          <span style="font-size:9px;color:var(--muted);">34 ton</span>
+          <span style="font-size:9px;color:var(--muted);">6 ton</span>
         </div>
       </div>
     </div>
@@ -1491,39 +1386,11 @@ body.light-mode .chat-input-row input{background:#f0f0f0;color:#111;}
   <select id="b-truck-sel" style="display:none;">
     <option value="">Select truck size (tons)...</option>
     <option value="1ton|1 Ton Bakkie|22">1 Ton — Bakkie</option>
-    <option value="2ton|2 Ton Bakkie|26">2 Ton — Bakkie</option>
-    <option value="3ton|3 Ton Small Truck|30">3 Ton — Small Truck</option>
-    <option value="4ton|4 Ton Small Truck|34">4 Ton — Small Truck</option>
-    <option value="5ton|5 Ton Small Truck|38">5 Ton — Small Truck</option>
-    <option value="6ton|6 Ton Medium Truck|41">6 Ton — Medium Truck</option>
-    <option value="7ton|7 Ton Medium Truck|45">7 Ton — Medium Truck</option>
-    <option value="8ton|8 Ton Medium Truck|49">8 Ton — Medium Truck</option>
-    <option value="9ton|9 Ton Medium Truck|53">9 Ton — Medium Truck</option>
-    <option value="10ton|10 Ton Medium Truck|57">10 Ton — Medium Truck</option>
-    <option value="11ton|11 Ton Large Truck|61">11 Ton — Large Truck</option>
-    <option value="12ton|12 Ton Large Truck|65">12 Ton — Large Truck</option>
-    <option value="13ton|13 Ton Large Truck|69">13 Ton — Large Truck</option>
-    <option value="14ton|14 Ton Large Truck|72">14 Ton — Large Truck</option>
-    <option value="15ton|15 Ton Large Truck|76">15 Ton — Large Truck</option>
-    <option value="16ton|16 Ton Large Truck|80">16 Ton — Large Truck</option>
-    <option value="17ton|17 Ton Heavy Rigid|84">17 Ton — Heavy Rigid</option>
-    <option value="18ton|18 Ton Heavy Rigid|88">18 Ton — Heavy Rigid</option>
-    <option value="19ton|19 Ton Heavy Rigid|92">19 Ton — Heavy Rigid</option>
-    <option value="20ton|20 Ton Heavy Rigid|96">20 Ton — Heavy Rigid</option>
-    <option value="21ton|21 Ton Heavy Rigid|100">21 Ton — Heavy Rigid</option>
-    <option value="22ton|22 Ton Heavy Rigid|103">22 Ton — Heavy Rigid</option>
-    <option value="23ton|23 Ton Heavy Rigid|107">23 Ton — Heavy Rigid</option>
-    <option value="24ton|24 Ton Heavy Rigid|111">24 Ton — Heavy Rigid</option>
-    <option value="25ton|25 Ton Semi/Interlink|115">25 Ton — Semi/Interlink</option>
-    <option value="26ton|26 Ton Semi/Interlink|119">26 Ton — Semi/Interlink</option>
-    <option value="27ton|27 Ton Semi/Interlink|123">27 Ton — Semi/Interlink</option>
-    <option value="28ton|28 Ton Semi/Interlink|127">28 Ton — Semi/Interlink</option>
-    <option value="29ton|29 Ton Semi/Interlink|131">29 Ton — Semi/Interlink</option>
-    <option value="30ton|30 Ton Semi/Interlink|134">30 Ton — Semi/Interlink</option>
-    <option value="31ton|31 Ton Semi/Interlink|138">31 Ton — Semi/Interlink</option>
-    <option value="32ton|32 Ton Semi/Interlink|142">32 Ton — Semi/Interlink</option>
-    <option value="33ton|33 Ton Semi/Interlink|146">33 Ton — Semi/Interlink</option>
-    <option value="34ton|34 Ton Semi/Interlink|150">34 Ton — Semi/Interlink</option>
+    <option value="2ton|2 Ton Small Truck|27">2 Ton — Small Truck</option>
+    <option value="3ton|3 Ton Small Truck|32">3 Ton — Small Truck</option>
+    <option value="4ton|4 Ton Medium Truck|38">4 Ton — Medium Truck</option>
+    <option value="5ton|5 Ton Medium Truck|43">5 Ton — Medium Truck</option>
+    <option value="6ton|6 Ton Medium Truck|48">6 Ton — Medium Truck</option>
   </select>
 
   <div class="screen-body" style="padding-bottom:100px;">
@@ -2009,9 +1876,17 @@ body.light-mode .chat-input-row input{background:#f0f0f0;color:#111;}
 <script>
 (function(){
 'use strict';
-var GEMINI_KEY="AIzaSyBHuGSZeUznw7CGq6CkDzcZ4SPoUyr-dVc";
+// SECURITY NOTE: this key is visible in page source. This is a temporary
+// stopgap until the analyzeCargo Cloud Function (cloud-functions/index.js)
+// is deployed to hide it server-side. In the meantime, restrict this key in
+// Google Cloud Console (APIs & Services → Credentials → restrict to the
+// Generative Language API + your site's domain) to limit the exposure.
+// SECURITY: the Gemini key used to live here in plaintext. It's now held
+// safely inside the shared Cloudflare Worker (same one as your OTP and AI
+// agent Workers) — paste the deployed Worker URL below once it's live.
+var TC_WORKER_URL="https://truckconnect-api.madibasphiwe50.workers.dev"; // update if your Worker name/subdomain differs
 // Mapbox token declared in geocoding block below
-var TRUCKS=[{v:"1ton",l:"1 Ton Bakkie",icon:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>',r:22,base:200},{v:"3ton",l:"3 Ton Truck",icon:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>',r:32,base:350},{v:"5ton",l:"5 Ton Truck",icon:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>',r:45,base:550},{v:"8ton",l:"8 Ton Truck",icon:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>',r:60,base:800},{v:"14ton",l:"14 Ton Rigid",icon:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>',r:90,base:1200},{v:"34ton",l:"34 Ton Semi",icon:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>',r:150,base:2000}];
+var TRUCKS=[{v:"1ton",l:"1 Ton Small Truck",icon:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>',r:13,base:386},{v:"2ton",l:"2 Ton Small Truck",icon:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>',r:15,base:497},{v:"3ton",l:"3 Ton Small Truck",icon:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>',r:18,base:607},{v:"4ton",l:"4 Ton Medium Truck",icon:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>',r:20,base:717},{v:"5ton",l:"5 Ton Medium Truck",icon:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>',r:22,base:828},{v:"6ton",l:"6 Ton Medium Truck",icon:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>',r:24,base:938}];
 var CARGO_TYPES=["General Freight","Furniture & Household","Building Materials","Food & Perishables","Automotive Parts","Machinery","Electronics","Agricultural Goods","Hazardous Materials","Other"];
 
 // ── Line-icon library (neutral, replaces emoji icons) ──────────────────
@@ -2196,10 +2071,7 @@ window._appCmds={
   closeBookingSheet:window.closeBookingSheet,
   openFullBooking:window.openFullBooking||function(){},
   hsSelectTruck:window.hsSelectTruck||function(){},
-  closeHomeFare:window.closeHomeFare||function(){},
-  proceedFromHomefare:window.proceedFromHomefare||function(){},
   selectHomeTruck:window.selectHomeTruck||function(){},
-  hfpSelectTruck:window.hfpSelectTruck||function(){},
   hsGetPrices:window.hsGetPrices||function(){}
 };
 window._appReady=true;
@@ -3201,15 +3073,11 @@ function startBooking(fromCity,toCity){
 }
 
 // ── TRUCK CARD BUILDER ─────────────────────────────────────────────────────────
-// Groups the 34 truck options into visual cards for the horizontal scroll row.
+// Groups the 6 truck options into visual cards for the horizontal scroll row.
 // Selecting a card updates the hidden <select> so all downstream logic is unchanged.
 var _truckGroups=[
-  {emoji:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>', label:'Bakkie',      sub:'1–2 Ton',    vals:['1ton|1 Ton Bakkie|22','2ton|2 Ton Bakkie|26']},
-  {emoji:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>', label:'Small',       sub:'3–5 Ton',    vals:['3ton|3 Ton Small Truck|30','4ton|4 Ton Small Truck|34','5ton|5 Ton Small Truck|38']},
-  {emoji:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>', label:'Medium',      sub:'6–10 Ton',   vals:['6ton|6 Ton Medium Truck|41','7ton|7 Ton Medium Truck|45','8ton|8 Ton Medium Truck|49','9ton|9 Ton Medium Truck|53','10ton|10 Ton Medium Truck|57']},
-  {emoji:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="10" height="13.5" rx="1.2"/><rect x="7.5" y="2" width="5" height="2.5" rx="0.6"/><line x1="7.5" y1="9" x2="12.5" y2="9"/><line x1="7.5" y1="12" x2="12.5" y2="12"/></svg>',  label:'Large',       sub:'11–16 Ton',  vals:['11ton|11 Ton Large Truck|61','12ton|12 Ton Large Truck|65','13ton|13 Ton Large Truck|69','14ton|14 Ton Large Truck|72','15ton|15 Ton Large Truck|76','16ton|16 Ton Large Truck|80']},
-  {emoji:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>', label:'Heavy',       sub:'17–24 Ton',  vals:['17ton|17 Ton Heavy Rigid|84','18ton|18 Ton Heavy Rigid|88','19ton|19 Ton Heavy Rigid|92','20ton|20 Ton Heavy Rigid|96','21ton|21 Ton Heavy Rigid|100','22ton|22 Ton Heavy Rigid|103','23ton|23 Ton Heavy Rigid|107','24ton|24 Ton Heavy Rigid|111']},
-  {emoji:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>', label:'Semi',        sub:'25–34 Ton',  vals:['25ton|25 Ton Semi/Interlink|115','26ton|26 Ton Semi/Interlink|119','27ton|27 Ton Semi/Interlink|123','28ton|28 Ton Semi/Interlink|127','29ton|29 Ton Semi/Interlink|131','30ton|30 Ton Semi/Interlink|134','31ton|31 Ton Semi/Interlink|138','32ton|32 Ton Semi/Interlink|142','33ton|33 Ton Semi/Interlink|146','34ton|34 Ton Semi/Interlink|150']},
+  {emoji:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>', label:'Small',       sub:'1–3 Ton',    vals:['1ton|1 Ton Bakkie|22','2ton|2 Ton Small Truck|27','3ton|3 Ton Small Truck|32']},
+  {emoji:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>', label:'Medium',      sub:'4–6 Ton',   vals:['4ton|4 Ton Medium Truck|38','5ton|5 Ton Medium Truck|43','6ton|6 Ton Medium Truck|48']},
 ];
 function _buildTruckCards(){
   var scroll=document.getElementById('b-truck-scroll');if(!scroll)return;
@@ -3451,7 +3319,7 @@ function showMapAndFare(){
 
     // Build truck list with fares for all types
     var allTrucks=[
-      ...(function(){var _a=[];for(var _i=1;_i<=34;_i++)_a.push({v:_i+'ton',l:_tonLabelShort(_i),icon:_tonEmoji(_i),r:_tonRate(_i),base:_tonBase(_i),cap:_i+' ton'});return _a;})()
+      ...(function(){var _a=[];for(var _i=1;_i<=6;_i++)_a.push({v:_i+'ton',l:_tonLabelShort(_i),icon:_tonEmoji(_i),r:_tonRate(_i),rl:_tonRateLong(_i),base:_tonBase(_i),cap:_i+' ton'});return _a;})()
     ];
 
     // Default to bookingData.truck if already chosen, else first
@@ -3462,7 +3330,7 @@ function showMapAndFare(){
       if(!tl)return;
       tl.innerHTML='';
       allTrucks.forEach(function(t){
-        var fare=Math.round((t.base||0)+(distKm*t.r));
+        var fare=_calcFare(t.base||0,t.r,t.rl,distKm);
         var isSel=t.v===selectedV;
         var row=document.createElement('div');
         row.className='map-truck-row'+(isSel?' mtr-sel':'');
@@ -3478,7 +3346,7 @@ function showMapAndFare(){
           '</div>';
         row.onclick=function(){
           bookingData.truck=t.v;bookingData.truckLabel=t.l;bookingData.rate=t.r;
-          var _f=Math.round((t.base||0)+(distKm*t.r));
+          var _f=_calcFare(t.base||0,t.r,t.rl,distKm);
           bookingData.dist=distLabel;bookingData.price='R'+_f.toLocaleString();bookingData.priceNum=_f;
           renderTrucks(t.v);
         };
@@ -3487,7 +3355,7 @@ function showMapAndFare(){
 
       // Set bookingData to currently selected truck
       var sel=allTrucks.find(function(t){return t.v===selectedV;})||allTrucks[0];
-      var selFare=Math.round((sel.base||0)+(distKm*sel.r));
+      var selFare=_calcFare(sel.base||0,sel.r,sel.rl,distKm);
       bookingData.truck=sel.v;bookingData.truckLabel=sel.l;bookingData.rate=sel.r;
       bookingData.dist=distLabel;bookingData.price='R'+selFare.toLocaleString();bookingData.priceNum=selFare;
 
@@ -3690,8 +3558,27 @@ function confirmBooking(){
   }
 }
 
-var _driverSearchUnsub=null,_driverSearchTimer=null,_driverSearchSeconds=0,_driverSearchBkId=null;
+var _driverSearchUnsub=null,_driverSearchTimer=null,_driverSearchSeconds=0,_driverSearchBkId=null,_searchAcceptUnsub=null;
 var _currentPickBk=null;
+
+// Search duration scales with how much lead time the booking has.
+// An urgent "now" booking needs a fast answer; a booking scheduled two days
+// ahead has no reason to rush — a longer search window means more drivers
+// get a chance to see and accept it before declaring "none available".
+function _getSearchDurationSeconds(bk){
+  var leadMinutes;
+  if(bk.pickupTimestamp){
+    leadMinutes=(bk.pickupTimestamp-Date.now())/60000;
+  }else if(bk.pickupMode==='1hr'){
+    leadMinutes=60;
+  }else{
+    leadMinutes=0; // 'now'
+  }
+  if(leadMinutes<=20)return 8;    // Now — quick search, driver needed ASAP
+  if(leadMinutes<=60)return 15;   // Within the hour
+  if(leadMinutes<=180)return 25;  // Within a few hours
+  return 35;                      // Scheduled well ahead (hours to days) — more thorough search
+}
 
 function startDriverSearch(bk){
   _driverSearchBkId=bk.id;
@@ -3707,7 +3594,8 @@ function startDriverSearch(bk){
   $('srch-home-btn').style.display='none';
   $('srch-cancel-btn').style.display='block';
   txt('search-status-title','Searching for drivers...');
-  txt('search-status-sub','Finding available drivers near you. This usually takes a few seconds.');
+  var _searchSecs=_getSearchDurationSeconds(bk);
+  txt('search-status-sub',bk.pickupMode==='scheduled'?'Your booking is scheduled ahead of time, so we\'re giving drivers a bit longer to respond.':'Finding available drivers near you. This usually takes a few seconds.');
   $('srch-timer').textContent='0s';
   var timerBarEl=$('srch-timer-bar');
   timerBarEl.style.transition='none';
@@ -3718,16 +3606,45 @@ function startDriverSearch(bk){
   _driverSearchSeconds=0;
   clearInterval(_driverSearchTimer);
   void timerBarEl.offsetWidth;
-  timerBarEl.style.transition='width 5s linear';
+  timerBarEl.style.transition='width '+_searchSecs+'s linear';
   timerBarEl.style.width='100%';
   _driverSearchTimer=setInterval(function(){
     _driverSearchSeconds++;
     txt('srch-timer',_driverSearchSeconds+'s');
-    if(_driverSearchSeconds>=5){
+    if(_driverSearchSeconds>=_searchSecs){
       clearInterval(_driverSearchTimer);
       _fetchAvailableDrivers(bk);
     }
   },1000);
+
+  // ── Live listener: catches driver acceptance in real time, even if it
+  // happens well after the initial search window (e.g. a scheduled booking
+  // accepted an hour later while the customer still has this screen open).
+  // A push notification (via _notifyCustomer) covers the case where the
+  // app is closed/backgrounded — this covers the case where it's still open.
+  var FB=window._FB;
+  if(FB){
+    if(_searchAcceptUnsub)_searchAcceptUnsub();
+    _searchAcceptUnsub=FB.onSnapshot(FB.doc(FB.db,'bookings',bk.id),function(snap){
+      if(!snap.exists())return;
+      var data=snap.data();
+      if(data.ds==='accepted'&&data.driverUid){
+        clearInterval(_driverSearchTimer);
+        if(_searchAcceptUnsub){_searchAcceptUnsub();_searchAcceptUnsub=null;}
+        var timerBarEl2=$('srch-timer-bar');
+        if(timerBarEl2){timerBarEl2.style.transition='none';timerBarEl2.style.width='100%';timerBarEl2.style.background='#4ade80';}
+        txt('search-status-title','Driver Found!');
+        txt('search-status-sub','A driver has accepted your booking.');
+        txt('srch-driver-name',data.driverName||'Your driver');
+        txt('srch-driver-truck',data.driverTruck||bk.truckLabel||'—');
+        $('srch-driver-found').style.display='block';
+        $('srch-no-drivers').style.display='none';
+        $('srch-cancel-btn').style.display='none';
+        var homeBtn=$('srch-home-btn');
+        if(homeBtn){homeBtn.style.display='block';homeBtn.onclick=function(){openLiveTracking(bk);};}
+      }
+    });
+  }
 }
 
 function _fetchAvailableDrivers(bk){
@@ -3759,7 +3676,7 @@ function _truckTypeMatch(bookingTruck,driverTruck){
   if(!bookingTruck||!driverTruck)return true;
   var b=bookingTruck.toLowerCase().replace(/\s+/g,'');
   var d=driverTruck.toLowerCase().replace(/\s+/g,'');
-  var groups=[['1ton','bakkie','1t'],['3ton','3t'],['5ton','5t'],['8ton','8t'],['14ton','rigid','14t'],['34ton','semi','34t']];
+  var groups=[['1ton','2ton','3ton','bakkie','small'],['4ton','5ton','6ton','medium']];
   var bg=-1,dg=-1;
   groups.forEach(function(g,i){g.forEach(function(k){if(b.includes(k))bg=i;if(d.includes(k))dg=i;});});
   if(bg===-1||dg===-1)return true;
@@ -3774,9 +3691,13 @@ function _showDriverPicker(bk,drivers){
   timerBarEl.style.background=drivers.length>0?'#22c55e':'#f87171';
 
   if(drivers.length===0){
-    // No drivers online — show the no drivers state
+    // No drivers online right now — the booking is already saved and visible
+    // to drivers; they can accept it anytime before pickup. A real push
+    // notification will arrive the moment that happens (see _notifyCustomer).
     txt('search-status-title','No Drivers Available');
-    txt('search-status-sub','Your booking is saved. Drivers will be notified when they come online.');
+    txt('search-status-sub',bk.pickupMode==='scheduled'
+      ? 'Your booking is saved and visible to nearby drivers. This can take anywhere from a few minutes up to about an hour — we\'ll send you a notification the moment a driver accepts.'
+      : 'Your booking is saved. Drivers will be notified when they come online.');
     $('srch-no-drivers').style.display='block';
     $('srch-home-btn').style.display='block';
     return;
@@ -4036,9 +3957,6 @@ var hsFrCoords=null, hsToCoords=null, hsStopCoords=null, hsStopVal='', hsSelecte
 window.openBookingSheet=function(){
   // Reset _fromLocked so GPS can autofill pickup on fresh open
   _fromLocked = false;
-  // Reset fare panel + show compact bar (clean state)
-  var farePanel=document.getElementById('home-fare-panel');
-  if(farePanel)farePanel.style.display='none';
   var compactBar=document.getElementById('home-compact-bar');
   if(compactBar)compactBar.style.display='block';
 
@@ -4072,34 +3990,35 @@ window.closeBookingSheet=function(){
 
 window.hsSelectTruck=function(type){hsSelectedTruck=type;}; // legacy stub
 
-// ── Dynamic tonnage system — any ton from 1 to 34 ──
+// ── Dynamic tonnage system — any ton from 1 to 6 ──
 var _hsTons=1; // currently selected tons
 
-// Rate formula: scales linearly between 1 ton and 34 ton
-// Base: R200 (1 ton) → R2000 (34 ton)
-// Per km: R22 (1 ton) → R150 (34 ton)
-function _tonBase(t){ return Math.round(200 + (t-1) * (1800/33)); }
-function _tonRate(t){ return Math.round(22 + (t-1) * (128/33)); }
+// Rate formula: scales linearly between 1 ton and 6 ton
+// Base: R200 (1 ton) → R650 (6 ton)
+// Per km: R22 (1 ton) → R48 (6 ton)
+// ── PRICING MODEL (locked in) ──────────────────────────────────────────────
+// Tapering fare: first 50km charged at the short rate, every km beyond that
+// at a cheaper long-distance rate (reflects real fuel/return-trip economics).
+function _tonBase(t){ return Math.round(386.17 + (t-1) * 110.3344); }
+function _tonRate(t){ return Math.round((13.2401 + (t-1) * 2.2067)*100)/100; } // short-distance rate (≤50km)
+var _TON_RATE_LONG=[8.28,9.38,10.48,12.14,13.79,15.45]; // long-distance rate (>50km), per ton 1-6
+function _tonRateLong(t){ return _TON_RATE_LONG[Math.max(0,Math.min(5,t-1))]; }
+function _calcFare(base,rateShort,rateLong,distKm){
+  if(distKm<=50)return Math.round(base+(distKm*rateShort));
+  return Math.round(base+(50*rateShort)+((distKm-50)*rateLong));
+}
 function _tonEmoji(t){
-  if(t<=2)return'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>';
-  if(t<=5)return'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>';
-  if(t<=10)return'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>';
-  if(t<=20)return'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>';
   return'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>';
 }
 function _tonLabel(t){
-  if(t<=2)return t+' Ton — Bakkie';
-  if(t<=5)return t+' Ton — Small Truck';
-  if(t<=10)return t+' Ton — Medium Truck';
-  if(t<=16)return t+' Ton — Large Truck';
-  if(t<=24)return t+' Ton — Heavy Rigid';
-  return t+' Ton — Semi / Interlink';
+  if(t<=3)return t+' Ton — Small Truck';
+  return t+' Ton — Medium Truck';
 }
 function _tonId(t){ return t+'ton'; }
 function _tonLabelShort(t){ return t+' Ton '+(_tonLabel(t).split('— ')[1]||'Truck'); }
 
 function _updateTonUI(t){
-  _hsTons=Math.max(1,Math.min(34,t));
+  _hsTons=Math.max(1,Math.min(6,t));
   var numEl=document.getElementById('hs-ton-num');
   var lblEl=document.getElementById('hs-ton-label');
   var emEl=document.getElementById('hs-ton-emoji');
@@ -4119,6 +4038,7 @@ function _buildTruckForTons(t){
     id:_tonId(t),
     label:_tonLabelShort(t),
     rate:_tonRate(t),
+    rateLong:_tonRateLong(t),
     base:_tonBase(t),
     cap:t+' ton capacity',
     emoji:_tonEmoji(t),
@@ -4128,7 +4048,7 @@ function _buildTruckForTons(t){
 
 // _hsAllTrucks kept for compatibility with map screen — rebuilt dynamically when needed
 var _hsAllTrucks=[];
-for(var _ti=1;_ti<=34;_ti++)_hsAllTrucks.push({id:_ti+'ton',label:_tonLabelShort(_ti),rate:_tonRate(_ti),base:_tonBase(_ti),cap:_ti+' ton',emoji:_tonEmoji(_ti)});
+for(var _ti=1;_ti<=6;_ti++)_hsAllTrucks.push({id:_ti+'ton',label:_tonLabelShort(_ti),rate:_tonRate(_ti),base:_tonBase(_ti),cap:_ti+' ton',emoji:_tonEmoji(_ti)});
 
 window.hsSelectTruckNew=function(){}; // no-op — replaced by ton picker
 // Init picker on load
@@ -4165,157 +4085,17 @@ window.hsGetPrices=function(){
   var stopRowVisible=(document.getElementById('hs-stop-row')||{}).style.display!=='none';
   if(stopRowVisible&&stopVal&&!hsStopCoords){toast('Please select the stop address from the dropdown suggestions.');return;}
 
-  var btn=document.getElementById('hs-get-prices-btn');
-  if(btn){btn.textContent='Calculating...';btn.disabled=true;}
-
-  // Store globally
+  // Store globally — the YOUR ROUTE screen (showMapAndFare) does its own
+  // routing + fare calculation, so we just hand off the addresses and the
+  // tonnage the customer was previewing on this sheet.
   bookingData.from=fromVal;bookingData.to=toVal;fromCoords=hsFrCoords;toCoords=hsToCoords;
   if(hsStopCoords&&stopVal){bookingData.stop=stopVal;bookingData.stopCoords=hsStopCoords;}
   else{bookingData.stop='';bookingData.stopCoords=null;}
+  var selTruck=_buildTruckForTons(_hsTons||1);
+  bookingData.truck=selTruck.id;bookingData.truckLabel=selTruck.label;bookingData.rate=selTruck.rate;
 
-  // Build OSRM URL — include stop waypoint if provided
-  var waypoints=hsFrCoords[0]+','+hsFrCoords[1];
-  if(hsStopCoords&&stopVal)waypoints+=';'+hsStopCoords[0]+','+hsStopCoords[1];
-  waypoints+=';'+hsToCoords[0]+','+hsToCoords[1];
-  var osrmUrl='https://router.project-osrm.org/route/v1/driving/'+waypoints+'?overview=full&geometries=geojson';
-
-  fetch(osrmUrl).then(function(r){return r.json();}).then(function(data){
-    if(btn){btn.textContent='Get Prices →';btn.disabled=false;}
-    if(!data.routes||!data.routes.length){toast('Could not calculate route. Try again.');return;}
-
-    var route=data.routes[0];
-    var distKm=route.distance/1000;
-    var coords=route.geometry.coordinates;
-    var distLabel=distKm.toFixed(0)+' km'+(hsStopCoords&&stopVal?' (via stop)':'');
-
-    // Build truck for selected tonnage — Bolt style total price only
-    var routeEl=document.getElementById('hfp-route');
-    var routeText=fromVal+' → '+toVal;
-    if(hsStopCoords&&stopVal)routeText=fromVal+' → '+stopVal+' → '+toVal;
-    if(routeEl)routeEl.textContent=routeText;
-
-    var selTon=_hsTons||1;
-    var selTruck=_buildTruckForTons(selTon);
-    var selFareCalc=Math.round(selTruck.base+(distKm*selTruck.rate));
-
-    var optEl=document.getElementById('hfp-truck-options');
-    if(optEl){
-      // Show selected ton + 2 below and 2 above for easy comparison
-      var showTons=[];
-      for(var _st=Math.max(1,selTon-2);_st<=Math.min(34,selTon+2);_st++)showTons.push(_st);
-      optEl.innerHTML=showTons.map(function(ton){
-        var opt=_buildTruckForTons(ton);
-        var fare=Math.round(opt.base+(distKm*opt.rate));
-        var isSel=(ton===selTon);
-        return '<div class="hfp-truck-row'+(isSel?' selected':'')+'" id="hfprow-'+opt.id+'" onclick="hfpSelectTruck(\''+opt.id+'\','+opt.rate+',\''+encodeURIComponent(opt.label)+'\','+distKm.toFixed(2)+','+opt.base+')">'
-          +'<div style="font-size:26px;flex-shrink:0;">'+opt.emoji+'</div>'
-          +'<div style="flex:1;min-width:0;">'
-            +'<div style="font-size:14px;font-weight:800;color:var(--text);">'+opt.label+'</div>'
-            +'<div style="font-size:11px;color:var(--muted);">'+opt.cap+'</div>'
-          +'</div>'
-          +'<div style="text-align:right;flex-shrink:0;">'
-            +'<div style="font-size:18px;font-weight:900;color:'+(isSel?'var(--text)':'var(--muted)')+';">R'+fare.toLocaleString()+'</div>'
-            +'<div style="font-size:10px;color:var(--muted);">'+distLabel+'</div>'
-          +'</div>'
-        +'</div>';
-      }).join('');
-    }
-
-    bookingData.truck=selTruck.id;bookingData.truckLabel=selTruck.label;bookingData.rate=selTruck.rate;
-    bookingData.dist=distLabel;bookingData.price='R'+selFareCalc.toLocaleString();bookingData.priceNum=selFareCalc;
-
-    // Close booking sheet
-    closeBookingSheet();
-
-    // ── Draw route on homeMap ──────────────────────────────────────────────
-    if(homeMap){
-      // Remove previous hs-route layer/source
-      try{if(homeMap.getLayer('hs-route-line'))homeMap.removeLayer('hs-route-line');}catch(e){}
-      try{if(homeMap.getSource('hs-route'))homeMap.removeSource('hs-route');}catch(e){}
-      if(window._hsMarker1){window._hsMarker1.remove();window._hsMarker1=null;}
-      if(window._hsMarker2){window._hsMarker2.remove();window._hsMarker2=null;}
-
-      function _addHsRoute(){
-        homeMap.addSource('hs-route',{type:'geojson',data:{type:'Feature',geometry:{type:'LineString',coordinates:coords}}});
-        homeMap.addLayer({id:'hs-route-line',type:'line',source:'hs-route',layout:{'line-join':'round','line-cap':'round'},paint:{'line-color':'#16a34a','line-width':5,'line-opacity':0.9}});
-      }
-      if(homeMap.isStyleLoaded()){_addHsRoute();}else{homeMap.once('load',_addHsRoute);}
-
-      // Pickup marker (green dot)
-      var el1=document.createElement('div');
-      el1.style.cssText='width:14px;height:14px;background:#4ade80;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 10px rgba(0,0,0,.4);';
-      window._hsMarker1=new mapboxgl.Marker({element:el1}).setLngLat(hsFrCoords).addTo(homeMap);
-      // Dropoff marker (red dot)
-      var el2=document.createElement('div');
-      el2.style.cssText='width:14px;height:14px;background:#f87171;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 10px rgba(0,0,0,.4);';
-      window._hsMarker2=new mapboxgl.Marker({element:el2}).setLngLat(hsToCoords).addTo(homeMap);
-
-      // Fit map to route with bottom padding for fare panel
-      var lngs=coords.map(function(c){return c[0];});
-      var lats=coords.map(function(c){return c[1];});
-      homeMap.fitBounds([[Math.min.apply(null,lngs),Math.min.apply(null,lats)],[Math.max.apply(null,lngs),Math.max.apply(null,lats)]],{padding:{top:100,bottom:380,left:40,right:40},duration:1000,pitch:0,bearing:0});
-    }
-
-    // Hide compact bar → show fare panel
-    var compactBar=document.getElementById('home-compact-bar');
-    if(compactBar)compactBar.style.display='none';
-    var farePanel=document.getElementById('home-fare-panel');
-    if(farePanel)farePanel.style.display='block';
-
-  }).catch(function(){
-    if(btn){btn.textContent='Get Prices →';btn.disabled=false;}
-    toast('Network error. Please check your connection.');
-  });
-};
-
-window.hfpSelectTruck=function(truckId,rate,label,distKm,base){
-  document.querySelectorAll('.hfp-truck-row').forEach(function(el){el.classList.remove('selected');});
-  var sel=document.getElementById('hfprow-'+truckId);if(sel)sel.classList.add('selected');
-  var _decodedLabel=decodeURIComponent(label);
-  bookingData.truck=truckId;bookingData.truckLabel=_decodedLabel;bookingData.rate=rate;
-  var _truckBase=base||(_hsAllTrucks.find(function(t){return t.id===truckId;})||{}).base||0;
-  if(distKm){
-    var fare=Math.round(_truckBase+(distKm*rate));
-    bookingData.price='R'+fare.toLocaleString();bookingData.priceNum=fare;
-    bookingData.dist=distKm.toFixed(0)+' km';
-  }
-};
-
-window.closeHomeFare=function(){
-  var farePanel=document.getElementById('home-fare-panel');
-  if(farePanel)farePanel.style.display='none';
-  var compactBar=document.getElementById('home-compact-bar');
-  if(compactBar)compactBar.style.display='block';
-  // Clear route from map
-  if(homeMap){
-    try{if(homeMap.getLayer('hs-route-line'))homeMap.removeLayer('hs-route-line');}catch(e){}
-    try{if(homeMap.getSource('hs-route'))homeMap.removeSource('hs-route');}catch(e){}
-  }
-  if(window._hsMarker1){window._hsMarker1.remove();window._hsMarker1=null;}
-  if(window._hsMarker2){window._hsMarker2.remove();window._hsMarker2=null;}
-};
-
-window.proceedFromHomefare=function(){
-  if(!bookingData.from||!bookingData.to||!bookingData.priceNum){
-    toast('Please fill in your route and select a truck first.');return;
-  }
-  // Pre-fill b-from / b-to in full booking form
-  if(document.getElementById('b-from'))document.getElementById('b-from').value=bookingData.from;
-  if(document.getElementById('b-to'))document.getElementById('b-to').value=bookingData.to;
-  // Transfer stop if present
-  if(bookingData.stop&&document.getElementById('b-stop-inp')){
-    document.getElementById('b-stop-inp').value=bookingData.stop;
-    var stopRow2=document.getElementById('b-stop-row');if(stopRow2)stopRow2.style.display='block';
-  }
-  // Pre-select truck in select dropdown
-  var sel=document.getElementById('b-truck-sel');
-  if(sel&&bookingData.truck){
-    for(var i=0;i<sel.options.length;i++){
-      if(sel.options[i].value.indexOf(bookingData.truck)===0){sel.selectedIndex=i;break;}
-    }
-  }
-  closeHomeFare();
-  showMapAndFare(); // Go to route confirmation + payment
+  closeBookingSheet();
+  showMapAndFare(); // Go straight to route confirmation + payment (single screen)
 };
 
 window.openFullBooking=function(){
@@ -4450,13 +4230,8 @@ document.addEventListener('DOMContentLoaded',function(){
   on('btn-hero-continue','click',function(){_tcObShow('cust-phone-view');setTimeout(function(){var i=$('tc-phone-input');if(i)i.focus();},50);});
   on('tc-phone-back','click',function(){_tcObShow('cust-welcome-view');});
   on('btn-signin-land','click',function(){
-    // Show name + biometric quick-login view
-    var welcome=document.getElementById('cust-welcome-view');
-    var bioView=document.getElementById('cust-bio-login-view');
-    if(welcome)welcome.style.display='none';
-    if(bioView){bioView.style.display='flex';}
-    var nameEl=document.getElementById('cbl-name');
-    if(nameEl)nameEl.focus();
+    goTo('s-auth');
+    switchAuthTab('signin');
   });
   // "Continue with Email" → verify email with a code first, then the full signup form
   var _tcSignupEmail='';
@@ -4755,6 +4530,7 @@ document.addEventListener('DOMContentLoaded',function(){
   on('search-back','click',function(){goToHome();});
   on('srch-cancel-btn','click',function(){
     clearInterval(_driverSearchTimer);
+    if(_searchAcceptUnsub){_searchAcceptUnsub();_searchAcceptUnsub=null;}
     if(_driverSearchBkId){
       var _ov=document.createElement('div');
       _ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:flex;align-items:flex-end;';
@@ -4929,10 +4705,10 @@ document.addEventListener('DOMContentLoaded',function(){
         try{
           localStorage.setItem('tc_cust_remembered',JSON.stringify({email:e,name:cData.name||''}));
         }catch(ex){}
-        // ── Offer biometric enrollment ──
+        // ── Set up fingerprint quick-login on this device (silent — never blocks login) ──
         setTimeout(function(){
-          window._tcBioOfferEnroll&&window._tcBioOfferEnroll('customer',currentUid,e,cData.name||'');
-        },1500);
+          window._tcSetupFingerprint&&window._tcSetupFingerprint(e,p);
+        },1200);
         goToHome();
       }).catch(function(){
         btn.disabled=false;btn.textContent='Sign In →';
@@ -5362,7 +5138,7 @@ window.submitReport=function(reason){
       showBlock('ai-loading-card');
       hideEl('ai-analyse-btn');
 
-      var prompt='You are a South African freight logistics expert. The customer has uploaded '+cargoPhotos.length+' photo(s) of the goods they need to transport. Analyse the images carefully.\n\nRespond ONLY with a JSON object like this (no markdown, no extra text):\n{\n  "truckValue": "1ton" or "3ton" or "5ton" or "8ton" or "14ton" or "34ton",\n  "truckLabel": "e.g. 3 Ton Truck",\n  "cargoType": "e.g. Furniture & Household",\n  "weightTons": 2.5,\n  "reasoning": "A short 2-sentence explanation of why you chose this truck and weight.",\n  "warnings": "Any concerns like fragile items, hazardous materials, oversized goods — or empty string if none."\n}\n\nAvailable truck types:\n- 1ton = 1 Ton Bakkie (up to 1 ton, small loads like appliances, small furniture)\n- 3ton = 3 Ton Truck (1–3 tons, medium household loads)\n- 5ton = 5 Ton Truck (3–5 tons, large household moves or business stock)\n- 8ton = 8 Ton Truck (5–8 tons, large commercial loads)\n- 14ton = 14 Ton Rigid (8–14 tons, heavy commercial freight)\n- 34ton = 34 Ton Semi (14+ tons, full industrial/agricultural loads)\n\nBase your estimate on visual size, quantity, and type of goods visible. Be practical and lean toward a slightly larger truck when uncertain to avoid under-loading.';
+      var prompt='You are a South African freight logistics expert. The customer has uploaded '+cargoPhotos.length+' photo(s) of the goods they need to transport. Analyse the images carefully.\n\nRespond ONLY with a JSON object like this (no markdown, no extra text):\n{\n  "truckValue": "1ton" or "2ton" or "3ton" or "4ton" or "5ton" or "6ton",\n  "truckLabel": "e.g. 3 Ton Small Truck",\n  "cargoType": "e.g. Furniture & Household",\n  "weightTons": 2.5,\n  "reasoning": "A short 2-sentence explanation of why you chose this truck and weight.",\n  "warnings": "Any concerns like fragile items, hazardous materials, oversized goods — or empty string if none."\n}\n\nAvailable truck types (this service only covers small-to-medium loads, 1-6 tons):\n- 1ton = 1 Ton Bakkie (small loads like appliances, small furniture)\n- 2ton = 2 Ton Small Truck\n- 3ton = 3 Ton Small Truck\n- 4ton = 4 Ton Medium Truck\n- 5ton = 5 Ton Medium Truck\n- 6ton = 6 Ton Medium Truck (largest available — full household moves or business stock up to 6 tons)\n\nBase your estimate on visual size, quantity, and type of goods visible. Be practical and lean toward a slightly larger truck when uncertain to avoid under-loading. If the load clearly exceeds 6 tons, still respond with "6ton" and mention the overage in warnings.';
 
       // Build Gemini parts — images first, then the text prompt
       var parts=cargoPhotos.map(function(p){
@@ -5370,13 +5146,10 @@ window.submitReport=function(reason){
       });
       parts.push({text:prompt});
 
-      fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+GEMINI_KEY,{
+      fetch(TC_WORKER_URL+'/analyze-cargo',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          contents:[{parts:parts}],
-          generationConfig:{temperature:0.2,maxOutputTokens:1000}
-        })
+        body:JSON.stringify({parts:parts})
       }).then(function(r){return r.json();}).then(function(data){
         hideEl('ai-loading-card');
         showBlock('ai-analyse-btn');
@@ -5389,6 +5162,7 @@ window.submitReport=function(reason){
         raw=raw.replace(/```json|```/g,'').trim();
         try{
           aiRec=JSON.parse(raw);
+          aiRec=applySafetyMargin(aiRec);
           showAiResult(aiRec);
         }catch(e){
           showAiError('AI returned an unexpected response. Please try again.');
@@ -5398,6 +5172,25 @@ window.submitReport=function(reason){
         showBlock('ai-analyse-btn');
         showAiError('Network error. Please check your connection and try again.');
       });
+    }
+
+    // Since AI photo analysis is only an estimate, always round UP a couple of
+    // truck sizes rather than suggesting the exact-fit size — safer to have
+    // extra room than to send a truck that's too small.
+    var SAFETY_MARGIN_TIERS = 2;
+    function applySafetyMargin(rec){
+      if(!rec || !rec.truckValue) return rec;
+      var order=TRUCKS.map(function(t){return t.v;}); // ["1ton","2ton","3ton","4ton","5ton","6ton"]
+      var idx=order.indexOf(rec.truckValue);
+      if(idx===-1) return rec; // unrecognised value, leave as-is
+      var bumped=Math.min(idx+SAFETY_MARGIN_TIERS, order.length-1);
+      if(bumped!==idx){
+        var t=TRUCKS[bumped];
+        rec.truckValue=t.v;
+        rec.truckLabel=t.l;
+        rec.reasoning=(rec.reasoning||'')+' (Sized up for a safety margin, since photo estimates can be imprecise.)';
+      }
+      return rec;
     }
 
     function showAiResult(rec){
@@ -5447,6 +5240,11 @@ window.submitReport=function(reason){
         try{
           if(user){
             currentUid=user.uid;
+            function _enterHome(){
+              // Session already valid — go straight in, no fingerprint needed.
+              // Fingerprint is only asked for when actually signed out.
+              goToHome();
+            }
             // 1) Try fast localStorage cache first
             try{
               var cached=JSON.parse(localStorage.getItem('tc_cust_session')||'null');
@@ -5456,22 +5254,28 @@ window.submitReport=function(reason){
                 window._FB.getDoc(window._FB.doc(window._FB.db,'customers',user.uid))
                   .then(function(snap){if(snap.exists()){cData=snap.data();saveSession();}})
                   .catch(function(){});
-                goToHome();
+                _enterHome();
                 return;
               }
             }catch(e){}
             // 2) No valid cache — fetch from Firestore
             window._FB.getDoc(window._FB.doc(window._FB.db,'customers',user.uid))
               .then(function(snap){
-                if(snap.exists()){cData=snap.data();saveSession();goToHome();}
+                if(snap.exists()){cData=snap.data();saveSession();_enterHome();}
                 else{
                   // Auth exists but no customer doc — sign out and go to landing
+                  console.warn('[TC] No customer document found for uid:',user.uid);
                   window._FB.signOut(window._FB.auth).catch(function(){});
                   currentUid=null;cData={};
                   goTo('s-landing');
                 }
               })
-              .catch(function(){goTo('s-landing');});
+              .catch(function(err){
+                // DIAGNOSTIC: log the real Firestore error (often permission-denied
+                // from security rules) instead of silently bouncing to landing.
+                console.error('[TC] Customer doc lookup failed for uid:',user.uid,'code:',err&&err.code,'message:',err&&err.message);
+                goTo('s-landing');
+              });
           }else{
             // No session
             try{localStorage.removeItem('tc_cust_session');}catch(e){}
@@ -5807,424 +5611,203 @@ function closeLiveTracking(){
 <!-- ══ END LIVE TRACKING ════════════════════════════════════════════════════ -->
 <!-- ══ END LIVE TRACKING ════════════════════════════════════════════════════ -->
 
-<!-- ══ TRUCKCONNECT NAME + BIOMETRIC LOGIN MODULE v2.0 ═══════════════════════
-     Flow: Enter name → biometric verify → Firestore name lookup → enter app
-     Works on: Android (fingerprint), iOS (Face ID/Touch ID), desktop (Windows Hello)
+<!-- ══ TRUCKCONNECT FINGERPRINT GATE (Customer) — simple device confirm, same pattern as Admin app ══
+     Real login always happens via email+password against Firebase Auth first.
+     WebAuthn here is only a device-level "confirm it's you" gate on TOP of an
+     already-valid Firebase session — it does not by itself identify who you are,
+     so it cannot replace the first sign-in on a new device.
 ════════════════════════════════════════════════════════════════════════════ -->
 <script>
-/* ══════════════════════════════════════════════════════════════════════════
-   TRUCKCONNECT BIOMETRIC MODULE v3.0
-   
-   HOW IT WORKS:
-   ─────────────
-   NEW USER (first login):
-     Enter name + password → logged in → enrollment sheet appears →
-     tap "Enable" → phone fingerprint/face prompt → passkey saved to device
-   
-   RETURNING USER (signed out):
-     Tap "Already have an account" → type name → tap fingerprint button →
-     phone biometric prompt → Firestore lookup by name → enter app
-   
-   WHY IT WORKS RELIABLY:
-   ─────────────────────
-   • Uses WebAuthn platform authenticator (Android fingerprint, Face ID, etc.)
-   • Falls back to a secure PIN-style challenge if WebAuthn unavailable
-   • Enrollment ONLY offered after confirmed password login (passkey exists)
-   • Assertion uses stored credential ID so Android knows which key to use
-   • Firestore lookup happens AFTER biometric passes (security correct order)
-   • All errors shown clearly in the status label under the button
-══════════════════════════════════════════════════════════════════════════ */
 (function(){
 'use strict';
 
-// ── STORAGE ───────────────────────────────────────────────────────────────
-var K = {
-  credC: 'tc_bio_cred_customer',
-  credD: 'tc_bio_cred_driver',
-  userC: 'tc_bio_user_customer',
-  userD: 'tc_bio_user_driver'
+var BIO_CRED_KEY='tc_customer_webauthn_cred_id';
+
+function _b64uToBuf(b64u){
+  var b64=b64u.replace(/-/g,'+').replace(/_/g,'/');
+  var bin=atob(b64+'='.repeat((4-b64.length%4)%4));
+  var buf=new Uint8Array(bin.length);
+  for(var i=0;i<bin.length;i++)buf[i]=bin.charCodeAt(i);
+  return buf;
+}
+function _bufToB64u(buf){
+  var bytes=new Uint8Array(buf);
+  var bin='';for(var i=0;i<bytes.length;i++)bin+=String.fromCharCode(bytes[i]);
+  return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function _webauthnSupported(){return !!(window.PublicKeyCredential && navigator.credentials);}
+function _hasFingerprintRegistered(){return !!localStorage.getItem(BIO_CRED_KEY);}
+window._tcHasFingerprintRegistered=_hasFingerprintRegistered;
+
+// Register this device's fingerprint sensor (called once, right after a normal
+// successful email+password login — never asks for a name, never looks anyone up)
+async function _registerFingerprint(email){
+  if(!_webauthnSupported())return {ok:false,reason:'not_supported'};
+  try{
+    var challenge=crypto.getRandomValues(new Uint8Array(32));
+    var userId=crypto.getRandomValues(new Uint8Array(16));
+    var cred=await navigator.credentials.create({publicKey:{
+      challenge:challenge,
+      rp:{name:'TruckConnect'},
+      user:{id:userId,name:email||'customer',displayName:email||'customer'},
+      pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
+      authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required'},
+      timeout:60000,attestation:'none'
+    }});
+    if(!cred)return {ok:false,reason:'cancelled'};
+    localStorage.setItem(BIO_CRED_KEY,_bufToB64u(cred.rawId));
+    return {ok:true};
+  }catch(e){console.warn('[TC] Fingerprint registration error:',e.message);return {ok:false,reason:e.message};}
+}
+
+// Verify fingerprint against the credential already registered on this device
+async function _verifyFingerprint(){
+  if(!_webauthnSupported())return {ok:false,reason:'not_supported'};
+  var credIdB64=localStorage.getItem(BIO_CRED_KEY);
+  if(!credIdB64)return {ok:false,reason:'not_registered'};
+  try{
+    var challenge=crypto.getRandomValues(new Uint8Array(32));
+    var assertion=await navigator.credentials.get({publicKey:{
+      challenge:challenge,
+      allowCredentials:[{id:_b64uToBuf(credIdB64),type:'public-key'}],
+      userVerification:'required',
+      timeout:60000
+    }});
+    return {ok:!!assertion};
+  }catch(e){console.warn('[TC] Fingerprint verify error:',e.message);return {ok:false,reason:e.message};}
+}
+
+// ── LOCAL CREDENTIAL VAULT ──────────────────────────────────────────────
+// A fingerprint alone can't sign in to Firebase — it can only confirm "this
+// is the device owner." To make fingerprint actually replace typing a
+// password, we store the password locally (lightly obfuscated, gated behind
+// this device's fingerprint) and use it to sign in automatically once the
+// fingerprint is confirmed. This is the same trick most consumer apps use
+// for "quick sign-in" without needing a backend service. It is NOT the same
+// level of protection as never storing the password at all — anyone with
+// unlocked access to this device's browser storage could recover it — so
+// this is a convenience trade-off, not bank-grade security.
+var VAULT_KEY='tc_customer_vault';
+function _obf(s){return btoa(unescape(encodeURIComponent(s)));}
+function _deobf(s){try{return decodeURIComponent(escape(atob(s)));}catch(e){return '';}}
+function _storeVault(email,password){
+  if(!email||!password)return;
+  try{localStorage.setItem(VAULT_KEY,JSON.stringify({e:_obf(email),p:_obf(password)}));}catch(ex){}
+}
+function _getVault(){
+  try{
+    var raw=JSON.parse(localStorage.getItem(VAULT_KEY)||'null');
+    if(!raw)return null;
+    return {email:_deobf(raw.e),password:_deobf(raw.p)};
+  }catch(e){return null;}
+}
+function _clearVault(){try{localStorage.removeItem(VAULT_KEY);}catch(e){}}
+window._tcClearFingerprintVault=_clearVault;
+
+// Quietly registers fingerprint + stores the vault on this device after a
+// fresh password login. Never blocks or interrupts login.
+window._tcSetupFingerprint=async function(email,password){
+  _storeVault(email,password);
+  if(_hasFingerprintRegistered())return;
+  if(!_webauthnSupported())return;
+  try{await _registerFingerprint(email);}catch(e){}
 };
 
-// ── UTILS ─────────────────────────────────────────────────────────────────
-function _rnd(n){ var a=new Uint8Array(n); crypto.getRandomValues(a); return a; }
+// Called from the landing screen's "Use Fingerprint" button when the user is
+// signed out. Verifies fingerprint, then performs a real Firebase sign-in
+// using the stored vault credentials.
+window._tcQuickFingerprintSignIn=function(app){
+  var statusId='cust-quickbio-status';
+  function setStatus(msg,color){var el=document.getElementById(statusId);if(el){el.textContent=msg;el.style.color=color||'rgba(255,255,255,.5)';}}
+  if(!_hasFingerprintRegistered()){setStatus('No fingerprint set up on this device yet.','#FF9500');return;}
+  var vault=_getVault();
+  if(!vault||!vault.email||!vault.password){setStatus('Sign in with your password once to enable fingerprint.','#FF9500');return;}
+  setStatus("Touch your device's fingerprint sensor…");
+  _verifyFingerprint().then(function(v){
+    if(!v.ok){
+      setStatus(v.reason==='cancelled'?'Cancelled.':'Fingerprint not recognised. Try again, or use your password below.','#f87171');
+      return;
+    }
+    setStatus('Verified — signing in…','#34C759');
+    var FB=window._FB;
+    if(!FB){setStatus('Connection error. Try again.','#f87171');return;}
+    FB.signInWithEmailAndPassword(FB.auth,vault.email,vault.password)
+      .then(function(uc){
+        window.currentUid=uc.user.uid;
+        return FB.getDoc(FB.doc(FB.db,'customers',window.currentUid));
+      })
+      .then(function(snap){
+        if(!snap.exists()){setStatus('Account not found. Please sign in with your password.','#f87171');return;}
+        window.cData=snap.data();
+        if(window.saveSession)window.saveSession();
+        if(window.goToHome)window.goToHome();
+      })
+      .catch(function(err){
+        console.warn('[TC] Quick fingerprint sign-in failed:',err&&err.code);
+        setStatus('Could not sign in. Please use your password below.','#f87171');
+      });
+  });
+};
 
-function _b64url(buf){
-  var bytes = new Uint8Array(buf);
-  var str = '';
-  for(var i=0;i<bytes.length;i++) str += String.fromCharCode(bytes[i]);
-  return btoa(str).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
-}
+// Shows the gate screen and resolves true/false. Call this ONLY when a real
+// Firebase Auth session already exists (fresh login or restored on reload).
+window._tcRunBiometricGate=function(email){
+  return new Promise(function(resolve){
+    if(window.goTo)window.goTo('s-biogate');
+    var statusEl=document.getElementById('bio-status'),
+        errEl=document.getElementById('bio-err'),
+        retryBtn=document.getElementById('bio-retry-btn'),
+        pulse=document.getElementById('bio-pulse');
+    if(errEl)errEl.style.display='none';
 
-function _fromB64url(s){
-  var b64 = s.replace(/-/g,'+').replace(/_/g,'/');
-  var str = atob(b64);
-  var arr = new Uint8Array(str.length);
-  for(var i=0;i<str.length;i++) arr[i]=str.charCodeAt(i);
-  return arr;
-}
+    async function attempt(){
+      if(errEl)errEl.style.display='none';
+      if(pulse)pulse.style.borderColor='#2563EB';
+      if(!_hasFingerprintRegistered()){
+        if(statusEl)statusEl.textContent='No fingerprint set up on this device yet. Touch sensor to set it up.';
+        var reg=await _registerFingerprint(email);
+        if(reg.ok){
+          if(statusEl)statusEl.textContent='Fingerprint registered! Verifying…';
+          var verify=await _verifyFingerprint();
+          resolve(verify.ok);
+          return;
+        }else{
+          if(pulse)pulse.style.borderColor='#f87171';
+          if(errEl){errEl.textContent=reg.reason==='not_supported'?'This device has no fingerprint sensor available to the browser.':'Could not set up fingerprint. Try again, or sign out and use your password.';errEl.style.display='block';}
+          resolve(false);
+          return;
+        }
+      }
+      if(statusEl)statusEl.textContent="Touch your device's fingerprint sensor…";
+      var v=await _verifyFingerprint();
+      if(v.ok){
+        if(statusEl)statusEl.textContent='Verified!';
+        resolve(true);
+      }else{
+        if(pulse)pulse.style.borderColor='#f87171';
+        if(errEl){errEl.textContent='Fingerprint not recognised. Try again.';errEl.style.display='block';}
+        resolve(false);
+      }
+    }
+    if(retryBtn)retryBtn.onclick=attempt;
+    attempt();
+  });
+};
 
-function _credKey(app){ return app==='driver'? K.credD : K.credC; }
-function _userKey(app){ return app==='driver'? K.userD : K.userC; }
-
-function _status(id,msg,color){
-  var el=document.getElementById(id);
-  if(el){ el.textContent=msg; el.style.color=color||'rgba(255,255,255,.45)'; }
-}
-function _btnBusy(id,busy){
-  var b=document.getElementById(id);
-  if(!b)return;
-  b.disabled=busy;
-  b.style.transform=busy?'scale(0.9)':'scale(1)';
-  b.style.opacity=busy?'0.6':'1';
-}
-
-// ── PLATFORM CHECK ────────────────────────────────────────────────────────
-// Returns: 'webauthn' | 'none'
-async function _checkPlatform(){
-  if(!window.PublicKeyCredential) return 'none';
-  try{
-    var ok = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-    return ok ? 'webauthn' : 'none';
-  }catch(e){ return 'none'; }
-}
-
-// ── ENROLL — create a passkey on the device ───────────────────────────────
-// Called AFTER password login succeeds, from the enrollment sheet.
-async function _enroll(app, uid, email, name){
-  var platform = await _checkPlatform();
-  if(platform !== 'webauthn') return false;
-  try{
-    var cred = await navigator.credentials.create({ publicKey:{
-      challenge: _rnd(32),
-      rp: { name:'TruckConnect', id: location.hostname },
-      user: {
-        id: new TextEncoder().encode(uid),
-        name: email,
-        displayName: name || email
-      },
-      pubKeyCredParams: [
-        { type:'public-key', alg:-7  },  // ES256 (Android, iOS)
-        { type:'public-key', alg:-257 }  // RS256 (Windows Hello)
-      ],
-      authenticatorSelection:{
-        authenticatorAttachment: 'platform',  // device biometric only
-        userVerification: 'required',          // must verify fingerprint/face
-        residentKey: 'required'               // saves to device so no password needed
-      },
-      timeout: 90000,
-      attestation: 'none'
-    }});
-
-    if(!cred || !cred.rawId) return false;
-
-    // Store credential ID + user info
-    var stored = {
-      id:    _b64url(cred.rawId),
-      uid:   uid,
-      email: email,
-      name:  name || ''
+document.addEventListener('DOMContentLoaded',function(){
+  var signoutBtn=document.getElementById('bio-signout-btn');
+  if(signoutBtn){
+    signoutBtn.onclick=function(){
+      try{window._FB&&window._FB.signOut(window._FB.auth).catch(function(){});}catch(e){}
+      if(window.clearSession)window.clearSession();
+      if(window.goTo)window.goTo('s-landing');
     };
-    localStorage.setItem(_credKey(app), JSON.stringify(stored));
-    localStorage.setItem(_userKey(app), JSON.stringify({uid,email,name:name||''}));
-    console.log('[TC Bio] Passkey enrolled for', app, uid);
-    return true;
-
-  }catch(e){
-    console.warn('[TC Bio] Enroll failed:', e.name, e.message);
-    return false;
   }
-}
-
-// ── ASSERT — verify existing passkey (fingerprint/face prompt) ────────────
-async function _assert(app){
-  var raw = localStorage.getItem(_credKey(app));
-  if(!raw){
-    return { ok:false, reason:'no_cred' };
+  var quickBtn=document.getElementById('cust-quickbio-btn');
+  if(quickBtn&&_hasFingerprintRegistered()){
+    quickBtn.style.display='block';
   }
-  var stored;
-  try{ stored = JSON.parse(raw); }catch(e){ return {ok:false,reason:'bad_storage'}; }
-  if(!stored.id){ return {ok:false,reason:'no_id'}; }
-
-  try{
-    var credId = _fromB64url(stored.id);
-    var assertion = await navigator.credentials.get({ publicKey:{
-      challenge: _rnd(32),
-      allowCredentials: [{
-        id: credId,
-        type: 'public-key',
-        transports: ['internal']   // 'internal' = platform authenticator
-      }],
-      userVerification: 'required',
-      timeout: 90000
-    }});
-
-    if(!assertion) return {ok:false, reason:'no_assertion'};
-    return {ok:true, stored:stored};
-
-  }catch(e){
-    console.warn('[TC Bio] Assert failed:', e.name, e.message);
-    if(e.name==='NotAllowedError') return {ok:false, reason:'cancelled'};
-    if(e.name==='InvalidStateError') return {ok:false, reason:'no_cred'};
-    return {ok:false, reason:'error', msg: e.message};
-  }
-}
-
-// ── MAIN LOGIN HANDLER — triggered by fingerprint button ──────────────────
-window._tcNameBioLogin = async function(app){
-  var statusId = app==='driver' ? 'dbl-status' : 'cbl-status';
-  var btnId    = app==='driver' ? 'dbl-bio-btn': 'cbl-bio-btn';
-  var nameId   = app==='driver' ? 'dbl-name'   : 'cbl-name';
-  var errId    = app==='driver' ? 'dbl-name-err': 'cbl-name-err';
-
-  // 1. Require name
-  var nameEl = document.getElementById(nameId);
-  var name   = (nameEl ? nameEl.value : '').trim();
-  var errEl  = document.getElementById(errId);
-  if(errEl) errEl.style.display='none';
-
-  if(!name || name.length < 2){
-    if(errEl){ errEl.textContent='Enter your full name first.'; errEl.style.display='block'; }
-    if(nameEl) nameEl.focus();
-    return;
-  }
-
-  // 2. Check if passkey enrolled on this device
-  var hasCred = !!localStorage.getItem(_credKey(app));
-  if(!hasCred){
-    // No passkey enrolled — tell user to sign in with email first
-    _status(statusId,
-      'No passkey saved yet. Sign in with email first, then enable fingerprint login.',
-      '#FF9500');
-    // Show email sign-in option prominently
-    setTimeout(function(){ window._tcShowEmailSignIn && window._tcShowEmailSignIn(app); }, 2500);
-    return;
-  }
-
-  // 3. Check device supports biometrics
-  var platform = await _checkPlatform();
-  if(platform !== 'webauthn'){
-    _status(statusId,
-      'Your device doesn\'t support fingerprint login. Use email sign-in below.',
-      '#FF9500');
-    return;
-  }
-
-  // 4. Trigger fingerprint / face prompt
-  _btnBusy(btnId, true);
-  _status(statusId, 'Touch the fingerprint sensor…', 'rgba(255,255,255,.7)');
-
-  var result = await _assert(app);
-
-  if(!result.ok){
-    _btnBusy(btnId, false);
-    if(result.reason === 'cancelled'){
-      _status(statusId, 'Cancelled. Tap the button to try again.');
-    } else if(result.reason === 'no_cred' || result.reason === 'no_id'){
-      // Passkey was deleted from device — clear our stored data
-      localStorage.removeItem(_credKey(app));
-      localStorage.removeItem(_userKey(app));
-      _status(statusId,
-        'Passkey not found on this device. Sign in with email to re-enable.',
-        '#FF3B30');
-    } else {
-      _status(statusId,
-        'Fingerprint failed. Try again or use email sign-in.',
-        '#FF3B30');
-    }
-    return;
-  }
-
-  // 5. Biometric passed — look up account by name in Firestore
-  _status(statusId, '✓ Verified — finding your account…', '#34C759');
-
-  var FB = window._FB;
-  if(!FB){
-    _btnBusy(btnId, false);
-    _status(statusId, 'Connection error. Try again.', '#FF3B30');
-    return;
-  }
-
-  try{
-    var col = app==='driver' ? 'drivers' : 'customers';
-    var nameLower = name.toLowerCase();
-    var snap;
-
-    // Try 3 search strategies in order
-    snap = await FB.getDocs(
-      FB.query(FB.collection(FB.db, col), FB.where('nameLower','==', nameLower))
-    );
-    if(snap.empty){
-      snap = await FB.getDocs(
-        FB.query(FB.collection(FB.db, col), FB.where('name','==', name))
-      );
-    }
-    if(snap.empty){
-      var first = name.split(' ')[0];
-      snap = await FB.getDocs(
-        FB.query(FB.collection(FB.db, col),
-          FB.where('name','>=',first),
-          FB.where('name','<=',first+'\uf8ff'))
-      );
-    }
-
-    _btnBusy(btnId, false);
-
-    if(snap.empty){
-      _status(statusId,
-        'No account found for "'+name+'". Check spelling or use email sign-in.',
-        '#FF3B30');
-      return;
-    }
-
-    var doc  = snap.docs[0];
-    var data = doc.data();
-    var uid  = doc.id;
-
-    // Also verify uid matches stored credential if available
-    var stored = null;
-    try{ stored = JSON.parse(localStorage.getItem(_credKey(app))||'null'); }catch(ex){}
-    if(stored && stored.uid && stored.uid !== uid){
-      // Name matched a DIFFERENT account than the passkey owner — security check
-      _status(statusId,
-        'Account mismatch. Please sign in with email.',
-        '#FF3B30');
-      return;
-    }
-
-    // 6. Set session and enter app
-    window.currentUid = uid;
-    _status(statusId, 'Welcome back, '+(data.name||name)+'!', '#34C759');
-
-    if(app==='driver'){
-      window.dData = data;
-      window.saveSession && window.saveSession();
-      setTimeout(function(){
-        if(data.status==='approved') window.goToDriverHome && window.goToDriverHome();
-        else window.goTo && window.goTo('s-pending');
-      }, 700);
-    } else {
-      window.cData = data;
-      window.saveSession && window.saveSession();
-      setTimeout(function(){ window.goToHome && window.goToHome(); }, 700);
-    }
-
-  }catch(e){
-    _btnBusy(btnId, false);
-    _status(statusId, 'Error: '+e.message+'. Try email sign-in.', '#FF3B30');
-    console.error('[TC Bio] Firestore lookup failed:', e);
-  }
-};
-
-// ── EMAIL FALLBACK ────────────────────────────────────────────────────────
-window._tcShowEmailSignIn = function(app){
-  if(app==='customer'){
-    window._tcBackToWelcome('customer');
-    window.goTo && window.goTo('s-auth');
-    window.switchAuthTab && window.switchAuthTab('signin');
-  } else {
-    var bv=document.getElementById('land-bio-login-view');
-    var sv=document.getElementById('land-signin-view');
-    var wv=document.getElementById('land-welcome-view');
-    if(bv) bv.style.display='none';
-    if(wv) wv.style.display='none';
-    if(sv) sv.style.display='flex';
-  }
-};
-
-// ── BACK TO WELCOME ───────────────────────────────────────────────────────
-window._tcBackToWelcome = function(app){
-  if(app==='customer'){
-    var wv=document.getElementById('cust-welcome-view');
-    var bv=document.getElementById('cust-bio-login-view');
-    if(bv) bv.style.display='none';
-    if(wv) wv.style.display='flex';
-  } else {
-    var dbv=document.getElementById('land-bio-login-view');
-    var dwv=document.getElementById('land-welcome-view');
-    if(dbv) dbv.style.display='none';
-    if(dwv) dwv.style.display='flex';
-  }
-};
-
-// ── ENROLLMENT OFFER SHEET (after password login) ─────────────────────────
-window._tcBioOfferEnroll = async function(app, uid, email, name){
-  // Skip if already enrolled OR skipped recently
-  if(localStorage.getItem(_credKey(app))) return;
-  var skip = parseInt(localStorage.getItem('tc_bio_skip_'+app)||'0');
-  if(Date.now() < skip) return;
-
-  // Check device capability
-  var platform = await _checkPlatform();
-  if(platform !== 'webauthn') return;
-
-  var isDark = app==='driver' || !document.body.classList.contains('light-mode');
-  var bg     = isDark ? '#1C1C1E' : '#FFFFFF';
-  var fg     = isDark ? '#FFFFFF' : '#111111';
-  var sub    = isDark ? 'rgba(255,255,255,.5)' : '#777777';
-  var border = isDark ? 'rgba(255,255,255,.12)' : '#E5E5EA';
-
-  // Remove any existing sheet
-  var old = document.getElementById('tc-bio-enroll-sheet');
-  if(old) old.remove();
-
-  var sheet = document.createElement('div');
-  sheet.id = 'tc-bio-enroll-sheet';
-  sheet.style.cssText = [
-    'position:fixed;bottom:0;left:0;right:0;z-index:99999;',
-    'background:'+bg+';',
-    'border-radius:22px 22px 0 0;',
-    'padding:20px 20px 40px;',
-    'box-shadow:0 -8px 40px rgba(0,0,0,0.35);',
-    'font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;'
-  ].join('');
-
-  sheet.innerHTML = ''
-    // Handle
-    +'<div style="width:36px;height:4px;background:'+border+';border-radius:2px;margin:0 auto 18px;"></div>'
-    // Icon + text row
-    +'<div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">'
-    +'<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#0A84FF,#34C759);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'
-    +'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
-    +'<path d="M12 2C9.24 2 7 4.24 7 7v3"/>'
-    +'<path d="M17 10V7c0-1.38-.56-2.63-1.46-3.54"/>'
-    +'<path d="M12 10a2 2 0 0 0-2 2v4a2 2 0 0 0 4 0v-4a2 2 0 0 0-2-2z"/>'
-    +'<path d="M8.46 16.93A6 6 0 0 0 18 12"/>'
-    +'<path d="M6 10a6 6 0 0 0 1.06 3.37"/>'
-    +'</svg>'
-    +'</div>'
-    +'<div>'
-    +'<div style="font-size:16px;font-weight:900;color:'+fg+';margin-bottom:4px;">Enable fingerprint login?</div>'
-    +'<div style="font-size:13px;color:'+sub+';line-height:1.45;">Next time, just type your name and touch the sensor — no password needed.</div>'
-    +'</div></div>'
-    // Buttons
-    +'<div style="display:flex;flex-direction:column;gap:10px;">'
-    +'<button id="tc-enroll-yes" style="background:#0A84FF;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:800;color:#fff;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;width:100%;">Enable Fingerprint / Face Login</button>'
-    +'<button id="tc-enroll-no" style="background:transparent;border:1.5px solid '+border+';border-radius:14px;padding:13px;font-size:13px;font-weight:600;color:'+sub+';cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;width:100%;">Not now</button>'
-    +'</div>';
-
-  document.body.appendChild(sheet);
-
-  document.getElementById('tc-enroll-yes').onclick = async function(){
-    sheet.remove();
-    // Show loading state
-    if(window.toast) window.toast('Touch the fingerprint sensor when prompted…');
-    var ok = await _enroll(app, uid, email, name);
-    if(ok){
-      if(window.toast) window.toast('Fingerprint login enabled! Use your name + fingerprint next time.');
-    } else {
-      if(window.toast) window.toast('Setup failed. Try again from Profile settings.');
-    }
-  };
-
-  document.getElementById('tc-enroll-no').onclick = function(){
-    sheet.remove();
-    // Don't ask again for 30 days
-    try{ localStorage.setItem('tc_bio_skip_'+app, String(Date.now() + 30*86400*1000)); }catch(ex){}
-  };
-};
-
-// Expose globally
-window._tcBioEnroll = _enroll;
+});
 
 })();
 </script>

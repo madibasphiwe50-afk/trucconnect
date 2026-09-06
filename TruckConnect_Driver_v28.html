@@ -649,8 +649,8 @@ body.dark-mode .uas-btn-icon.fil{background:#431407;}
 .nav-choice-btn:active{transform:scale(.96);}
 .nav-choice-btn .nc-icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;}
 .nav-choice-btn .nc-label{color:#fff;font-size:14px;font-weight:800;}
-.nav-choice-waze .nc-icon{background:linear-gradient(135deg,#33CCFF,#0099E6);}
-.nav-choice-gmaps .nc-icon{background:linear-gradient(135deg,#4285F4,#34A853);}
+.nav-choice-waze .nc-icon{background:#33CCFF;}
+.nav-choice-gmaps .nc-icon{background:#4285F4;}
 #nav-chooser-cancel{width:100%;padding:15px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);border:none;border-radius:14px;font-size:14px;font-weight:700;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;cursor:pointer;margin-top:4px;}
 
 #driver-map{
@@ -1058,304 +1058,6 @@ body.dark-mode .job-card{background:var(--card); border-color:var(--border); box
 .job-card-cell{background:#F7F7F7;border-radius:10px;padding:11px;}
 .job-card-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px;font-weight:600;}
 .job-card-val{font-size:13px;font-weight:800;color:var(--text);}
-.nav-start-btn{
-  width:100%;
-  background:#111;color:#fff;
-  border:none;border-radius:12px;
-  padding:14px;font-size:13px;font-weight:800;
-  cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
-  box-shadow:0 2px 10px rgba(0,0,0,.15);
-  transition:all .18s;
-}
-.nav-start-btn:active{transform:scale(.98);}
-
-/* ════════════════════════════════════
-   SUCCESS & PENDING
-════════════════════════════════════ */
-.success-wrap{
-  min-height:100vh;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:40px 28px;text-align:center;
-}
-.success-ring{
-  width:90px;height:90px;
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:40px;
-  margin:0 auto 26px;
-  animation:popIn .5s cubic-bezier(.34,1.56,.64,1);
-  background:#f0f0f0;
-  box-shadow:0 4px 24px rgba(24,165,88,.2);
-}
-.suc-title{font-size:28px;font-weight:900;margin-bottom:10px;color:var(--text);letter-spacing:-.5px;}
-.suc-sub{font-size:14px;color:var(--muted);line-height:1.75;max-width:300px;margin:0 auto 32px;}
-.vlist{
-  background:#fff;
-  border-radius:var(--radius-lg);
-  padding:20px;
-  text-align:left;
-  width:100%;max-width:360px;
-  margin:0 auto 28px;
-  box-shadow:var(--shadow-sm);
-}
-.vrow{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);font-size:13px;}
-.vrow:last-child{border-bottom:none;}
-.vic{font-size:16px;flex-shrink:0;margin-top:2px;}
-.vt{color:var(--muted);}
-.vt strong{color:var(--text);display:block;font-size:12px;margin-bottom:2px;font-weight:800;}
-.pending-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;text-align:center;}
-.pending-card{
-  background:#fff;
-  border-radius:var(--radius-xl);
-  padding:22px;
-  width:100%;max-width:360px;
-  text-align:left;
-  margin-bottom:20px;
-  box-shadow:var(--shadow-md);
-}
-.pending-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);font-size:13px;}
-.pending-row:last-child{border-bottom:none;}
-
-/* ════════════════════════════════════
-   NAV SCREEN — clean Waze-style chooser
-════════════════════════════════════ */
-/* ── Password strength bar ── */
-.pw-strength-bar{height:4px;border-radius:2px;margin-top:8px;background:#e0e0e0;overflow:hidden;}
-.pw-strength-fill{height:100%;border-radius:2px;width:0%;transition:width .35s ease,background .35s ease;}
-.pw-strength-label{font-size:11px;font-weight:700;margin-top:4px;min-height:16px;}
-
-/* ══ TruckConnect Navigation — Apple Maps Premium Active Navigation ══ */
-#s-nav-screen{position:fixed;inset:0;background:#0d0d0f;display:none;flex-direction:column;z-index:200;}
-#s-nav-screen.active{display:flex;}
-#nav-map{position:absolute;inset:0;width:100%;height:100%;z-index:0;}
-
-/* ── Top turn banner — Apple Maps iOS style ───────────────────── */
-.nav-turn-banner{
-  position:absolute;top:0;left:0;right:0;z-index:10;
-  display:flex;align-items:stretch;min-height:92px;
-  background:rgba(255,255,255,0.9);
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-  box-shadow:0 4px 24px rgba(0,0,0,.13);
-  border-bottom:1px solid rgba(0,0,0,.07);
-  border-radius:0 0 16px 16px;
-  padding-top:max(0px, env(safe-area-inset-top));
-}
-body.dark-mode .nav-turn-banner{
-  background:rgba(28,28,30,0.97);
-  border-bottom:1px solid rgba(255,255,255,.07);
-  box-shadow:0 4px 24px rgba(0,0,0,.7);
-}
-.nav-turn-icon-wrap{
-  width:82px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  background:rgba(0,122,255,.10);
-  border-right:1px solid rgba(0,0,0,.06);
-  border-radius:0 0 0 16px;
-}
-body.dark-mode .nav-turn-icon-wrap{
-  background:rgba(0,122,255,.12);
-  border-right:1px solid rgba(255,255,255,.06);
-}
-.nav-turn-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;}
-.nav-turn-text{flex:1;padding:10px 14px;display:flex;flex-direction:column;justify-content:center;min-width:0;}
-.nav-turn-dist{font-size:30px;font-weight:900;color:#1C1C1E;letter-spacing:-.6px;line-height:1;margin-bottom:4px;}
-body.dark-mode .nav-turn-dist{color:#fff;}
-.nav-turn-instruction{font-size:14px;font-weight:700;color:#007AFF;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.1px;}
-.nav-road-name{font-size:11px;color:rgba(60,60,67,.45);margin-top:3px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-body.dark-mode .nav-road-name{color:rgba(255,255,255,.35);}
-.nav-then-pill{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 14px;border-left:1px solid rgba(0,0,0,.06);flex-shrink:0;gap:3px;border-radius:0 0 16px 0;}
-body.dark-mode .nav-then-pill{border-left:1px solid rgba(255,255,255,.07);}
-.nav-then-label{font-size:9px;font-weight:700;color:rgba(60,60,67,.4);letter-spacing:.6px;margin-bottom:2px;}
-body.dark-mode .nav-then-label{color:rgba(255,255,255,.3);}
-.nav-then-dist{font-size:10px;font-weight:700;color:rgba(60,60,67,.55);margin-top:2px;}
-body.dark-mode .nav-then-dist{color:rgba(255,255,255,.45);}
-
-/* ── Route clear banner ──────────────────────────────────────────── */
-.nav-clear-banner{
-  position:absolute;top:92px;left:0;right:0;z-index:9;
-  background:rgba(18,18,20,.95);border-bottom:1px solid rgba(255,255,255,.06);
-  padding:7px 16px;display:flex;align-items:center;justify-content:space-between;
-  transform:translateY(-100%);opacity:0;transition:transform .3s,opacity .3s;pointer-events:none;
-}
-.nav-clear-banner.show{transform:translateY(0);opacity:1;pointer-events:all;}
-.nav-clear-text{font-size:12px;font-weight:700;color:rgba(255,255,255,.8);display:flex;align-items:center;gap:8px;}
-.nav-clear-dot{width:8px;height:8px;border-radius:50%;background:#34C759;flex-shrink:0;}
-.nav-clear-sub{font-size:11px;color:rgba(255,255,255,.3);}
-.nav-clear-close{background:transparent;border:none;color:rgba(255,255,255,.28);font-size:16px;cursor:pointer;padding:4px;}
-
-/* ── Recalculating banner ────────────────────────────────────────── */
-.nav-recalc{position:absolute;top:92px;left:0;right:0;z-index:11;background:#FF9500;color:#000;text-align:center;font-size:12px;font-weight:800;padding:7px;letter-spacing:.2px;transform:translateY(-100%);transition:transform .3s;pointer-events:none;}
-.nav-recalc.show{transform:translateY(0);}
-
-/* ── Arrival banner ──────────────────────────────────────────────── */
-.nav-arrive-banner{
-  position:absolute;top:50%;left:50%;
-  transform:translate(-50%,-50%) scale(0.85);
-  z-index:20;background:#007AFF;color:#fff;
-  border-radius:22px;padding:26px 30px;text-align:center;
-  font-size:22px;font-weight:900;
-  box-shadow:0 10px 40px rgba(0,122,255,.45);
-  opacity:0;pointer-events:none;transition:all .38s cubic-bezier(.34,1.56,.64,1);min-width:240px;
-}
-.nav-arrive-banner.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
-.nav-arrive-sub{font-size:13px;font-weight:600;margin-top:8px;opacity:.75;}
-
-/* ── Floating controls — Apple Maps white frosted glass ──────── */
-.nav-back-btn{
-  position:absolute;top:108px;left:12px;z-index:10;width:42px;height:42px;border-radius:50%;
-  background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,.08);color:#1C1C1E;font-size:17px;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  box-shadow:0 3px 14px rgba(0,0,0,.18);backdrop-filter:blur(10px);transition:transform .15s;
-}
-body.dark-mode .nav-back-btn{
-  background:rgba(28,28,30,0.92);border-color:rgba(255,255,255,.12);color:#fff;
-  box-shadow:0 3px 14px rgba(0,0,0,.6);
-}
-.nav-voice-btn{
-  position:absolute;top:158px;left:12px;z-index:10;width:42px;height:42px;border-radius:50%;
-  background:rgba(255,255,255,0.9);border:1px solid rgba(0,0,0,.08);color:#1C1C1E;font-size:18px;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  box-shadow:0 3px 14px rgba(0,0,0,.18);backdrop-filter:blur(10px);transition:transform .15s;
-}
-body.dark-mode .nav-voice-btn{
-  background:rgba(28,28,30,0.92);border-color:rgba(255,255,255,.12);color:#fff;
-  box-shadow:0 3px 14px rgba(0,0,0,.6);
-}
-.nav-back-btn:active,.nav-voice-btn:active{transform:scale(.88);}
-
-/* ── 2D/3D toggle — Apple Maps frosted white ────────────────────── */
-.nav-2d3d-toggle{
-  position:absolute;top:108px;right:12px;z-index:10;
-  display:flex;background:rgba(255,255,255,.9);
-  border:1px solid rgba(0,0,0,.08);border-radius:22px;overflow:hidden;
-  box-shadow:0 3px 14px rgba(0,0,0,.18);backdrop-filter:blur(10px);
-}
-body.dark-mode .nav-2d3d-toggle{
-  background:rgba(28,28,30,.92);border-color:rgba(255,255,255,.12);
-  box-shadow:0 3px 14px rgba(0,0,0,.6);
-}
-.nav-2d3d-btn{border:none;background:transparent;color:rgba(0,0,0,.38);font-size:11px;font-weight:800;padding:8px 13px;cursor:pointer;font-family:inherit;letter-spacing:.3px;transition:all .2s;}
-body.dark-mode .nav-2d3d-btn{color:rgba(255,255,255,.38);}
-.nav-2d3d-active{background:#007AFF!important;color:#fff!important;border-radius:20px;}
-
-/* ── Recenter ────────────────────────────────────────────────────── */
-.nav-recenter-btn{
-  position:absolute;right:12px;bottom:190px;z-index:10;width:42px;height:42px;border-radius:50%;
-  background:rgba(255,255,255,.9);border:1px solid rgba(0,0,0,.08);color:#1C1C1E;font-size:18px;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  box-shadow:0 3px 14px rgba(0,0,0,.18);backdrop-filter:blur(10px);
-  opacity:0;pointer-events:none;transition:opacity .3s;
-}
-body.dark-mode .nav-recenter-btn{
-  background:rgba(28,28,30,.92);border-color:rgba(255,255,255,.12);color:#fff;
-  box-shadow:0 3px 14px rgba(0,0,0,.6);
-}
-.nav-recenter-btn.visible{opacity:1;pointer-events:all;}
-.nav-recenter-btn:active{transform:scale(.88);}
-
-/* ── Geolocate (lock-to-GPS) button ─────────────────────────── */
-.nav-geolocate-btn{
-  position:absolute;top:208px;left:12px;z-index:10;width:42px;height:42px;border-radius:50%;
-  background:rgba(255,255,255,0.9);border:1.5px solid rgba(0,0,0,.1);color:#1C1C1E;font-size:18px;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  box-shadow:0 3px 14px rgba(0,0,0,.18);backdrop-filter:blur(10px);transition:all .2s;
-}
-body.dark-mode .nav-geolocate-btn{
-  background:rgba(28,28,30,0.92);border-color:rgba(255,255,255,.18);color:#fff;
-  box-shadow:0 3px 14px rgba(0,0,0,.6);
-}
-.nav-geolocate-btn.locked{
-  background:#007AFF;border-color:#007AFF;color:#fff;
-  box-shadow:0 3px 18px rgba(0,122,255,.5);
-}
-.nav-geolocate-btn.pulsing{
-  animation:geolocatePulse 1s ease infinite;
-}
-@keyframes geolocatePulse{
-  0%,100%{box-shadow:0 3px 18px rgba(0,122,255,.5);}
-  50%{box-shadow:0 3px 24px rgba(0,122,255,.9),0 0 0 8px rgba(0,122,255,.2);}
-}
-.nav-geolocate-btn:active{transform:scale(.88);}
-
-/* ── Speed circle — Apple Maps white card ────────────────────── */
-.nav-speed-circle{
-  position:absolute;bottom:152px;left:14px;z-index:10;width:62px;height:62px;border-radius:50%;
-  background:rgba(255,255,255,.92);border:1.5px solid rgba(0,0,0,.08);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  box-shadow:0 3px 14px rgba(0,0,0,.18);backdrop-filter:blur(10px);
-}
-body.dark-mode .nav-speed-circle{
-  background:rgba(28,28,30,.95);border-color:rgba(255,255,255,.15);
-  box-shadow:0 3px 14px rgba(0,0,0,.7);
-}
-.nav-speed-val{font-size:21px;font-weight:900;color:#1C1C1E;line-height:1;}
-body.dark-mode .nav-speed-val{color:#fff;}
-.nav-speed-unit{font-size:7px;font-weight:700;color:rgba(60,60,67,.45);text-transform:uppercase;letter-spacing:.5px;}
-body.dark-mode .nav-speed-unit{color:rgba(255,255,255,.35);}
-
-/* ── Street pill — Apple Maps white frosted ──────────────────── */
-.nav-street-pill{
-  position:absolute;bottom:158px;left:50%;transform:translateX(-50%);z-index:10;
-  background:rgba(255,255,255,.92);border:1px solid rgba(0,0,0,.07);border-radius:26px;
-  padding:7px 16px;font-size:12px;font-weight:800;color:#1C1C1E;
-  white-space:nowrap;max-width:55vw;overflow:hidden;text-overflow:ellipsis;
-  box-shadow:0 3px 12px rgba(0,0,0,.15);backdrop-filter:blur(10px);
-}
-body.dark-mode .nav-street-pill{
-  background:rgba(28,28,30,.95);border-color:rgba(255,255,255,.1);color:#fff;
-  box-shadow:0 3px 12px rgba(0,0,0,.6);
-}
-
-/* ── Bottom dashboard panel — Apple Maps white ───────────────── */
-.nav-bottom-panel{
-  position:absolute;bottom:0;left:0;right:0;z-index:10;
-  background:rgba(255,255,255,0.97);
-  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-  border-top:1px solid rgba(0,0,0,.06);
-  padding-bottom:max(14px,env(safe-area-inset-bottom));
-  border-radius:22px 22px 0 0;
-  box-shadow:0 -4px 24px rgba(0,0,0,.10);
-}
-body.dark-mode .nav-bottom-panel{
-  background:rgba(18,18,20,0.98);
-  border-top:1px solid rgba(255,255,255,.07);
-  box-shadow:0 -6px 32px rgba(0,0,0,.55);
-}
-.nav-panel-toggle{display:flex;align-items:center;justify-content:center;padding:10px;cursor:pointer;}
-.nav-panel-handle{width:34px;height:3px;background:rgba(0,0,0,.15);border-radius:2px;}
-body.dark-mode .nav-panel-handle{background:rgba(255,255,255,.18);}
-.nav-stats-row{display:flex;align-items:center;justify-content:space-around;padding:10px 16px 8px;}
-.nav-stat-block{text-align:center;flex:1;}
-.nav-stat-value{font-size:23px;font-weight:900;color:#1C1C1E;letter-spacing:-.4px;line-height:1;}
-body.dark-mode .nav-stat-value{color:#fff;}
-.nav-stat-label{font-size:10px;color:rgba(60,60,67,.45);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;}
-body.dark-mode .nav-stat-label{color:rgba(255,255,255,.3);}
-.nav-stat-divider{width:1px;height:32px;background:rgba(0,0,0,.08);flex-shrink:0;}
-body.dark-mode .nav-stat-divider{background:rgba(255,255,255,.09);}
-.nav-actions-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 12px 8px;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;}
-.nav-actions-row.expanded{max-height:80px;padding:6px 12px 10px;}
-.nav-act-btn{border:none;border-radius:14px;padding:12px 4px;font-size:10px;font-weight:800;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:inherit;transition:transform .15s;letter-spacing:.2px;}
-.nav-act-btn:active{transform:scale(.92);}
-.nav-act-btn span{font-size:16px;line-height:1;}
-.nav-act-arrived{background:rgba(48,209,88,.13);border:1px solid rgba(48,209,88,.25);color:#30D158;}
-.nav-act-start{background:#007AFF;color:#fff;border:1px solid rgba(0,98,204,.6);}
-.nav-act-end{background:rgba(255,69,58,.14);color:#FF453A;border:1px solid rgba(255,69,58,.28);}
-.nav-stats-side-btn{display:none;}
-.nav-stat-time{display:none;}
-.nav-stat-sub{display:none;}
-
-/* ── Truck marker ────────────────────────────────────────────────── */
-.nav-truck-marker{width:52px;height:80px;cursor:default;transition:transform 0.3s ease;transform-origin:center center;}
-
-/* ── Destination marker ──────────────────────────────────────────── */
-.nav-dest-marker{cursor:default;}
-.nav-dest-pin{
-  width:36px;height:36px;border-radius:50%;
-  background:#FF453A;color:#fff;font-size:15px;font-weight:900;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 4px 16px rgba(255,69,58,.55);border:2.5px solid rgba(255,255,255,.9);
-}
-
 /* ════════════════════════════════════
    GOOGLE BUTTON
 ════════════════════════════════════ */
@@ -1801,13 +1503,7 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.addEventListener('message', function(event) {
       if (event.data && event.data.type === 'ROUTE_UPDATE') {
         console.log('[TC PWA] Emergency route update received from dispatch');
-        if (NAV.isNavigating && NAV.smoothLat && NAV.job) {
-          var dest = NAV.steps.length ? NAV.steps[NAV.steps.length-1].maneuver.location : null;
-          if (dest) {
-            toast('Route updated by dispatch');
-            _navFetchRoute([NAV.smoothLng, NAV.smoothLat], dest);
-          }
-        }
+        toast('Route update from dispatch — check your active job for details.');
       }
     });
   });
@@ -2111,50 +1807,6 @@ window._tcFlushErrors();
   </div>
 
 
-<!-- ── BIOMETRIC LOCK SCREEN ── -->
-  <!-- ── NAME + BIOMETRIC QUICK LOGIN VIEW ── -->
-  <div class="land-inner" id="land-bio-login-view" style="display:none;align-items:center;text-align:center;">
-    <div class="land-badge"><div class="land-dot"></div> Driver Platform · SA</div>
-    <div style="font-size:44px;margin-bottom:10px;"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg></div>
-    <h1 class="land-title" style="font-size:28px;margin-bottom:6px;">Welcome back</h1>
-    <p class="land-sub" style="margin-bottom:24px;">Enter your name, then verify with your fingerprint or face.</p>
-
-    <!-- Name input -->
-    <div style="width:100%;max-width:340px;margin-bottom:18px;text-align:left;">
-      <span style="font-size:12px;font-weight:700;color:rgba(255,255,255,.45);letter-spacing:.5px;display:block;margin-bottom:6px;">YOUR NAME</span>
-      <input id="dbl-name" type="text" placeholder="e.g. Thabo Nkosi" autocomplete="name"
-        style="width:100%;box-sizing:border-box;padding:14px 16px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:14px;color:#fff;font-size:15px;font-weight:600;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;outline:none;"/>
-      <div id="dbl-name-err" style="display:none;font-size:12px;color:#f87171;margin-top:6px;font-weight:600;"></div>
-    </div>
-
-    <!-- Fingerprint / Passkey button -->
-    <div style="margin-bottom:10px;">
-      <button id="dbl-bio-btn" onclick="window._tcNameBioLogin('driver')"
-        style="width:82px;height:82px;border-radius:50%;background:rgba(52,199,89,.12);border:2px solid rgba(52,199,89,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;margin:0 auto;transition:all .25s;gap:5px;">
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2C9 2 6.5 4.5 6.5 7.5V10"/>
-          <path d="M17.5 10V7.5a5.5 5.5 0 00-2-.8"/>
-          <path d="M12 10c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2s2-.9 2-2v-4c0-1.1-.9-2-2-2z"/>
-          <path d="M8.5 13c0 2 .7 3.7 1.8 5"/>
-          <path d="M15.5 13c0 2-.7 3.7-1.8 5"/>
-          <path d="M5 10.5C5 6.4 8.1 3 12 3s7 3.4 7 7.5"/>
-        </svg>
-        <span style="font-size:9px;font-weight:800;color:var(--green);letter-spacing:.6px;">VERIFY</span>
-      </button>
-    </div>
-    <div id="dbl-status" style="font-size:12px;color:rgba(255,255,255,.4);min-height:18px;margin-bottom:22px;"></div>
-
-    <div style="width:100%;max-width:340px;display:flex;flex-direction:column;gap:10px;">
-      <button onclick="window._tcShowEmailSignIn('driver')"
-        style="background:transparent;border:1.5px solid rgba(255,255,255,.15);border-radius:14px;padding:13px;color:rgba(255,255,255,.55);font-size:13px;font-weight:700;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;">
-        Sign in with email instead
-      </button>
-      <button onclick="window._tcBackToWelcome('driver')"
-        style="background:transparent;border:none;color:rgba(255,255,255,.3);font-size:12px;font-weight:600;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;padding:8px;">
-        <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 4 6 10 12 16"/></svg> Back
-      </button>
-    </div>
-  </div>
 
   <!-- ── WELCOME VIEW (default) ── -->
   <div class="land-inner" id="land-welcome-view">
@@ -2165,6 +1817,8 @@ window._tcFlushErrors();
     <div class="land-actions" style="width:100%;max-width:360px;">
       <button class="btn-land-p" id="land-getstarted-btn">Get Started →</button>
       <button class="btn-land-s" id="land-showsignin-btn">I already have an account</button>
+      <button class="btn-land-p" id="land-quickbio-btn" onclick="window._tcQuickFingerprintSignIn('driver')" style="display:none;margin-top:10px;background:#111;">🔓 Sign in with Fingerprint</button>
+      <div id="land-quickbio-status" style="font-size:12px;color:rgba(255,255,255,.5);min-height:16px;margin-top:6px;text-align:center;"></div>
     </div>
     <div class="land-stats">
       <div><div class="lstat-n">0%</div><div class="lstat-l">Commission</div></div>
@@ -2334,6 +1988,21 @@ window._tcFlushErrors();
 </div>
 
 <!-- DRIVER HOME -->
+<!-- ══════════ FINGERPRINT GATE (WebAuthn) — simple confirm, same idea as Admin app ══════════ -->
+<div id="s-biogate" class="screen" style="background:#0B0B0F;">
+  <div class="screen-body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;">
+    <div id="bio-pulse" style="width:96px;height:96px;border-radius:50%;background:rgba(37,99,235,.15);border:2px solid #2563EB;display:flex;align-items:center;justify-content:center;margin-bottom:22px;font-size:42px;animation:bioPulse 1.8s ease-in-out infinite;">👆</div>
+    <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:6px;">Welcome Back</div>
+    <div id="bio-status" style="font-size:13px;color:rgba(255,255,255,.55);margin-bottom:24px;text-align:center;line-height:1.6;max-width:280px;">Touch your fingerprint sensor to continue</div>
+    <div class="err-msg" id="bio-err" style="margin-bottom:14px;color:#f87171;display:none;text-align:center;"></div>
+    <button class="btn-land-p" id="bio-retry-btn" style="width:100%;max-width:320px;">🔓 Use Fingerprint</button>
+    <button class="btn-land-s" id="bio-signout-btn" style="margin-top:10px;background:transparent;border:none;color:rgba(255,255,255,.45);">Cancel &amp; Sign Out</button>
+  </div>
+</div>
+<style>
+@keyframes bioPulse{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.35);}50%{box-shadow:0 0 0 14px rgba(37,99,235,0);}}
+</style>
+
 <div id="s-driver-home" class="screen">
   <!-- TOP BAR -->
   <div class="driver-topbar">
@@ -2465,10 +2134,70 @@ window._tcFlushErrors();
       <button class="jp-decline" id="jp-decline-btn"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg> Decline</button>
     </div>
   </div>
+
+  <!-- ══ TRIP ACCEPTED — full-screen summary shown right after Accept ══
+       Replaces the old in-app turn-by-turn navigation. Shows the trip
+       details at a glance, then hands off to Waze or Google Maps. ══ -->
+  <div id="s-trip-accepted" style="position:fixed;inset:0;background:#fff;z-index:500;display:none;flex-direction:column;">
+    <div style="flex:1;overflow-y:auto;padding:28px 22px 0;">
+      <div style="text-align:center;margin-bottom:22px;">
+        <div style="width:56px;height:56px;border-radius:50%;background:rgba(52,199,89,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+          <svg viewBox="0 0 20 20" width="26" height="26" fill="none" stroke="#34C759" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 10.5 8 14.5 16 5.5"/></svg>
+        </div>
+        <div style="font-size:20px;font-weight:800;color:#111;margin-bottom:4px;">Job Accepted</div>
+        <div style="font-size:13px;color:#888;">Head to pickup when you're ready</div>
+      </div>
+
+      <!-- Route strip -->
+      <div style="background:#F7F7F7;border-radius:16px;padding:16px;margin-bottom:14px;">
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+          <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:3px;">
+            <div style="width:12px;height:12px;background:#f59e0b;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 2px #f59e0b;"></div>
+            <div style="width:2px;flex:1;min-height:24px;background:#ddd;margin:3px 0;"></div>
+            <div style="width:12px;height:12px;background:#16a34a;border-radius:3px;border:2px solid #fff;box-shadow:0 0 0 2px #16a34a;"></div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <div style="font-size:9px;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:.5px;">Pickup</div>
+              <div style="font-size:14px;font-weight:700;color:#111;" id="ta-from-addr">—</div>
+            </div>
+            <div>
+              <div style="font-size:9px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:.5px;">Drop-off</div>
+              <div style="font-size:14px;font-weight:700;color:#111;" id="ta-to-addr">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+        <div style="background:#F7F7F7;border-radius:14px;padding:14px;text-align:center;">
+          <div style="font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;">Distance</div>
+          <div style="font-size:18px;font-weight:800;color:#111;" id="ta-dist">—</div>
+        </div>
+        <div style="background:#F7F7F7;border-radius:14px;padding:14px;text-align:center;">
+          <div style="font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;">You'll Earn</div>
+          <div style="font-size:18px;font-weight:800;color:#16a34a;" id="ta-earn">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom actions -->
+    <div style="padding:16px 22px 26px;border-top:1px solid #eee;">
+      <div style="font-size:11px;font-weight:700;color:#888;text-align:center;margin-bottom:10px;letter-spacing:.3px;">CONTINUE NAVIGATION IN</div>
+      <div style="display:flex;gap:10px;margin-bottom:10px;">
+        <button id="ta-waze-btn" style="flex:1;background:#33CCFF;color:#fff;border:none;border-radius:14px;padding:15px;font-size:14px;font-weight:800;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;">Waze</button>
+        <button id="ta-gmaps-btn" style="flex:1;background:#4285F4;color:#fff;border:none;border-radius:14px;padding:15px;font-size:14px;font-weight:800;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;">Google Maps</button>
+      </div>
+      <button id="ta-dismiss-btn" style="width:100%;background:transparent;border:none;color:#888;font-size:13px;font-weight:700;padding:10px;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;">Continue in App</button>
+    </div>
+  </div>
+
   <div class="sidemenu" id="d-sidemenu">
     <div class="sidemenu-head">
       <div class="sidemenu-av" id="d-av" style="overflow:hidden;padding:0;"><img id="d-av-img" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:none;" src=""/><span id="d-av-initials">D</span></div>
       <div class="sidemenu-name" id="d-uname">Driver</div>
+
       <div class="sidemenu-email" id="d-uemail">—</div>
       <div class="sidemenu-sub-badge" id="d-sub-badge">No Plan</div>
     </div>
@@ -2597,12 +2326,12 @@ window._tcFlushErrors();
       <div class="fg"><label class="fl">Truck Type / Capacity</label>
         <select class="fs" id="prf-trucktype">
           <option value="">Select type</option>
-          <option value="1 Ton Bakkie">1 Ton Bakkie</option>
-          <option value="3 Ton">3 Ton</option>
-          <option value="5 Ton">5 Ton</option>
-          <option value="8 Ton">8 Ton</option>
-          <option value="14 Ton Rigid">14 Ton Rigid</option>
-          <option value="34 Ton Semi">34 Ton Semi</option>
+          <option value="1 Ton Small Truck">1 Ton Small Truck</option>
+          <option value="2 Ton Small Truck">2 Ton Small Truck</option>
+          <option value="3 Ton Small Truck">3 Ton Small Truck</option>
+          <option value="4 Ton Medium Truck">4 Ton Medium Truck</option>
+          <option value="5 Ton Medium Truck">5 Ton Medium Truck</option>
+          <option value="6 Ton Medium Truck">6 Ton Medium Truck</option>
         </select>
       </div>
       <div class="fg"><label class="fl">Licence Plate</label><input class="fi" id="prf-plate" placeholder="e.g. CA 123-456"/></div>
@@ -2809,131 +2538,6 @@ window._tcFlushErrors();
 <!-- ══════════════════════════════════════════════════════════
      NAV SCREEN — Pick Google Maps or Waze
 ══════════════════════════════════════════════════════════ -->
-<div id="s-nav-screen" class="screen">
-
-  <!-- Full-screen MapLibre navigation map -->
-  <div id="nav-map"></div>
-
-  <!-- Recalculating banner (shown briefly, auto-hides) -->
-  <div id="nav-recalc" class="nav-recalc">↻ Recalculating route...</div>
-
-  <!-- Route clear banner (shown once after route loads) -->
-  <div id="nav-clear-banner" class="nav-clear-banner">
-    <span class="nav-clear-text"><span class="nav-clear-dot"></span>Route is clear</span>
-    <span class="nav-clear-sub">No recalculation needed</span>
-    <button class="nav-clear-close" onclick="this.parentElement.classList.remove('show')"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg></button>
-  </div>
-
-  <!-- Arrival banner -->
-  <div id="nav-arrive-banner" class="nav-arrive-banner">
-    <svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 18s6-5.6 6-10.4A6 6 0 0 0 4 7.6C4 12.4 10 18 10 18Z"/><circle cx="10" cy="7.5" r="2"/></svg> You have arrived!
-    <div class="nav-arrive-sub" id="nav-arrive-sub">At your destination</div>
-  </div>
-
-  <!-- ── Top instruction banner ─────────────────────────────── -->
-  <div class="nav-turn-banner" id="nav-turn-banner">
-    <!-- Left: turn arrow -->
-    <div class="nav-turn-icon-wrap">
-      <div id="nav-turn-icon" class="nav-turn-icon">
-        <svg width="40" height="40" viewBox="0 0 44 44" fill="none">
-          <path d="M22 6 L22 38 M22 6 L10 20 M22 6 L34 20"
-                stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-    </div>
-    <!-- Center: distance + instruction + road -->
-    <div class="nav-turn-text">
-      <div id="nav-turn-dist" class="nav-turn-dist">Calculating...</div>
-      <div id="nav-turn-instruction" class="nav-turn-instruction">Loading route</div>
-      <div id="nav-road-name" class="nav-road-name"></div>
-    </div>
-    <!-- Right: "Then" next maneuver -->
-    <div class="nav-then-pill" id="nav-then-pill" style="display:none;">
-      <span class="nav-then-label">THEN</span>
-      <div id="nav-then-icon" style="font-size:20px;">↱</div>
-      <span class="nav-then-dist" id="nav-then-dist"></span>
-    </div>
-  </div>
-
-  <!-- Back button -->
-  <button class="nav-back-btn"
-    onclick="NAV.isNavigating=false;_navStopGPS();_navStopRAF();goTo('s-driver-home')"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 4 6 10 12 16"/></svg></button>
-
-  <!-- Voice toggle -->
-  <button class="nav-voice-btn" id="nav-voice-btn" onclick="window._navToggleVoice()"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5h3L10.5 4v12L6 12.5H3Z"/><path d="M13.2 7.3a3.6 3.6 0 0 1 0 5.4"/></svg></button>
-
-  <!-- Geolocate / re-lock button — sits below voice, left side -->
-  <button class="nav-geolocate-btn" id="nav-geolocate-btn" onclick="window._navGeolocate()" title="Lock to my location">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="4"/>
-      <line x1="12" y1="2" x2="12" y2="6"/>
-      <line x1="12" y1="18" x2="12" y2="22"/>
-      <line x1="2" y1="12" x2="6" y2="12"/>
-      <line x1="18" y1="12" x2="22" y2="12"/>
-    </svg>
-  </button>
-
-  <!-- 2D / 3D toggle -->
-  <div class="nav-2d3d-toggle">
-    <button id="nav-2d-btn" class="nav-2d3d-btn" onclick="window._navSet2D()">2D</button>
-    <button id="nav-3d-btn" class="nav-2d3d-btn nav-2d3d-active" onclick="window._navSet3D()">3D</button>
-  </div>
-
-  <!-- Traffic toggle -->
-  <button id="nav-traffic-btn" onclick="_toggleTraffic(NAV.map)" title="Toggle Traffic" style="position:absolute;top:148px;right:12px;width:40px;height:40px;border-radius:50%;background:rgba(28,28,30,0.9);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;backdrop-filter:blur(8px);"></button>
-
-  <!-- Recenter button -->
-  <button class="nav-recenter-btn" id="nav-recenter-btn" onclick="window._navRecenter()">◎</button>
-
-  <!-- Speed circle — bottom left -->
-  <div class="nav-speed-circle">
-    <div id="nav-speed" class="nav-speed-val">0</div>
-    <div class="nav-speed-unit">km/h</div>
-  </div>
-
-  <!-- Current street pill — bottom center -->
-  <div class="nav-street-pill" id="nav-street-pill">On route</div>
-
-  <!-- ── Bottom panel — collapsible ────────────────────────── -->
-  <div class="nav-bottom-panel" id="nav-bottom-panel">
-    <!-- Drag handle / tap to expand -->
-    <div class="nav-panel-toggle" id="nav-panel-toggle" onclick="window._navTogglePanel()">
-      <div class="nav-panel-handle"></div>
-    </div>
-    <!-- Stats: Distance | divider | Time | divider | ETA -->
-    <div class="nav-stats-row">
-      <div class="nav-stat-block">
-        <div id="nav-dist-val" class="nav-stat-value">—</div>
-        <div class="nav-stat-label">Distance</div>
-      </div>
-      <div class="nav-stat-divider"></div>
-      <div class="nav-stat-block">
-        <div id="nav-time-val" class="nav-stat-value">—</div>
-        <div class="nav-stat-label">Remaining</div>
-      </div>
-      <div class="nav-stat-divider"></div>
-      <div class="nav-stat-block">
-        <div id="nav-eta" class="nav-stat-value">--:--</div>
-        <div class="nav-stat-label">ETA</div>
-      </div>
-    </div>
-    <!-- Hidden dist-remain alias for JS compatibility -->
-    <div id="nav-dist-remain" style="display:none;"></div>
-    <!-- Collapsible action buttons -->
-    <div class="nav-actions-row" id="nav-actions-row">
-      <button class="nav-act-btn nav-act-arrived" onclick="window._nsArrived()">
-        <span><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 18s6-5.6 6-10.4A6 6 0 0 0 4 7.6C4 12.4 10 18 10 18Z"/><circle cx="10" cy="7.5" r="2"/></svg></span>Arrived
-      </button>
-      <button class="nav-act-btn nav-act-start" id="ns-start-btn" onclick="window._nsStartTrip()">
-        <span>▶</span>Start Trip
-      </button>
-      <button class="nav-act-btn nav-act-end" onclick="window._nsEndTrip()">
-        <span>⬛</span>End Trip
-      </button>
-    </div>
-  </div>
-
-</div>
 
 
 
@@ -3288,6 +2892,20 @@ async function initFCM(uid) {
   }
 }
 
+// ── NOTIFY CUSTOMER (via Cloudflare Worker) ────────────────────────────────────
+// Calls the shared TruckConnect Worker directly — same one used for OTP and
+// the Admin AI agent — rather than embedding a OneSignal key in this app,
+// which would let any driver's device message your entire customer base.
+var TC_WORKER_URL="https://truckconnect-api.madibasphiwe50.workers.dev"; // update if your Worker name/subdomain differs
+function _notifyCustomer(customerUid,title,body){
+  if(!customerUid){console.warn('[TC] _notifyCustomer called with no customerUid');return;}
+  fetch(TC_WORKER_URL+'/notify-customer',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({toUid:customerUid,title:title||'TruckConnect',body:body||''})
+  }).catch(function(e){console.warn('[TC] _notifyCustomer failed:',e.message);});
+}
+
 // ── DRIVER NOTIFICATION SYSTEM ────────────────────────────────────────────────
 var _dNotifUnsub = null;
 
@@ -3625,7 +3243,7 @@ function renderStep(){
   } else if(dStep===2){
     body.innerHTML='<div class="section-title">Vehicle Details</div><div class="section-sub">Enter your truck information. Upload documents before accepting loads.</div>'+
       '<div class="fg"><span class="fl">Truck Make & Model</span><input class="fi" id="d-truck" placeholder="e.g. Mercedes-Benz Actros 2645" value="'+(dData.truck||'')+'"/><div class="err-msg" id="d-etk"></div></div>'+
-      '<div class="fg"><span class="fl">Truck Type / Capacity</span><input class="fi" id="d-trucktype" placeholder="e.g. 34 Ton Semi, 5 Ton Rigid, 1 Ton Bakkie" value="'+(dData.truckType||'')+'"/><div class="err-msg" id="d-ett"></div></div>'+
+      '<div class="fg"><span class="fl">Truck Type / Capacity</span><input class="fi" id="d-trucktype" placeholder="e.g. 6 Ton Medium Truck, 1 Ton Small Truck" value="'+(dData.truckType||'')+'"/><div class="err-msg" id="d-ett"></div></div>'+
       '<div class="frow"><div class="fg"><span class="fl">Registration Number</span><input class="fi" id="d-plate" placeholder="e.g. GP 123-456" value="'+(dData.plate||'')+'"/><div class="err-msg" id="d-epl"></div></div><div class="fg"><span class="fl">Province</span><select class="fs" id="d-prov"><option value="">Select...</option>'+provOpts+'</select></div></div>'+
       '<div class="fg"><span class="fl">Truck Color</span><input class="fi" id="d-truckcolor" placeholder="e.g. White, Red, Blue" value="'+(dData.truckColor||'')+'"/><div class="err-msg" id="d-etcolor"></div></div>'+
       '<div class="upload-box" id="truckphoto-box" style="border-color:'+(dData.truckPhoto?'#4ade80':'')+'"><div style="font-size:28px;margin-bottom:8px;" id="truckphoto-icon">'+(dData.truckPhoto?'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 10.5 8 14.5 16 5.5"/></svg>':'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>')+'</div><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Photo of Your <strong>Truck</strong></div><div style="font-size:11px;color:var(--muted);" id="truckphoto-status">'+(dData.truckPhoto?'<span style="color:#166534;">Photo uploaded ✓</span>':'Take a clear front photo showing the number plate')+'</div>'+(dData.truckPhoto?'<img src="'+dData.truckPhoto+'" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-top:10px;" alt="Truck">':'')+'<input type="file" id="truckphoto-file" accept="image/*"/></div>'+
@@ -4471,7 +4089,7 @@ function truckMatches(jobTruck,driverTruck){
   if(!jobTruck)return true;
   var j=jobTruck.toLowerCase(),d=driverTruck.toLowerCase();
   if(j===d)return true;
-  var order=['1ton','bakkie','1 ton','small','3ton','3 ton','medium','5ton','5 ton','8ton','8 ton','large','14ton','14 ton','rigid','34ton','34 ton','semi','extra large'];
+  var order=['1ton','2ton','3ton','small','4ton','5ton','6ton','medium'];
   var ji=order.findIndex(function(x){return j.indexOf(x)!==-1;});
   var di=order.findIndex(function(x){return d.indexOf(x)!==-1;});
   if(ji===-1||di===-1)return true;
@@ -4521,12 +4139,12 @@ function _truckMatchLevel(jobTruck,driverTruck){
   if(j===d||d.indexOf(j)!==-1||j.indexOf(d)!==-1)return'perfect';
   // Capacity order — driver can always take jobs equal to or smaller than their truck
   var order=[
-    ['1ton','bakkie'],
-    ['3ton'],
+    ['1ton'],
+    ['2ton'],
+    ['3ton','small'],
+    ['4ton'],
     ['5ton'],
-    ['8ton'],
-    ['14ton','rigid'],
-    ['34ton','semi','extralarge']
+    ['6ton','medium']
   ];
   var jRank=-1,dRank=-1;
   order.forEach(function(grp,i){
@@ -4889,6 +4507,37 @@ function hideJobPopup(keepRoute){
   }
 }
 
+// ══ TRIP ACCEPTED SCREEN — shown right after Accept, replaces old in-app nav ══
+function _showTripAccepted(b){
+  var screen=document.getElementById('s-trip-accepted');
+  if(!screen)return;
+  txt('ta-from-addr',b.from||'—');
+  txt('ta-to-addr',b.to||'—');
+  txt('ta-dist',b.dist||'—');
+  txt('ta-earn',b.price||'—');
+  screen.style.display='flex';
+
+  var wazeBtn=document.getElementById('ta-waze-btn');
+  var gmapsBtn=document.getElementById('ta-gmaps-btn');
+  var dismissBtn=document.getElementById('ta-dismiss-btn');
+
+  function closeScreen(){screen.style.display='none';}
+
+  if(wazeBtn)wazeBtn.onclick=function(){
+    var c=b.fromCoords;
+    if(c&&c[0]){window.open('https://waze.com/ul?ll='+c[1]+','+c[0]+'&navigate=yes','_blank');}
+    else if(b.from){window.open('https://waze.com/ul?q='+encodeURIComponent(b.from+', South Africa')+'&navigate=yes','_blank');}
+    closeScreen();
+  };
+  if(gmapsBtn)gmapsBtn.onclick=function(){
+    var c=b.fromCoords;
+    var dest=c&&c[0]?(c[1]+','+c[0]):encodeURIComponent(b.from||'');
+    window.open('https://www.google.com/maps/dir/?api=1&destination='+dest+'&travelmode=driving','_blank');
+    closeScreen();
+  };
+  if(dismissBtn)dismissBtn.onclick=closeScreen;
+}
+
 function acceptJob(){
   if(!pendingJob)return;
   var b=pendingJob;
@@ -4914,9 +4563,9 @@ function acceptJob(){
       dTrips++;dTodayEarn+=(b.priceNum||0);dWeekEarn+=(b.priceNum||0);
       txt('earn-today','R'+dTodayEarn.toLocaleString());txt('earn-week','R'+dWeekEarn.toLocaleString());txt('earn-trips',dTrips);
       acceptedJobs.push(Object.assign({},b,{at:new Date().toLocaleTimeString()}));
-      renderJobs();hideJobPopup(true);toast('Job accepted! <svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><polyline points="6 10 9 13 14.5 7"/></svg>');
-      // Notify the customer that their driver is on the way
-      _notifyCustomer(b.customerUid, '<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg> Driver On The Way!', (dData.name||'Your driver')+' has accepted your booking. Track your delivery in the app.');
+      renderJobs();hideJobPopup(true);
+      _showTripAccepted(b);
+      _notifyCustomer(b.customerUid, '🚚 Driver On The Way!', (dData.name||'Your driver')+' has accepted your booking. Track your delivery in the app.');
       // Show active job strip on map
       _showActiveJobStrip(b);
       // ── Resolve coords then broadcast ETA ──
@@ -4938,8 +4587,8 @@ function acceptJob(){
     dTrips++;dTodayEarn+=(b.priceNum||0);dWeekEarn+=(b.priceNum||0);
     txt('earn-today','R'+dTodayEarn.toLocaleString());txt('earn-week','R'+dWeekEarn.toLocaleString());txt('earn-trips',dTrips);
     acceptedJobs.push(Object.assign({},b,{at:new Date().toLocaleTimeString()}));
-    renderJobs();hideJobPopup(true);toast('Job accepted! <svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><polyline points="6 10 9 13 14.5 7"/></svg>');
-    // Show active job strip on map
+    renderJobs();hideJobPopup(true);
+    _showTripAccepted(b);
     _showActiveJobStrip(b);
   }
 }
@@ -5283,1130 +4932,6 @@ function checkApprovalStatus(){
 }
 
 
-// ═══════════════════════════════════════════════════════════════
-// NAV SCREEN — simple Google Maps / Waze chooser
-// ═══════════════════════════════════════════════════════════════
-
-var _nsJob = null; // currently active job in the nav screen
-
-// ── Build deep-link URLs ──
-function _nsBuildUrls(job) {
-  var orig = (driverLat && driverLng) ? (driverLat + ',' + driverLng) : '';
-  var fromStr = '', toStr = '';
-
-  if (job.fromCoords && job.fromCoords[0] && job.fromCoords[1]) {
-    fromStr = job.fromCoords[1] + ',' + job.fromCoords[0];
-  } else if (job.from) {
-    fromStr = job.from + ', South Africa';
-  }
-  if (job.toCoords && job.toCoords[0] && job.toCoords[1]) {
-    toStr = job.toCoords[1] + ',' + job.toCoords[0];
-  } else if (job.to) {
-    toStr = job.to + ', South Africa';
-  }
-
-  // Google Maps — driver → pickup → dropoff
-  var gUrl = 'https://www.google.com/maps/dir/?api=1&travelmode=driving';
-  if (orig) gUrl += '&origin=' + encodeURIComponent(orig);
-  if (fromStr) gUrl += '&waypoints=' + encodeURIComponent(fromStr);
-  if (toStr) gUrl += '&destination=' + encodeURIComponent(toStr);
-  else if (fromStr) gUrl += '&destination=' + encodeURIComponent(fromStr);
-
-  // Waze — navigate to pickup first
-  var wUrl = '';
-  if (job.fromCoords && job.fromCoords[0] && job.fromCoords[1]) {
-    wUrl = 'https://waze.com/ul?ll=' + job.fromCoords[1] + ',' + job.fromCoords[0] + '&navigate=yes';
-    if (orig) wUrl += '&from=' + encodeURIComponent(orig);
-  } else if (job.from) {
-    wUrl = 'https://waze.com/ul?q=' + encodeURIComponent(job.from + ', South Africa') + '&navigate=yes';
-    if (orig) wUrl += '&from=' + encodeURIComponent(orig);
-  }
-
-  return { gUrl: gUrl, wUrl: wUrl };
-}
-
-// ── Open the nav screen for a job ──
-// ══════════════════════════════════════════════════════════════════════════
-// TRUCKCONNECT NAVIGATION SYSTEM v2
-// Heavy-vehicle routing: ORS HGV (preferred) → OSRM fallback
-// GPS: Spring-physics smoothing + road snapping + Firebase sync
-// ══════════════════════════════════════════════════════════════════════════
-
-// ── HEAVY VEHICLE ROUTING CONFIG ─────────────────────────────────────────
-// Get free ORS key at openrouteservice.org (2000 req/day free)
-// Leave blank to use OSRM (no truck restrictions)
-var ORS_KEY = '5b3ce3597851110001cf6248497fc6e7a6d84da68d67b4a0d3c8a97f';
-var ORS_TRUCK = { weight:56, height:4.3, width:2.6, length:22, axleload:8 };
-
-var NAV = {
-  map:null, truckEl:null, truckMarker:null, destMarker:null,
-  routeCoords:[], steps:[], stepIndex:0, _snapIdx:0,
-  totalDist:0, remainDist:0, bearing:0, speed:0,
-  smoothLat:null, smoothLng:null, prevLat:null, prevLng:null,
-  gpsWatcher:null, voiceOn:true, spokenSet:new Set(),
-  userPanning:false, recenterTimer:null,
-  isNavigating:false, mapInited:false, job:null
-};
-
-// ── SPRING PHYSICS STATE (60fps truck movement) ────────────────────────────
-var _SP = {
-  curLat:null, curLng:null,   // current rendered position
-  tgtLat:null, tgtLng:null,   // GPS target position
-  velLat:0,    velLng:0,      // velocity for inertia (deg/s)
-  curBear:0,   tgtBear:0,     // bearing
-  velBear:0,                   // bearing angular velocity
-  speedMS:0,                   // speed m/s
-  lastGPS:0                    // timestamp of last GPS fix
-};
-
-// ── CAMERA SMOOTH STATE ───────────────────────────────────────────────────
-// Extended with velocity for cinematic inertia
-var _CAM = {
-  bearing:0, velBear:0,       // bearing + angular velocity
-  zoom:18,   velZoom:0,       // zoom + zoom velocity
-  pitch:60,  velPitch:0,      // pitch + pitch velocity
-  lat:null,  lng:null,        // camera center (for smooth look-ahead)
-  velLat:0,  velLng:0
-};
-
-// ── RAF HANDLE ────────────────────────────────────────────────────────────
-var _navRaf = null;
-var _navRafPrev = 0;
-
-// ── MAP INIT ──────────────────────────────────────────────────────────────
-function _navInitMap() {
-  if (NAV.mapInited) return;
-  var el = document.getElementById('nav-map');
-  if (!el || typeof mapboxgl === 'undefined') { console.warn('[TC Nav] MapLibre not ready'); return; }
-    // ── Tile caching for offline use ──────────────────────────────────────
-  // Tiles are stored in Cache API as they load. On next visit (even offline)
-  // the cached tiles are served instantly from the browser cache.
-  var NAV_TILE_CACHE = 'tc-nav-tiles-v1';
-  function _cacheTile(url, resp) {
-    if (!('caches' in window)) return;
-    caches.open(NAV_TILE_CACHE).then(function(c){ c.put(url, resp.clone()); }).catch(function(){});
-  }
-
-  mapboxgl.accessToken = _MB_TOKEN;
-  NAV.map = new mapboxgl.Map({
-    container: 'nav-map',
-    style: _mapStyle(),
-    transformRequest: function(url, resourceType) {
-      // Cache all tile requests for offline use
-      if (resourceType === 'Tile') {
-        if ('caches' in window) {
-          caches.open(NAV_TILE_CACHE).then(function(c) {
-            c.match(url).then(function(hit) {
-              if (!hit) fetch(url,{mode:'cors'}).then(function(r){ if(r&&r.ok) _cacheTile(url,r); }).catch(function(){});
-            });
-          });
-        }
-      }
-      return { url: url };
-    },
-    center: [28.0473, -26.2041],
-    zoom: 18, pitch: 60, bearing: 0,
-    attributionControl: false,
-    antialias: true  // crisp 3D buildings at close zoom
-  });
-  NAV.map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-left');
-  NAV.map.on('dragstart', function() {
-    NAV.userPanning = true;
-    _navGeoLocked = false;
-    var gb = document.getElementById('nav-geolocate-btn');
-    if (gb) gb.classList.remove('locked');
-    var rb = document.getElementById('nav-recenter-btn');
-    if (rb) { rb.style.opacity = '1'; rb.style.pointerEvents = 'auto'; }
-  });
-  NAV.map.on('load', function() {
-    _applyGMStyle(NAV.map);
-    _navAddRouteLayer();
-    _navAddTruckMarker();
-    NAV.mapInited = true;
-    // Start geolocate button in locked (blue) state
-    var gb = document.getElementById('nav-geolocate-btn');
-    if (gb) gb.classList.add('locked');
-    console.log('[TC Nav] Map loaded');
-  });
-  NAV.map.on('error', function(e) { console.warn('[TC Nav] Map error:', e.error); });
-}
-
-// ── ROUTE LAYER ───────────────────────────────────────────────────────────
-function _navAddRouteLayer() {
-  if (!NAV.map) return;
-  NAV.map.addSource('nav-route', {
-    type:'geojson',
-    data:{ type:'Feature', geometry:{ type:'LineString', coordinates:[] } }
-  });
-  // Outer glow — Apple Maps System Blue halo
-  NAV.map.addLayer({ id:'nav-route-glow2', type:'line', source:'nav-route',
-    layout:{ 'line-join':'round','line-cap':'round' },
-    paint:{ 'line-color':'#007AFF','line-width':28,'line-opacity':0.08,'line-blur':12 }
-  });
-  // Mid glow
-  NAV.map.addLayer({ id:'nav-route-glow1', type:'line', source:'nav-route',
-    layout:{ 'line-join':'round','line-cap':'round' },
-    paint:{ 'line-color':'#007AFF','line-width':14,'line-opacity':0.20,'line-blur':4 }
-  });
-  // White casing — 12px (frames the 8px route line per spec)
-  NAV.map.addLayer({ id:'nav-route-casing', type:'line', source:'nav-route',
-    layout:{ 'line-join':'round','line-cap':'round' },
-    paint:{ 'line-color':'#FFFFFF','line-width':12,'line-opacity':0.9 }
-  });
-  // Main route line — Apple System Blue, 8px per spec
-  NAV.map.addLayer({ id:'nav-route-line', type:'line', source:'nav-route',
-    layout:{ 'line-join':'round','line-cap':'round' },
-    paint:{ 'line-color':'#007AFF','line-width':8,'line-opacity':1.0 }
-  });
-  // Inner highlight — white core for premium depth
-  NAV.map.addLayer({ id:'nav-route-highlight', type:'line', source:'nav-route',
-    layout:{ 'line-join':'round','line-cap':'round' },
-    paint:{ 'line-color':'#ffffff','line-width':2.5,'line-opacity':0.45 }
-  });
-}
-
-// ── PREMIUM TRUCK MARKER (TC Blue, glow, correct road-level anchor) ───────
-function _navAddTruckMarker() {
-  if (!NAV.map) return;
-  NAV.truckEl = document.createElement('div');
-  NAV.truckEl.className = 'nav-truck-marker';
-  // 52×80 top-down truck, cab at top (north = forward)
-  // anchor:'bottom' places the bottom of the element at the coordinate
-  // We use bottom of the trailer as the anchor so the truck sits ON the road
-  NAV.truckEl.innerHTML = '<svg width="52" height="80" viewBox="0 0 52 80" xmlns="http://www.w3.org/2000/svg">'
-    // Glow / shadow on road
-    +'<ellipse cx="26" cy="76" rx="14" ry="3.5" fill="rgba(0,0,0,0.45)"/>'
-    // Trailer body — TC Blue with white outline
-    +'<rect x="6" y="24" width="40" height="48" rx="4" fill="#0A84FF"/>'
-    +'<rect x="6" y="24" width="40" height="48" rx="4" fill="none" stroke="#fff" stroke-width="2"/>'
-    // Trailer center line + horizontal line
-    +'<line x1="26" y1="27" x2="26" y2="70" stroke="rgba(255,255,255,0.25)" stroke-width="1.2"/>'
-    +'<line x1="6" y1="48" x2="46" y2="48" stroke="rgba(255,255,255,0.25)" stroke-width="1.2"/>'
-    // Rear axle wheels (dark, white edge)
-    +'<rect x="1" y="56" width="7" height="10" rx="2" fill="#111" stroke="#fff" stroke-width="1"/>'
-    +'<rect x="44" y="56" width="7" height="10" rx="2" fill="#111" stroke="#fff" stroke-width="1"/>'
-    +'<rect x="1" y="42" width="7" height="10" rx="2" fill="#111" stroke="#fff" stroke-width="1"/>'
-    +'<rect x="44" y="42" width="7" height="10" rx="2" fill="#111" stroke="#fff" stroke-width="1"/>'
-    // Cab — darker blue
-    +'<rect x="7" y="5" width="38" height="22" rx="6" fill="#0060CC"/>'
-    +'<rect x="7" y="5" width="38" height="22" rx="6" fill="none" stroke="#fff" stroke-width="2"/>'
-    // Windscreen — light blue tint
-    +'<rect x="12" y="8" width="28" height="13" rx="3.5" fill="rgba(180,220,255,0.88)"/>'
-    // Front wheels
-    +'<rect x="1" y="16" width="7" height="9" rx="2" fill="#111" stroke="#fff" stroke-width="1"/>'
-    +'<rect x="44" y="16" width="7" height="9" rx="2" fill="#111" stroke="#fff" stroke-width="1"/>'
-    // Direction triangle at front — bright white
-    +'<polygon points="26,0 19,7 33,7" fill="#ffffff" opacity="0.95"/>'
-    // Glow ring around truck
-    +'<rect x="3" y="2" width="46" height="74" rx="6" fill="none" stroke="rgba(10,132,255,0.3)" stroke-width="3"/>'
-  +'</svg>';
-
-  // anchor:'bottom' = bottom of SVG sits at the GPS coordinate = rear of trailer on road
-  // This eliminates the "flying truck" bug
-  NAV.truckMarker = new mapboxgl.Marker({ element:NAV.truckEl, anchor:'bottom' })
-    .setLngLat([28.0473, -26.2041]).addTo(NAV.map);
-}
-
-// ── DESTINATION MARKER ────────────────────────────────────────────────────
-function _navPlaceDestMarker(coords) {
-  if (NAV.destMarker) NAV.destMarker.remove();
-  var el = document.createElement('div');
-  el.style.cssText='width:24px;height:30px;position:relative;filter:drop-shadow(0 3px 6px rgba(255,59,48,0.55));';
-  el.innerHTML=''
-    +'<div style="width:24px;height:24px;border-radius:50%;background:#FF3B30;border:3px solid #fff;display:flex;align-items:center;justify-content:center;">'
-    +'<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1L7.5 4.5H11L8.3 6.8L9.3 10.5L6 8.5L2.7 10.5L3.7 6.8L1 4.5H4.5Z" fill="white"/></svg>'
-    +'</div>'
-    +'<div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #FF3B30;margin:0 auto;margin-top:-1px;"></div>';
-  NAV.destMarker = new mapboxgl.Marker({ element:el, anchor:'bottom' })
-    .setLngLat(coords).addTo(NAV.map);
-}
-
-// ── ROUTE FETCH ───────────────────────────────────────────────────────────
-function _navFetchRoute(fromCoords, toCoords) {
-  var recalcEl = document.getElementById('nav-recalc');
-  if (recalcEl) recalcEl.classList.add('show');
-  var instrEl = document.getElementById('nav-turn-instruction');
-  if (instrEl) instrEl.textContent = 'Calculating route...';
-
-  // ── ORS HGV routing (truck-aware) → OSRM fallback ──────────────────────
-  var _routePromise;
-  if (ORS_KEY) {
-    _routePromise = fetch('https://api.openrouteservice.org/v2/directions/driving-hgv/geojson', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'Authorization': ORS_KEY },
-      body: JSON.stringify({
-        coordinates: [fromCoords, toCoords],
-        instructions: true, language:'en', units:'m',
-        options: {
-          vehicle_type:'hgv', avoid_features:['ferries'],
-          profile_params: { restrictions: ORS_TRUCK }
-        }
-      })
-    }).then(function(r) { return r.json(); }).then(function(data) {
-      if (!data.features || !data.features[0]) throw new Error('ORS no route');
-      var feat = data.features[0], props = feat.properties;
-      var seg  = props.segments[0];
-      // Convert ORS steps → OSRM-compatible format
-      var steps = seg.steps.map(function(s) {
-        var typeMap = {0:'turn',1:'turn',2:'turn',3:'turn',4:'turn',5:'turn',
-                       6:'continue',7:'roundabout',8:'roundabout exit',9:'turn',10:'arrive',11:'depart'};
-        var modMap  = {0:'left',1:'right',2:'sharp left',3:'sharp right',
-                       4:'slight left',5:'slight right',6:'straight',9:'uturn'};
-        var wp = s.way_points || [0,0];
-        return {
-          distance: s.distance, duration: s.duration, name: s.name || '',
-          maneuver: {
-            type: typeMap[s.type] || 'continue',
-            modifier: modMap[s.type] || 'straight',
-            bearing_after: s.exit_bearings ? s.exit_bearings[0] : 0,
-            location: feat.geometry.coordinates[wp[0]]
-          }
-        };
-      });
-      return {
-        coords:    feat.geometry.coordinates,
-        steps:     steps,
-        distance:  props.summary.distance,
-        duration:  props.summary.duration,
-        source:    'ORS-HGV'
-      };
-    });
-    console.log('[TC Nav] Using ORS heavy-vehicle routing');
-  } else {
-    var osrmUrl = 'https://router.project-osrm.org/route/v1/driving/' +
-      fromCoords[0]+','+fromCoords[1]+';'+toCoords[0]+','+toCoords[1] +
-      '?overview=full&geometries=geojson&steps=true';
-    _routePromise = fetch(osrmUrl).then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (!data.routes || !data.routes[0]) throw new Error('OSRM no route');
-        var route = data.routes[0];
-        return {
-          coords:   route.geometry.coordinates,
-          steps:    route.legs[0].steps,
-          distance: route.distance,
-          duration: route.duration,
-          source:   'OSRM'
-        };
-      });
-    console.log('[TC Nav] Using OSRM routing (add ORS_KEY for truck-aware routing)');
-  }
-
-  _routePromise
-    .then(function(result) {
-      if (recalcEl) recalcEl.classList.remove('show');
-      NAV.routeCoords = result.coords;
-      NAV.steps       = result.steps;
-      NAV.totalDist   = result.distance;
-      NAV.remainDist  = result.distance;
-      NAV.stepIndex   = 0;
-      NAV.spokenSet   = new Set();
-      _navRecalcCount = 0; // reset recalc guard on fresh route
-      console.log('[TC Nav] Route via', result.source, '—', NAV.steps.length, 'steps,', Math.round(NAV.totalDist/1000), 'km');
-
-      // Show "Route is clear" banner briefly
-      var clearBanner = document.getElementById('nav-clear-banner');
-      if (clearBanner) {
-        clearBanner.classList.add('show');
-        setTimeout(function(){ clearBanner.classList.remove('show'); }, 4000);
-      }
-
-      // Draw route
-      var src = NAV.map.getSource('nav-route');
-      if (src) src.setData({ type:'Feature', geometry:{ type:'LineString', coordinates:NAV.routeCoords } });
-
-      // Destination marker
-      _navPlaceDestMarker(toCoords);
-
-      // Fit to route for overview
-      NAV.userPanning = true;
-      var bounds = NAV.routeCoords.reduce(function(b,c) { return b.extend(c); },
-        new mapboxgl.LngLatBounds(NAV.routeCoords[0], NAV.routeCoords[0]));
-      NAV.map.fitBounds(bounds, { padding:{ top:120, bottom:220, left:40, right:40 }, duration:1800 });
-
-      // Switch to follow-cam after overview
-      setTimeout(function() {
-        NAV.userPanning = false;
-        NAV.isNavigating = true;
-        _CAM.bearing = NAV.bearing; _CAM.zoom = 18; _CAM.pitch = 60;
-        var rb = document.getElementById('nav-recenter-btn');
-        if (rb) { rb.style.opacity='0'; rb.style.pointerEvents='none'; }
-        // Camera will be updated by RAF loop on next frame
-      }, 3500);
-
-      _navUpdateUI();
-      if (NAV.voiceOn && NAV.steps.length > 0) {
-        _navSpeak('Route calculated. ' + _navGetInstruction(NAV.steps[0]));
-      }
-      console.log('[TC Nav] Route:', NAV.steps.length, 'steps,', Math.round(NAV.totalDist/1000), 'km');
-    })
-    .catch(function(e) {
-      if (recalcEl) recalcEl.classList.remove('show');
-      if (instrEl) instrEl.textContent = 'Route error — check connection';
-      console.warn('[TC Nav] Route failed:', e.message || e);
-      // Try OSRM fallback if ORS failed
-      if (ORS_KEY && e.message && e.message.includes('ORS')) {
-        ORS_KEY = ''; // disable ORS for this session and retry with OSRM
-        _navFetchRoute(fromCoords, toCoords);
-      }
-    });
-}
-
-// ── GPS TRACKING ──────────────────────────────────────────────────────────
-function _navStartGPS() {
-  if (NAV.gpsWatcher !== null) return;
-  if (!navigator.geolocation) { console.warn('[TC Nav] Geolocation unavailable'); return; }
-  _navStartRAF();
-  _navStartFirebaseSync();
-  NAV.gpsWatcher = navigator.geolocation.watchPosition(
-    _navOnGPS,
-    function(e) { console.warn('[TC Nav] GPS error:', e.code); },
-    { enableHighAccuracy:true, maximumAge:0, timeout:15000 }
-  );
-  console.log('[TC Nav] GPS + RAF started');
-}
-
-function _navStopGPS() {
-  if (NAV.gpsWatcher !== null) {
-    navigator.geolocation.clearWatch(NAV.gpsWatcher);
-    NAV.gpsWatcher = null;
-  }
-  _navStopRAF();
-  _navStopFirebaseSync();
-  console.log('[TC Nav] GPS + RAF + Firebase sync stopped');
-}
-
-// ── FIREBASE NAV POSITION SYNC (throttled 7s) ─────────────────────────────
-var _navSyncTimer = null;
-
-function _navStartFirebaseSync() {
-  if (_navSyncTimer) return;
-  _navSyncTimer = setInterval(function() {
-    _navFirebaseSync();
-  }, 7000);
-  console.log('[TC Nav] Firebase sync started (7s interval)');
-}
-
-function _navStopFirebaseSync() {
-  if (_navSyncTimer) { clearInterval(_navSyncTimer); _navSyncTimer = null; }
-}
-
-function _navFirebaseSync() {
-  if (!NAV.isNavigating || !NAV.smoothLat || !NAV.smoothLng) return;
-  var FB = window._FB;
-  if (!FB || !currentUid) return;
-  // Write cleaned map-matched position to Firestore
-  FB.updateDoc(FB.doc(FB.db, 'drivers', currentUid), {
-    lat:      NAV.smoothLat,
-    lng:      NAV.smoothLng,
-    bearing:  Math.round(NAV.bearing),
-    speed:    NAV.speed,
-    lastSeen: new Date().toISOString(),
-    navStatus:'navigating',
-    stepIndex: NAV.stepIndex,
-    remainDist: Math.round(NAV.remainDist)
-  }).catch(function(e) { console.warn('[TC Nav] Firebase sync error:', e.message); });
-}
-
-// ── ITINERARY STATE UPDATE ────────────────────────────────────────────────
-function _navSetTripState(state) {
-  var FB = window._FB;
-  if (!FB || !currentUid || !NAV.job) return;
-  FB.updateDoc(FB.doc(FB.db, 'bookings', NAV.job.id || ''), {
-    navStatus: state,
-    updatedAt: new Date().toISOString()
-  }).catch(function(){});
-  console.log('[TC Nav] Trip state:', state);
-}
-
-function _navOnGPS(pos) {
-  var lat = pos.coords.latitude;
-  var lng = pos.coords.longitude;
-  var spd = pos.coords.speed > 0 ? pos.coords.speed : 0; // m/s
-  var hdg = pos.coords.heading;
-  var now = performance.now();
-
-  // Kalman-like position smoothing (trust new GPS 65%)
-  if (NAV.smoothLat === null) { NAV.smoothLat=lat; NAV.smoothLng=lng; }
-  else { NAV.smoothLat=0.65*lat+0.35*NAV.smoothLat; NAV.smoothLng=0.65*lng+0.35*NAV.smoothLng; }
-
-  // Bearing: prefer device heading, fall back to movement calculation
-  var newBear = NAV.bearing;
-  if (hdg !== null && !isNaN(hdg) && spd > 0.5) {
-    newBear = hdg;
-  } else if (NAV.prevLat !== null) {
-    var mv = _navHaversine(NAV.prevLat, NAV.prevLng, NAV.smoothLat, NAV.smoothLng);
-    if (mv > 2) newBear = _navCalcBearing(NAV.prevLat, NAV.prevLng, NAV.smoothLat, NAV.smoothLng);
-  }
-  NAV.bearing = _navLerpAngle(NAV.bearing, newBear, 0.25);
-  NAV.speed = Math.round(spd * 3.6); // km/h for display
-
-  // Feed spring system — RAF loop consumes these targets at 60fps
-  if (_SP.curLat === null) { _SP.curLat=NAV.smoothLat; _SP.curLng=NAV.smoothLng; _SP.curBear=NAV.bearing; }
-  _SP.tgtLat  = NAV.smoothLat;
-  _SP.tgtLng  = NAV.smoothLng;
-  _SP.tgtBear = NAV.bearing;
-  _SP.speedMS = spd;
-  _SP.lastGPS = now;
-
-  // Navigation logic (run on actual GPS, not interpolated position)
-  if (NAV.steps.length > 0 && NAV.isNavigating) {
-    _navCheckSteps(NAV.smoothLat, NAV.smoothLng);
-    _navCheckOffRoute(NAV.smoothLat, NAV.smoothLng);
-  }
-  if (NAV.routeCoords.length > 0) NAV.remainDist = _navCalcRemaining(NAV.smoothLat, NAV.smoothLng);
-  _navUpdateUI();
-
-  // Keep global driver position updated
-  driverLat=lat; driverLng=lng;
-  if (driverMarker) driverMarker.setLngLat([lng,lat]);
-  NAV.prevLat=NAV.smoothLat; NAV.prevLng=NAV.smoothLng;
-}
-
-// ── 60FPS RAF LOOP — smooth truck + camera ────────────────────────────────
-// ── CRITICALLY DAMPED SPRING HELPER ─────────────────────────────────────
-// ω (omega) = natural frequency, ζ (zeta) = damping ratio
-// ζ=1 → critically damped (fastest settle without overshoot)
-// ζ<1 → underdamped (slight overshoot / inertia feel)
-function _springStep(pos, vel, tgt, dt, omega, zeta) {
-  var f = omega * omega * (tgt - pos) - 2.0 * omega * zeta * vel;
-  vel += f * dt;
-  pos += vel * dt;
-  return { pos: pos, vel: vel };
-}
-function _springAngle(pos, vel, tgt, dt, omega, zeta) {
-  var diff = tgt - pos;
-  if (diff > 180) diff -= 360;
-  if (diff < -180) diff += 360;
-  var f = omega * omega * diff - 2.0 * omega * zeta * vel;
-  vel += f * dt;
-  pos = ((pos + vel * dt) + 360) % 360;
-  return { pos: pos, vel: vel };
-}
-
-function _navStartRAF() {
-  if (_navRaf) return;
-  _navRafPrev = performance.now();
-  function loop(now) {
-    _navRaf = requestAnimationFrame(loop);
-    var dt = Math.min((now - _navRafPrev) / 1000, 0.05); // cap 50ms (20fps min)
-    _navRafPrev = now;
-    if (_SP.curLat === null || _SP.tgtLat === null) return;
-
-    // ── TRUCK POSITION: critically damped spring (ω=7, ζ=0.9)
-    // Feels like inertia — accelerates smoothly, no overshoot
-    var rLat = _springStep(_SP.curLat, _SP.velLat, _SP.tgtLat, dt, 7.0, 0.9);
-    var rLng = _springStep(_SP.curLng, _SP.velLng, _SP.tgtLng, dt, 7.0, 0.9);
-    _SP.curLat = rLat.pos; _SP.velLat = rLat.vel;
-    _SP.curLng = rLng.pos; _SP.velLng = rLng.vel;
-
-    // ── BEARING: underdamped spring (ω=5, ζ=0.75) — smooth turning inertia
-    var rBear = _springAngle(_SP.curBear, _SP.velBear, _SP.tgtBear, dt, 5.0, 0.75);
-    _SP.curBear = rBear.pos; _SP.velBear = rBear.vel;
-
-    // ── ROAD SNAPPING — magnetise truck to route line (within 30m)
-    var snapLat = _SP.curLat, snapLng = _SP.curLng;
-    if (NAV.routeCoords.length > 0 && NAV.isNavigating) {
-      var snap = _navSnapToRoute(_SP.curLat, _SP.curLng);
-      if (snap.dist < 30) {
-        // Blend toward snapped position (not hard snap → smooth magnetism)
-        var sBlend = Math.min(1, (30 - snap.dist) / 30 * 0.85);
-        snapLat = _SP.curLat + sBlend * (snap.lat - _SP.curLat);
-        snapLng = _SP.curLng + sBlend * (snap.lng - _SP.curLng);
-      }
-    }
-
-    // Update truck marker
-    if (NAV.truckMarker) NAV.truckMarker.setLngLat([snapLng, snapLat]);
-    if (NAV.truckEl)     NAV.truckEl.style.transform = 'rotate(' + _SP.curBear + 'deg)';
-
-    // Cinematic camera
-    if (!NAV.userPanning && NAV.isNavigating) _navCinematicCamera(snapLng, snapLat, _SP.curBear, dt);
-  }
-  _navRaf = requestAnimationFrame(loop);
-}
-
-function _navStopRAF() {
-  if (_navRaf) { cancelAnimationFrame(_navRaf); _navRaf=null; }
-}
-
-// ── ROAD SNAPPING ─────────────────────────────────────────────────────────
-function _navSnapToRoute(lat, lng) {
-  var minD=Infinity, sLat=lat, sLng=lng;
-  // Search a window around last snap index for performance
-  var s=Math.max(0, NAV._snapIdx-3), e=Math.min(NAV.routeCoords.length-2, NAV._snapIdx+40);
-  for (var i=s; i<=e; i++) {
-    var ax=NAV.routeCoords[i][0],   ay=NAV.routeCoords[i][1];
-    var bx=NAV.routeCoords[i+1][0], by=NAV.routeCoords[i+1][1];
-    var dx=bx-ax, dy=by-ay, len2=dx*dx+dy*dy;
-    var t = len2>0 ? Math.max(0,Math.min(1,((lng-ax)*dx+(lat-ay)*dy)/len2)) : 0;
-    var px=ax+t*dx, py=ay+t*dy;
-    var d=_navHaversine(lat,lng,py,px);
-    if (d<minD) { minD=d; sLat=py; sLng=px; NAV._snapIdx=i; }
-  }
-  return { lat:sLat, lng:sLng, dist:minD };
-}
-
-// ── CINEMATIC CAMERA — truck at bottom 25% of screen ─────────────────────
-function _navCinematicCamera(lng, lat, bearing, dt) {
-  if (!NAV.map) return;
-  var spd = NAV.speed; // km/h
-
-  // ── SPEC DYNAMIC ZOOM — locked between 17.5 and 19 per spec ─────────────
-  // 0–30 km/h  → 19 (intersection detail, lane clarity)
-  // 30–60 km/h → 18 (city driving)
-  // 60–100km/h → 17.5 (pull back slightly on highway)
-  // 100+km/h   → 15.5 (reveal upcoming turns at highway speed)
-  var tZoom = spd <  30 ? 19 :
-              spd <  60 ? 18 :
-              spd < 100 ? 17.5 : 15.5;
-  // Snap to close-up (19) when approaching a maneuver
-  if (NAV.stepIndex < NAV.steps.length) {
-    var st2 = NAV.steps[NAV.stepIndex];
-    if (st2 && st2.maneuver && st2.maneuver.location) {
-      var dT2 = _navHaversine(lat, lng, st2.maneuver.location[1], st2.maneuver.location[0]);
-      if (dT2 < 120) tZoom = Math.min(19, tZoom + Math.pow(1 - dT2 / 120, 1.5) * 1.2);
-    }
-  }
-
-  // ── PITCH: 55°–60° per spec ────────────────────────────────────────────
-  var tPitch = spd < 3 ? 45 : spd < 20 ? 55 : 60;
-
-  // ── TURN ANTICIPATION — blend camera bearing toward next turn ─────────
-  var camBearing = bearing;
-  if (NAV.stepIndex < NAV.steps.length) {
-    var st = NAV.steps[NAV.stepIndex];
-    if (st && st.maneuver && st.maneuver.location) {
-      var dTurn = _navHaversine(lat, lng, st.maneuver.location[1], st.maneuver.location[0]);
-      if (dTurn < 160 && st.maneuver.bearing_after !== undefined) {
-        var w = Math.pow(Math.max(0, 1 - dTurn / 160), 2.0) * 0.5;
-        camBearing = _navLerpAngle(bearing, st.maneuver.bearing_after, w);
-      }
-    }
-  }
-
-  // ── LOOK-AHEAD — position camera so truck appears at bottom 25% ───────
-  // At 60° pitch and zoom ~18, we need to offset the center forward so the
-  // truck icon sits in the lower quarter of the viewport, showing road ahead.
-  // Offset in metres: larger = more road shown ahead of truck.
-  var ahead = Math.max(30, spd * 2.5 + 20);
-  var bRad   = camBearing * Math.PI / 180;
-  var cosLat = Math.cos(lat * Math.PI / 180) || 1;
-  var tgtCamLat = lat + (ahead / 111111) * Math.cos(bRad);
-  var tgtCamLng = lng + (ahead / 111111) * Math.sin(bRad) / cosLat;
-
-  // ── SPRING CAMERA — smooth physics-based transitions ──────────────────
-  var bS = _springAngle(_CAM.bearing, _CAM.velBear,  camBearing, dt, 4.5, 0.82);
-  var zS = _springStep (_CAM.zoom,    _CAM.velZoom,  tZoom,      dt, 3.0, 0.88);
-  var pS = _springStep (_CAM.pitch,   _CAM.velPitch, tPitch,     dt, 3.0, 0.88);
-  _CAM.bearing  = bS.pos; _CAM.velBear  = bS.vel;
-  _CAM.zoom     = zS.pos; _CAM.velZoom  = zS.vel;
-  _CAM.pitch    = pS.pos; _CAM.velPitch = pS.vel;
-
-  // Camera center glide
-  if (_CAM.lat === null) { _CAM.lat = tgtCamLat; _CAM.lng = tgtCamLng; }
-  var cLat = _springStep(_CAM.lat, _CAM.velLat, tgtCamLat, dt, 3.5, 0.86);
-  var cLng = _springStep(_CAM.lng, _CAM.velLng, tgtCamLng, dt, 3.5, 0.86);
-  _CAM.lat = cLat.pos; _CAM.velLat = cLat.vel;
-  _CAM.lng = cLng.pos; _CAM.velLng = cLng.vel;
-
-  // Apply — direct setters avoid easeTo fighting the RAF loop
-  NAV.map.setCenter([_CAM.lng, _CAM.lat]);
-  NAV.map.setZoom(_CAM.zoom);
-  NAV.map.setBearing(_CAM.bearing);
-  NAV.map.setPitch(_CAM.pitch);
-}
-
-window._navSet2D = function() {
-  NAV.userPanning = true;
-  document.getElementById('nav-2d-btn').className='nav-2d3d-btn nav-2d3d-active';
-  document.getElementById('nav-3d-btn').className='nav-2d3d-btn';
-  if(NAV.map) NAV.map.easeTo({ pitch:0, bearing:0, duration:700 });
-  _CAM.pitch=0; _CAM.bearing=0; _CAM.velPitch=0; _CAM.velBear=0;
-  NAV.userPanning = true; // keep manual — user chose north-up 2D
-};
-
-window._navSet3D = function() {
-  document.getElementById('nav-3d-btn').className='nav-2d3d-btn nav-2d3d-active';
-  document.getElementById('nav-2d-btn').className='nav-2d3d-btn';
-  NAV.userPanning = false; // resume follow-cam
-  _CAM.pitch=60; _CAM.velPitch=0;
-};
-
-window._navRecenter = function() {
-  NAV.userPanning = false;
-  _CAM.bearing = NAV.bearing;
-  _CAM.zoom = 18; _CAM.pitch = 60;
-  var rb = document.getElementById('nav-recenter-btn');
-  if (rb) { rb.style.opacity='0'; rb.style.pointerEvents='none'; }
-  if (_SP.curLng && _SP.curLat) {
-    NAV.map.easeTo({ center:[_SP.curLng,_SP.curLat], bearing:NAV.bearing, pitch:60, zoom:18, duration:800 });
-  }
-};
-
-// ── GEOLOCATE — lock camera to current GPS position ───────────────────────
-var _navGeoLocked = true; // starts locked (follow-cam on)
-window._navGeolocate = function() {
-  var btn = document.getElementById('nav-geolocate-btn');
-  if (_navGeoLocked) {
-    // Already locked — nothing to do but pulse to confirm
-    if (btn) { btn.classList.add('pulsing'); setTimeout(function(){ if(btn)btn.classList.remove('pulsing'); }, 1000); }
-    // Force immediate fly to current position
-    if (_SP.curLng && _SP.curLat && NAV.map) {
-      NAV.map.easeTo({ center:[_SP.curLng,_SP.curLat], bearing:NAV.bearing, pitch:60, zoom:18, duration:800 });
-    } else if (navigator.geolocation) {
-      // Fall back to OS geolocation if nav hasn't started yet
-      if (btn) btn.classList.add('pulsing');
-      navigator.geolocation.getCurrentPosition(function(pos) {
-        if (btn) btn.classList.remove('pulsing');
-        if (NAV.map) NAV.map.flyTo({ center:[pos.coords.longitude,pos.coords.latitude], pitch:60, zoom:18, duration:900, essential:true });
-      }, function() {
-        if (btn) btn.classList.remove('pulsing');
-      }, { enableHighAccuracy:true, timeout:8000 });
-    }
-  } else {
-    // Unlock → lock: re-enable follow-cam
-    _navGeoLocked = true;
-    NAV.userPanning = false;
-    _CAM.bearing = NAV.bearing; _CAM.pitch = 60; _CAM.zoom = 18;
-    if (btn) { btn.classList.add('locked'); btn.classList.add('pulsing'); setTimeout(function(){ if(btn)btn.classList.remove('pulsing'); }, 1000); }
-    // Hide recenter btn too
-    var rb = document.getElementById('nav-recenter-btn');
-    if (rb) { rb.style.opacity='0'; rb.style.pointerEvents='none'; }
-    if (_SP.curLng && _SP.curLat && NAV.map) {
-      NAV.map.easeTo({ center:[_SP.curLng,_SP.curLat], bearing:NAV.bearing, pitch:60, zoom:18, duration:800 });
-    }
-  }
-};
-// Called when user manually pans — unlocks geolocate
-(function _patchGeolocateOnPan() {
-  var _orig = NAV.map ? null : null; // patched after map init, see _navInitMap below
-  window._navOnManualPan = function() {
-    _navGeoLocked = false;
-    var btn = document.getElementById('nav-geolocate-btn');
-    if (btn) btn.classList.remove('locked');
-  };
-})();
-
-// ── BOTTOM PANEL EXPAND/COLLAPSE ──────────────────────────────────────────
-var _navPanelExpanded = false;
-window._navTogglePanel = function() {
-  _navPanelExpanded = !_navPanelExpanded;
-  var row = document.getElementById('nav-actions-row');
-  if (row) {
-    if (_navPanelExpanded) row.classList.add('expanded');
-    else row.classList.remove('expanded');
-  }
-};
-
-// ── STEP PROGRESS ─────────────────────────────────────────────────────────
-var _navRecalcTimer = null;
-var _navRecalcCount = 0;       // guard against infinite recalc loops
-var _navLastRecalcTime = 0;    // minimum gap between recalcs
-
-function _navCheckSteps(lat, lng) {
-  if (NAV.stepIndex >= NAV.steps.length) return;
-  var step = NAV.steps[NAV.stepIndex];
-  if (!step || !step.maneuver || !step.maneuver.location) return;
-  var endLng = step.maneuver.location[0], endLat = step.maneuver.location[1];
-  var distToEnd = _navHaversine(lat, lng, endLat, endLng);
-  var nextStep = NAV.steps[Math.min(NAV.stepIndex+1, NAV.steps.length-1)];
-
-  // Voice announcements
-  if (!NAV.spokenSet.has(NAV.stepIndex+'_200') && distToEnd < 200 && distToEnd > 80) {
-    NAV.spokenSet.add(NAV.stepIndex+'_200');
-    if (nextStep && nextStep !== step) _navSpeak('In 200 metres, ' + _navGetInstruction(nextStep));
-  }
-  if (!NAV.spokenSet.has(NAV.stepIndex+'_50') && distToEnd < 60) {
-    NAV.spokenSet.add(NAV.stepIndex+'_50');
-    if (nextStep && nextStep !== step) _navSpeak(_navGetInstruction(nextStep) + ' now');
-  }
-
-  // Advance step
-  if (distToEnd < 25) {
-    NAV.stepIndex++;
-    if (NAV.stepIndex >= NAV.steps.length - 1) {
-      _navOnArrival();
-    } else {
-      var ns = NAV.steps[NAV.stepIndex];
-      if (!NAV.spokenSet.has('step_'+NAV.stepIndex)) {
-        NAV.spokenSet.add('step_'+NAV.stepIndex);
-        _navSpeak(_navGetInstruction(ns));
-      }
-    }
-  }
-}
-
-function _navOnArrival() {
-  NAV.isNavigating = false;
-  _navSpeak('You have arrived at your destination.');
-  var ab = document.getElementById('nav-arrive-banner');
-  if (ab) { ab.classList.add('show'); setTimeout(function(){ ab.classList.remove('show'); }, 6000); }
-  if (NAV.map) NAV.map.easeTo({ pitch:0, zoom:17, duration:2000 });
-}
-
-// ── OFF-ROUTE — fixed: higher threshold, debounce, recalc limit ───────────
-function _navCheckOffRoute(lat, lng) {
-  // Don't check if no route loaded yet or arrived
-  if (!NAV.routeCoords || !NAV.routeCoords.length || !NAV.isNavigating) return;
-
-  var closest = _navClosestOnRoute(lat, lng);
-
-  // Only trigger if >150m off route (was 90m — too sensitive on curves)
-  // AND at least 15 seconds since last recalc
-  // AND not recalculated more than 5 times (prevents GPS-loop recalc)
-  if (closest > 150) {
-    clearTimeout(_navRecalcTimer);
-    _navRecalcTimer = setTimeout(function() {
-      var now = Date.now();
-      if (!NAV.steps.length) return;
-      if (now - _navLastRecalcTime < 15000) return; // 15s minimum gap
-      if (_navRecalcCount >= 5) { console.warn('[TC Nav] Recalc limit reached'); return; }
-
-      var lastStep = NAV.steps[NAV.steps.length-1];
-      if (!lastStep || !lastStep.maneuver) return;
-      var dest = lastStep.maneuver.location;
-
-      _navLastRecalcTime = now;
-      _navRecalcCount++;
-
-      var rb = document.getElementById('nav-recalc');
-      if (rb) rb.classList.add('show');
-      _navSpeak('Recalculating route.');
-      _navFetchRoute([lng, lat], dest);
-
-      // Auto-hide recalc banner after 8s in case fetch stalls
-      setTimeout(function(){
-        if (rb) rb.classList.remove('show');
-      }, 8000);
-    }, 5000); // wait 5s before recalculating (was 4s)
-  } else {
-    clearTimeout(_navRecalcTimer);
-  }
-}
-
-// ── REMAINING DISTANCE ────────────────────────────────────────────────────
-function _navCalcRemaining(lat, lng) {
-  var minDist=Infinity, minIdx=0;
-  for (var i=0; i<NAV.routeCoords.length; i++) {
-    var d = _navHaversine(lat, lng, NAV.routeCoords[i][1], NAV.routeCoords[i][0]);
-    if (d < minDist) { minDist=d; minIdx=i; }
-  }
-  var rem=0;
-  for (var j=minIdx; j<NAV.routeCoords.length-1; j++) {
-    rem += _navHaversine(NAV.routeCoords[j][1],NAV.routeCoords[j][0],NAV.routeCoords[j+1][1],NAV.routeCoords[j+1][0]);
-  }
-  return rem;
-}
-
-function _navClosestOnRoute(lat, lng) {
-  var min=Infinity;
-  for (var i=0; i<NAV.routeCoords.length; i++) {
-    var d=_navHaversine(lat,lng,NAV.routeCoords[i][1],NAV.routeCoords[i][0]);
-    if (d<min) min=d;
-  }
-  return min;
-}
-
-// ── INSTRUCTIONS ──────────────────────────────────────────────────────────
-function _navGetInstruction(step) {
-  if (!step || !step.maneuver) return 'Continue';
-  var type=step.maneuver.type, mod=step.maneuver.modifier||'', name=step.name||'';
-  var onto=name?' onto '+name:'';
-  var turnMap={left:'Turn left',right:'Turn right','slight left':'Keep left','slight right':'Keep right',
-    'sharp left':'Turn sharp left','sharp right':'Turn sharp right',uturn:'Make a U-turn',straight:'Continue straight'};
-  var map={
-    depart:'Head '+mod, arrive:'Arrive at destination',
-    turn:turnMap[mod]||'Turn '+mod, 'new name':'Continue'+onto,
-    continue:'Continue'+onto, merge:'Merge '+mod,
-    fork:mod.includes('left')?'Keep left at fork':'Keep right at fork',
-    roundabout:'Take the roundabout', rotary:'Take the rotary',
-    'on ramp':'Take the ramp', 'off ramp':'Take the exit',
-    'end of road':'Turn '+mod+' at end of road'
-  };
-  var instr=map[type]||'Continue';
-  if (name && type!=='arrive' && type!=='roundabout' && !instr.includes(name)) instr+=onto;
-  return instr;
-}
-
-function _navGetTurnIcon(step) {
-  if (!step || !step.maneuver) return _navArrowSVG('straight');
-  var t=step.maneuver.type, m=step.maneuver.modifier||'';
-  if (t==='arrive') return _navArrowSVG('arrive');
-  if (t==='roundabout'||t==='rotary') return _navArrowSVG('roundabout');
-  if (m.indexOf('right')!==-1) return _navArrowSVG('right',m);
-  if (m.indexOf('left')!==-1)  return _navArrowSVG('left',m);
-  if (m==='uturn') return _navArrowSVG('uturn');
-  return _navArrowSVG('straight');
-}
-
-/** Generate clean white Waze-style SVG arrow for a given maneuver */
-function _navArrowSVG(type, modifier) {
-  var s = 'stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"';
-  var w = function(paths) {
-    return '<svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">'+paths+'</svg>';
-  };
-  var mod = modifier||'';
-  switch(type) {
-    case 'right':
-      if(mod==='sharp right')
-        return w('<path d="M10 36 L10 20 Q10 10 20 10 L34 10 M34 10 L24 4 M34 10 L24 18" '+s+'/>');
-      return w('<path d="M10 36 Q10 16 28 16 M28 16 L18 8 M28 16 L22 26" '+s+'/>');
-    case 'left':
-      if(mod==='sharp left')
-        return w('<path d="M34 36 L34 20 Q34 10 24 10 L10 10 M10 10 L20 4 M10 10 L20 18" '+s+'/>');
-      return w('<path d="M34 36 Q34 16 16 16 M16 16 L26 8 M16 16 L22 26" '+s+'/>');
-    case 'uturn':
-      return w('<path d="M28 36 L28 18 Q28 8 18 8 Q8 8 8 18 L8 30 M8 30 L14 22 M8 30 L2 22" '+s+'/>');
-    case 'roundabout':
-      return w('<circle cx="22" cy="24" r="10" stroke="#fff" stroke-width="4" fill="none"/>'
-              +'<path d="M22 14 L22 6 M22 6 L16 12 M22 6 L28 12" '+s+'/>');
-    case 'arrive':
-      return w('<circle cx="22" cy="32" r="6" stroke="#18CFDC" stroke-width="3" fill="none"/>'
-              +'<path d="M22 26 L22 8 M22 8 L14 16 M22 8 L30 16" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>');
-    default: // straight
-      return w('<path d="M22 36 L22 8 M22 8 L13 17 M22 8 L31 17" '+s+'/>');
-  }
-}
-
-// ── UI ────────────────────────────────────────────────────────────────────
-function _navUpdateUI() {
-  // Speed
-  var sEl=document.getElementById('nav-speed'); if(sEl) sEl.textContent=Math.round(NAV.speed)||0;
-
-  // ── Distance + Time remaining stats (new bottom panel) ───────────────
-  var kmLeft = NAV.remainDist > 0 ? NAV.remainDist / 1000 : 0;
-  var avgSpd  = NAV.speed > 8 ? NAV.speed : 40;
-  var minsLeft = kmLeft > 0 ? Math.round(kmLeft / avgSpd * 60) : 0;
-
-  var distEl = document.getElementById('nav-dist-val');
-  if (distEl) {
-    distEl.textContent = NAV.remainDist > 1000
-      ? (kmLeft).toFixed(1) + ' km'
-      : NAV.remainDist > 0 ? Math.round(NAV.remainDist) + ' m' : '—';
-  }
-
-  var timeEl = document.getElementById('nav-time-val');
-  if (timeEl) {
-    if (minsLeft <= 0) { timeEl.textContent = '—'; }
-    else if (minsLeft < 60) { timeEl.textContent = minsLeft + ' min'; }
-    else { timeEl.textContent = Math.floor(minsLeft/60) + 'h ' + (minsLeft%60) + 'm'; }
-  }
-
-  var eEl = document.getElementById('nav-eta');
-  if (eEl && minsLeft > 0) {
-    var etaTime = new Date(Date.now() + minsLeft * 60000);
-    eEl.textContent = etaTime.toLocaleTimeString('en-ZA', {hour:'2-digit', minute:'2-digit'});
-  } else if (eEl) { eEl.textContent = '--:--'; }
-
-  // Keep legacy nav-dist-remain in sync for any other code that reads it
-  var legEl = document.getElementById('nav-dist-remain');
-  if (legEl && NAV.remainDist > 0) {
-    var ts = minsLeft < 60 ? minsLeft+' min' : (Math.floor(minsLeft/60)+'h '+(minsLeft%60)+'m');
-    legEl.textContent = ts + ' · ' + kmLeft.toFixed(1) + ' km';
-  }
-
-  // ── Turn banner ────────────────────────────────────────────────────────
-  if (NAV.steps.length > 0 && NAV.stepIndex < NAV.steps.length) {
-    var curStep = NAV.steps[NAV.stepIndex];
-    var nxtStep = NAV.steps[Math.min(NAV.stepIndex+1, NAV.steps.length-1)];
-    var showStep = (nxtStep !== curStep) ? nxtStep : curStep;
-
-    var iEl  = document.getElementById('nav-turn-instruction');
-    var icEl = document.getElementById('nav-turn-icon');
-    var dtEl = document.getElementById('nav-turn-dist');
-    var rnEl = document.getElementById('nav-road-name');
-
-    if (iEl)  iEl.textContent  = _navGetInstruction(showStep);
-    if (icEl) icEl.innerHTML   = _navGetTurnIcon(showStep);
-    if (rnEl) rnEl.textContent = curStep.name || '';
-    if (dtEl && curStep.maneuver && curStep.maneuver.location && NAV.smoothLat) {
-      var d = _navHaversine(NAV.smoothLat, NAV.smoothLng, curStep.maneuver.location[1], curStep.maneuver.location[0]);
-      dtEl.textContent = d > 1000 ? (d/1000).toFixed(1)+' km' : Math.round(d)+' m';
-    }
-
-    // ── "THEN" next-step pill ───────────────────────────────────────────
-    var thenPill = document.getElementById('nav-then-pill');
-    var thenIcon = document.getElementById('nav-then-icon');
-    var thenDist = document.getElementById('nav-then-dist');
-    var afterStep = NAV.steps[Math.min(NAV.stepIndex+2, NAV.steps.length-1)];
-    if (thenPill && afterStep && afterStep !== showStep) {
-      thenPill.style.display = 'flex';
-      if (thenIcon) {
-        var mod = (afterStep.maneuver||{}).modifier||'';
-        thenIcon.textContent = mod.includes('right') ? '↱' : mod.includes('left') ? '↰' : '↑';
-      }
-      if (thenDist && afterStep.distance) {
-        thenDist.textContent = afterStep.distance > 1000
-          ? (afterStep.distance/1000).toFixed(1)+' km'
-          : Math.round(afterStep.distance)+'m';
-      }
-    } else if (thenPill) {
-      thenPill.style.display = 'none';
-    }
-
-    // Current street pill
-    var spEl = document.getElementById('nav-street-pill');
-    if (spEl && curStep.name) spEl.textContent = curStep.name;
-  }
-}
-
-// ── VOICE ─────────────────────────────────────────────────────────────────
-// ── AUDIO DUCKING CONTEXT ────────────────────────────────────────────────
-var _navAudioCtx = null;
-var _navDuckGain = null;
-
-function _navGetAudioCtx() {
-  if (_navAudioCtx && _navAudioCtx.state !== 'closed') return _navAudioCtx;
-  try {
-    _navAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    _navDuckGain = _navAudioCtx.createGain();
-    _navDuckGain.connect(_navAudioCtx.destination);
-    _navDuckGain.gain.value = 1.0;
-  } catch(e) { _navAudioCtx = null; }
-  return _navAudioCtx;
-}
-
-function _navDuck(on) {
-  try {
-    var ctx = _navGetAudioCtx();
-    if (!ctx || !_navDuckGain) return;
-    // Fade media volume down when speaking, back up after
-    _navDuckGain.gain.cancelScheduledValues(ctx.currentTime);
-    _navDuckGain.gain.linearRampToValueAtTime(on ? 0.25 : 1.0, ctx.currentTime + 0.2);
-    // Also duck any <audio> and <video> elements
-    document.querySelectorAll('audio,video').forEach(function(el) {
-      el.volume = on ? 0.15 : 1.0;
-    });
-  } catch(e) {}
-}
-
-function _navSpeak(text) {
-  if(!NAV.voiceOn||!('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
-  _navDuck(true); // duck competing audio
-  var u=new SpeechSynthesisUtterance(text);
-  u.lang='en-ZA'; u.rate=0.88; u.volume=1.0; u.pitch=1.05;
-  u.onend   = function() { _navDuck(false); }; // restore after speaking
-  u.onerror = function() { _navDuck(false); };
-  window.speechSynthesis.speak(u);
-  console.log('[TC Nav] Voice:', text);
-}
-
-window._navToggleVoice = function() {
-  NAV.voiceOn=!NAV.voiceOn;
-  var btn=document.getElementById('nav-voice-btn');
-  if(btn) btn.innerHTML=NAV.voiceOn?ICON.speaker:ICON.ban;
-  toast(NAV.voiceOn?'Voice on':'Voice off');
-};
-
-// ── MATH ──────────────────────────────────────────────────────────────────
-function _navHaversine(lat1,lng1,lat2,lng2) {
-  var R=6371000,dL=(lat2-lat1)*Math.PI/180,dG=(lng2-lng1)*Math.PI/180;
-  var a=Math.sin(dL/2)*Math.sin(dL/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dG/2)*Math.sin(dG/2);
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
-function _navCalcBearing(lat1,lng1,lat2,lng2) {
-  var dG=(lng2-lng1)*Math.PI/180;
-  var y=Math.sin(dG)*Math.cos(lat2*Math.PI/180);
-  var x=Math.cos(lat1*Math.PI/180)*Math.sin(lat2*Math.PI/180)-Math.sin(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.cos(dG);
-  return((Math.atan2(y,x)*180/Math.PI)+360)%360;
-}
-function _navLerpAngle(a,b,t) {
-  var d=b-a; if(d>180)d-=360; if(d<-180)d+=360;
-  return(a+d*t+360)%360;
-}
-
-// ── MAIN ENTRY ────────────────────────────────────────────────────────────
-window.openNavScreen = function(job) {
-  if(!job) return;
-  if(typeof job==='string'){try{job=JSON.parse(decodeURIComponent(job));}catch(e){return;}}
-  NAV.job=job; NAV.isNavigating=false; NAV.stepIndex=0; NAV._snapIdx=0;
-  _SP.curLat=null; _SP.curLng=null; _SP.tgtLat=null; _SP.tgtLng=null;
-  _SP.velLat=0; _SP.velLng=0; _SP.velBear=0;
-  _SP.curBear=0; _SP.tgtBear=0; _SP.speedMS=0; _SP.lastGPS=0;
-  _CAM.bearing=0; _CAM.velBear=0;
-  _CAM.zoom=18;   _CAM.velZoom=0;
-  _CAM.pitch=60;  _CAM.velPitch=0;
-  _CAM.lat=null;  _CAM.lng=null; _CAM.velLat=0; _CAM.velLng=0;
-  _nsJob=job;
-  goTo('s-nav-screen');
-
-  // Init map first time
-  if(!NAV.mapInited) {
-    _navInitMap();
-  }
-
-  // Update trip status button
-  var sb=document.getElementById('ns-start-btn');
-  if(sb){var ip=job.ds==='in_progress';sb.style.opacity=ip?'0.4':'1';sb.style.pointerEvents=ip?'none':'';}
-
-  // Start GPS
-  _navStartGPS();
-
-  // Destination: pickup if pending, dropoff if in progress
-  var dest=(job.ds==='in_progress')?job.toCoords:job.fromCoords;
-  if(dest&&dest[0]&&dest[1]) {
-    _nsGetDriverPos(function(lat,lng){
-      var waitForMap = function() {
-        if(NAV.mapInited) { _navFetchRoute([lng,lat],dest); }
-        else { setTimeout(waitForMap,300); }
-      };
-      setTimeout(waitForMap,200);
-    });
-  }
-};
-
-// ── KEEP EXISTING TRIP ACTIONS ────────────────────────────────────────────
-window._nsArrived = function() {
-  toast('Arrived at pickup — confirm with customer');
-  _navSetTripState('arrived_at_pickup');
-  _navSpeak('You have arrived at the pickup location.');
-};
-
-window._nsStartTrip = function() {
-  if(!_nsJob) return;
-  window.startTrip(_nsJob.id);
-  var sb=document.getElementById('ns-start-btn');
-  if(sb){sb.style.opacity='0.4';sb.style.pointerEvents='none';}
-  toast('Trip started! Head to drop-off.');
-  _navSetTripState('in_progress');
-  // Refetch route to dropoff
-  if(_nsJob.toCoords&&_nsJob.toCoords[0]&&NAV.smoothLat) {
-    _navFetchRoute([NAV.smoothLng,NAV.smoothLat],_nsJob.toCoords);
-  }
-};
-
-window._nsEndTrip = function() {
-  if(!_nsJob) return;
-  window.completeTrip(_nsJob.id);
-  _navSetTripState('delivered');
-  _navStopGPS(); NAV.isNavigating=false;
-  goTo('s-driver-home');
-  toast('Delivery complete! Great work.');
-};
-
-window._nsCopyAddr = function(which) {
-  if(!_nsJob) return;
-  var text=which==='pickup'?(_nsJob.from||''):(_nsJob.to||'');
-  if(!text){toast('No address to copy');return;}
-  if(navigator.clipboard){navigator.clipboard.writeText(text).then(function(){toast('Copied!');}).catch(function(){toast('Copy failed');});}
-  else{var ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('Copied!');}catch(e){toast('Copy failed');}document.body.removeChild(ta);}
-};
-
-window._nsOpenGMaps = function() {
-  if(!_nsJob) return;
-  var urls=_buildNavUrls(_nsJob);
-  if(urls.gUrl) _nsOpenUrl(urls.gUrl);
-};
-window._nsOpenWaze = function() {
-  if(!_nsJob) return;
-  var urls=_buildNavUrls(_nsJob);
-  if(urls.wUrl) _nsOpenUrl(urls.wUrl);
-};
-
-window.openNavOverlay = function(job){window.showNavChooser(job,false);};
-window.navigateTo = function(coords,addr){window.showNavChooser({from:addr,to:addr,fromCoords:coords,toCoords:coords,price:'—'},false);};
-window._showFullRouteMap = function(encodedJob){try{window.showNavChooser(JSON.parse(decodeURIComponent(encodedJob)),false);}catch(e){console.error('[TC] _showFullRouteMap error:',e.message);}};
 
 
 
@@ -7406,17 +5931,20 @@ _seedEarningsHistory();
           photo:dData.selfiePhoto||''
         }));
       }catch(ex){}
-      // ── Offer biometric enrollment after first password login ──
+      // ── Set up fingerprint quick-login on this device (silent — never blocks login) ──
       setTimeout(function(){
-        window._tcBioOfferEnroll&&window._tcBioOfferEnroll('driver',currentUid,e,dData.name||'');
-      },1500);
+        window._tcSetupFingerprint&&window._tcSetupFingerprint(e,p);
+      },1200);
       if(dData.status==='approved')goToDriverHome();
       else{goTo('s-pending');txt('pend-sub-val', dData.trialStartDate ? '<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 10.5 8 14.5 16 5.5"/></svg> Free Trial Active (' + trialDaysLeft() + ' days left)' : '—');}
     })
     .catch(function(err){
       btn.disabled=false;btn.textContent='Sign In →';
+      console.error('[TC] Sign-in failed. code:',err&&err.code,'message:',err&&err.message);
       var msg='Incorrect email or password.';
       if(err.code==='auth/network-request-failed')msg='No internet connection.';
+      if(err.code==='auth/too-many-requests')msg='Too many attempts — please wait a moment and try again.';
+      if(err.code==='auth/user-disabled')msg='This account has been disabled. Contact support.';
       if(errEl){errEl.textContent=msg;errEl.style.display='block';}
     });
   });
@@ -7703,21 +6231,14 @@ _seedEarningsHistory();
 
 
 
-  // ── LANDING: Show name + biometric quick login ──
+  // ── LANDING: Show email sign-in ──
   on('land-showsignin-btn','click',function(){
     var welcome=document.getElementById('land-welcome-view');
-    var bioView=document.getElementById('land-bio-login-view');
+    var signin=document.getElementById('land-signin-view');
     if(welcome)welcome.style.display='none';
-    if(bioView){bioView.style.display='flex';}
-    var nameEl=document.getElementById('dbl-name');
-    if(nameEl)setTimeout(function(){nameEl.focus();},200);
-    // Allow Enter key to trigger biometric
-    if(nameEl&&!nameEl._bioKeyBound){
-      nameEl._bioKeyBound=true;
-      nameEl.addEventListener('keydown',function(e){
-        if(e.key==='Enter'){window._tcNameBioLogin&&window._tcNameBioLogin('driver');}
-      });
-    }
+    if(signin){signin.style.display='flex';}
+    var emailEl=document.getElementById('land-email');
+    if(emailEl)setTimeout(function(){emailEl.focus();},200);
   });
 
   window._fillRemembered=function(){
@@ -8131,6 +6652,11 @@ window.sendAdminMsgDriver = function() {
           if(_isRegistering) return;
 
           if(user){
+            function _enterHome(){
+              // Session already valid — go straight in, no fingerprint needed.
+              // Fingerprint is only asked for when actually signed out.
+              goToDriverHome();
+            }
             // 1) Try the fast localStorage cache first
             try{
               var cached=JSON.parse(localStorage.getItem('tc_driver_session')||'null');
@@ -8141,7 +6667,7 @@ window.sendAdminMsgDriver = function() {
                 FB.getDoc(FB.doc(FB.db,'drivers',user.uid)).then(function(snap){
                   if(snap.exists()){dData=snap.data();saveSession();}
                 }).catch(function(){});
-                goToDriverHome(); // admin verification bypassed
+                _enterHome(); // admin verification bypassed
                 return;
               }
             }catch(e){}
@@ -8153,15 +6679,23 @@ window.sendAdminMsgDriver = function() {
                 if(snap.exists()){
                   dData=snap.data();
                   saveSession();
-                  goToDriverHome(); // admin verification bypassed
+                  _enterHome(); // admin verification bypassed
                 }else{
                   // Firebase auth exists but no driver doc — send back to registration
+                  console.warn('[TC] No driver document found for uid:',user.uid);
                   currentUid=null;
                   FB.signOut(FB.auth).catch(function(){});
                   goTo('s-landing');
                 }
               })
-              .catch(function(){ goTo('s-landing'); });
+              .catch(function(err){
+                // DIAGNOSTIC: this used to silently bounce to landing with no trace.
+                // Log the real Firestore error so the actual cause (usually
+                // permission-denied from security rules, or a network error) is visible.
+
+                console.error('[TC] Driver doc lookup failed for uid:',user.uid,'code:',err&&err.code,'message:',err&&err.message);
+                goTo('s-landing');
+              });
           }else{
             // No Firebase session — check if mid-onboarding reload happened
             if(_restoreOBState()&&dStep>0){
@@ -8248,251 +6782,203 @@ window.sendAdminMsgDriver = function() {
 
 
 
-<!-- ══ TRUCKCONNECT BIOMETRIC MODULE v3.0 (Driver) ══════════════════════════
-     Same architecture as Customer app. See Customer app comments for full docs.
+<!-- ══ TRUCKCONNECT FINGERPRINT GATE (Driver) — simple device confirm, same pattern as Admin app ══
+     Real login always happens via email+password against Firebase Auth first.
+     WebAuthn here is only a device-level "confirm it's you" gate on TOP of an
+     already-valid Firebase session — it does not by itself identify who you are,
+     so it cannot replace the first sign-in on a new device.
 ════════════════════════════════════════════════════════════════════════════ -->
 <script>
 (function(){
 'use strict';
 
-var K={credC:'tc_bio_cred_customer',credD:'tc_bio_cred_driver',userC:'tc_bio_user_customer',userD:'tc_bio_user_driver'};
+var BIO_CRED_KEY='tc_driver_webauthn_cred_id';
 
-function _rnd(n){var a=new Uint8Array(n);crypto.getRandomValues(a);return a;}
-function _b64url(buf){var bytes=new Uint8Array(buf),str='';for(var i=0;i<bytes.length;i++)str+=String.fromCharCode(bytes[i]);return btoa(str).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');}
-function _fromB64url(s){var b64=s.replace(/-/g,'+').replace(/_/g,'/'),str=atob(b64),arr=new Uint8Array(str.length);for(var i=0;i<str.length;i++)arr[i]=str.charCodeAt(i);return arr;}
-function _credKey(app){return app==='driver'?K.credD:K.credC;}
-function _userKey(app){return app==='driver'?K.userD:K.userC;}
-function _status(id,msg,color){var el=document.getElementById(id);if(el){el.textContent=msg;el.style.color=color||'rgba(255,255,255,.45)';}}
-function _btnBusy(id,busy){var b=document.getElementById(id);if(!b)return;b.disabled=busy;b.style.transform=busy?'scale(0.9)':'scale(1)';b.style.opacity=busy?'0.6':'1';}
-
-async function _checkPlatform(){
-  if(!window.PublicKeyCredential)return 'none';
-  try{var ok=await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();return ok?'webauthn':'none';}
-  catch(e){return 'none';}
+function _b64uToBuf(b64u){
+  var b64=b64u.replace(/-/g,'+').replace(/_/g,'/');
+  var bin=atob(b64+'='.repeat((4-b64.length%4)%4));
+  var buf=new Uint8Array(bin.length);
+  for(var i=0;i<bin.length;i++)buf[i]=bin.charCodeAt(i);
+  return buf;
 }
+function _bufToB64u(buf){
+  var bytes=new Uint8Array(buf);
+  var bin='';for(var i=0;i<bytes.length;i++)bin+=String.fromCharCode(bytes[i]);
+  return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function _webauthnSupported(){return !!(window.PublicKeyCredential && navigator.credentials);}
+function _hasFingerprintRegistered(){return !!localStorage.getItem(BIO_CRED_KEY);}
+window._tcHasFingerprintRegistered=_hasFingerprintRegistered;
 
-async function _enroll(app,uid,email,name){
-  if((await _checkPlatform())!=='webauthn')return false;
+// Register this device's fingerprint sensor (called once, right after a normal
+// successful email+password login — never asks for a name, never looks anyone up)
+async function _registerFingerprint(email){
+  if(!_webauthnSupported())return {ok:false,reason:'not_supported'};
   try{
+    var challenge=crypto.getRandomValues(new Uint8Array(32));
+    var userId=crypto.getRandomValues(new Uint8Array(16));
     var cred=await navigator.credentials.create({publicKey:{
-      challenge:_rnd(32),
-      rp:{name:'TruckConnect',id:location.hostname},
-      user:{id:new TextEncoder().encode(uid),name:email,displayName:name||email},
+      challenge:challenge,
+      rp:{name:'TruckConnect Driver'},
+      user:{id:userId,name:email||'driver',displayName:email||'driver'},
       pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
-      authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'required'},
-      timeout:90000,attestation:'none'
+      authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required'},
+      timeout:60000,attestation:'none'
     }});
-    if(!cred||!cred.rawId)return false;
-    var stored={id:_b64url(cred.rawId),uid,email,name:name||''};
-    localStorage.setItem(_credKey(app),JSON.stringify(stored));
-    localStorage.setItem(_userKey(app),JSON.stringify({uid,email,name:name||''}));
-    console.log('[TC Bio] Passkey enrolled for',app,uid);
-    return true;
-  }catch(e){console.warn('[TC Bio] Enroll failed:',e.name,e.message);return false;}
+    if(!cred)return {ok:false,reason:'cancelled'};
+    localStorage.setItem(BIO_CRED_KEY,_bufToB64u(cred.rawId));
+    return {ok:true};
+  }catch(e){console.warn('[TC] Fingerprint registration error:',e.message);return {ok:false,reason:e.message};}
 }
 
-async function _assert(app){
-  var raw=localStorage.getItem(_credKey(app));
-  if(!raw)return{ok:false,reason:'no_cred'};
-  var stored;try{stored=JSON.parse(raw);}catch(e){return{ok:false,reason:'bad_storage'};}
-  if(!stored.id)return{ok:false,reason:'no_id'};
+// Verify fingerprint against the credential already registered on this device
+async function _verifyFingerprint(){
+  if(!_webauthnSupported())return {ok:false,reason:'not_supported'};
+  var credIdB64=localStorage.getItem(BIO_CRED_KEY);
+  if(!credIdB64)return {ok:false,reason:'not_registered'};
   try{
+    var challenge=crypto.getRandomValues(new Uint8Array(32));
     var assertion=await navigator.credentials.get({publicKey:{
-      challenge:_rnd(32),
-      allowCredentials:[{id:_fromB64url(stored.id),type:'public-key',transports:['internal']}],
+      challenge:challenge,
+      allowCredentials:[{id:_b64uToBuf(credIdB64),type:'public-key'}],
       userVerification:'required',
-      timeout:90000
+      timeout:60000
     }});
-    if(!assertion)return{ok:false,reason:'no_assertion'};
-    return{ok:true,stored};
-  }catch(e){
-    console.warn('[TC Bio] Assert failed:',e.name,e.message);
-    if(e.name==='NotAllowedError')return{ok:false,reason:'cancelled'};
-    if(e.name==='InvalidStateError')return{ok:false,reason:'no_cred'};
-    return{ok:false,reason:'error',msg:e.message};
-  }
+    return {ok:!!assertion};
+  }catch(e){console.warn('[TC] Fingerprint verify error:',e.message);return {ok:false,reason:e.message};}
 }
 
-window._tcNameBioLogin=async function(app){
-  var statusId=app==='driver'?'dbl-status':'cbl-status';
-  var btnId=app==='driver'?'dbl-bio-btn':'cbl-bio-btn';
-  var nameId=app==='driver'?'dbl-name':'cbl-name';
-  var errId=app==='driver'?'dbl-name-err':'cbl-name-err';
-
-  var nameEl=document.getElementById(nameId);
-  var name=(nameEl?nameEl.value:'').trim();
-  var errEl=document.getElementById(errId);
-  if(errEl)errEl.style.display='none';
-
-  if(!name||name.length<2){
-    if(errEl){errEl.textContent='Enter your full name first.';errEl.style.display='block';}
-    if(nameEl)nameEl.focus();
-    return;
-  }
-
-  var hasCred=!!localStorage.getItem(_credKey(app));
-  if(!hasCred){
-    _status(statusId,'No passkey saved yet. Sign in with email first, then enable fingerprint login.','#FF9500');
-    setTimeout(function(){window._tcShowEmailSignIn&&window._tcShowEmailSignIn(app);},2500);
-    return;
-  }
-
-  if((await _checkPlatform())!=='webauthn'){
-    _status(statusId,'Fingerprint not supported on this device. Use email sign-in.','#FF9500');
-    return;
-  }
-
-  _btnBusy(btnId,true);
-  _status(statusId,'Touch the fingerprint sensor…','rgba(255,255,255,.7)');
-
-  var result=await _assert(app);
-
-  if(!result.ok){
-    _btnBusy(btnId,false);
-    if(result.reason==='cancelled'){
-      _status(statusId,'Cancelled. Tap the button to try again.');
-    } else if(result.reason==='no_cred'||result.reason==='no_id'){
-      localStorage.removeItem(_credKey(app));
-      localStorage.removeItem(_userKey(app));
-      _status(statusId,'Passkey not found. Sign in with email to re-enable.','#FF3B30');
-    } else {
-      _status(statusId,'Fingerprint failed. Try again or use email sign-in.','#FF3B30');
-    }
-    return;
-  }
-
-  _status(statusId,'✓ Verified — finding your account…','#34C759');
-
-  var FB=window._FB;
-  if(!FB){_btnBusy(btnId,false);_status(statusId,'Connection error. Try again.','#FF3B30');return;}
-
+// ── LOCAL CREDENTIAL VAULT ──────────────────────────────────────────────
+// A fingerprint alone can't sign in to Firebase — it can only confirm "this
+// is the device owner." To make fingerprint actually replace typing a
+// password, we store the password locally (lightly obfuscated, gated behind
+// this device's fingerprint) and use it to sign in automatically once the
+// fingerprint is confirmed. This is the same trick most consumer apps use
+// for "quick sign-in" without needing a backend service. It is NOT the same
+// level of protection as never storing the password at all — anyone with
+// unlocked access to this device's browser storage could recover it — so
+// this is a convenience trade-off, not bank-grade security.
+var VAULT_KEY='tc_driver_vault';
+function _obf(s){return btoa(unescape(encodeURIComponent(s)));}
+function _deobf(s){try{return decodeURIComponent(escape(atob(s)));}catch(e){return '';}}
+function _storeVault(email,password){
+  if(!email||!password)return;
+  try{localStorage.setItem(VAULT_KEY,JSON.stringify({e:_obf(email),p:_obf(password)}));}catch(ex){}
+}
+function _getVault(){
   try{
-    var col=app==='driver'?'drivers':'customers';
-    var nameLower=name.toLowerCase();
-    var snap;
+    var raw=JSON.parse(localStorage.getItem(VAULT_KEY)||'null');
+    if(!raw)return null;
+    return {email:_deobf(raw.e),password:_deobf(raw.p)};
+  }catch(e){return null;}
+}
+function _clearVault(){try{localStorage.removeItem(VAULT_KEY);}catch(e){}}
+window._tcClearFingerprintVault=_clearVault;
 
-    snap=await FB.getDocs(FB.query(FB.collection(FB.db,col),FB.where('nameLower','==',nameLower)));
-    if(snap.empty) snap=await FB.getDocs(FB.query(FB.collection(FB.db,col),FB.where('name','==',name)));
-    if(snap.empty){
-      var first=name.split(' ')[0];
-      snap=await FB.getDocs(FB.query(FB.collection(FB.db,col),FB.where('name','>=',first),FB.where('name','<=',first+'\uf8ff')));
-    }
+// Quietly registers fingerprint + stores the vault on this device after a
+// fresh password login. Never blocks or interrupts login.
+window._tcSetupFingerprint=async function(email,password){
+  _storeVault(email,password); // keep vault fresh even if already registered
+  if(_hasFingerprintRegistered())return;
+  if(!_webauthnSupported())return;
+  try{await _registerFingerprint(email);}catch(e){}
+};
 
-    _btnBusy(btnId,false);
-
-    if(snap.empty){
-      _status(statusId,'No account found for "'+name+'". Check spelling or use email sign-in.','#FF3B30');
+// Called from the landing screen's "Use Fingerprint" button when the user is
+// signed out. Verifies fingerprint, then performs a real Firebase sign-in
+// using the stored vault credentials — the fingerprint gates access to the
+// password, it doesn't replace real authentication.
+window._tcQuickFingerprintSignIn=function(app){
+  var statusId='land-quickbio-status';
+  function setStatus(msg,color){var el=document.getElementById(statusId);if(el){el.textContent=msg;el.style.color=color||'rgba(255,255,255,.5)';}}
+  if(!_hasFingerprintRegistered()){setStatus('No fingerprint set up on this device yet.','#FF9500');return;}
+  var vault=_getVault();
+  if(!vault||!vault.email||!vault.password){setStatus('Sign in with your password once to enable fingerprint.','#FF9500');return;}
+  setStatus("Touch your device's fingerprint sensor…");
+  _verifyFingerprint().then(function(v){
+    if(!v.ok){
+      setStatus(v.reason==='cancelled'?'Cancelled.':'Fingerprint not recognised. Try again, or use your password below.','#f87171');
       return;
     }
+    setStatus('Verified — signing in…','#34C759');
+    var FB=window._FB;
+    if(!FB){setStatus('Connection error. Try again.','#f87171');return;}
+    FB.signInWithEmailAndPassword(FB.auth,vault.email,vault.password)
+      .then(function(uc){
+        currentUid=uc.user.uid;
+        return FB.getDoc(FB.doc(FB.db,'drivers',currentUid));
+      })
+      .then(function(snap){
+        if(!snap.exists()){setStatus('Account not found. Please sign in with your password.','#f87171');return;}
+        dData=snap.data();saveSession();
+        if(dData.status==='approved')goToDriverHome();
+        else goTo('s-pending');
+      })
+      .catch(function(err){
+        console.warn('[TC] Quick fingerprint sign-in failed:',err&&err.code);
+        setStatus('Could not sign in. Please use your password below.','#f87171');
+      });
+  });
+};
 
-    var doc=snap.docs[0];
-    var data=doc.data();
-    var uid=doc.id;
+window._tcRunBiometricGate=function(email){
+  return new Promise(function(resolve){
+    if(window.goTo)window.goTo('s-biogate');
+    var statusEl=document.getElementById('bio-status'),
+        errEl=document.getElementById('bio-err'),
+        retryBtn=document.getElementById('bio-retry-btn'),
 
-    // Security: verify uid matches the enrolled passkey owner
-    var stored=null;
-    try{stored=JSON.parse(localStorage.getItem(_credKey(app))||'null');}catch(ex){}
-    if(stored&&stored.uid&&stored.uid!==uid){
-      _status(statusId,'Account mismatch. Sign in with email.','#FF3B30');
-      return;
+        pulse=document.getElementById('bio-pulse');
+    if(errEl)errEl.style.display='none';
+
+    async function attempt(){
+      if(errEl)errEl.style.display='none';
+      if(pulse)pulse.style.borderColor='#2563EB';
+      if(!_hasFingerprintRegistered()){
+        if(statusEl)statusEl.textContent='No fingerprint set up on this device yet. Touch sensor to set it up.';
+        var reg=await _registerFingerprint(email);
+        if(reg.ok){
+          if(statusEl)statusEl.textContent='Fingerprint registered! Verifying…';
+          var verify=await _verifyFingerprint();
+          resolve(verify.ok);
+          return;
+        }else{
+          if(pulse)pulse.style.borderColor='#f87171';
+          if(errEl){errEl.textContent=reg.reason==='not_supported'?'This device has no fingerprint sensor available to the browser.':'Could not set up fingerprint. Try again, or sign out and use your password.';errEl.style.display='block';}
+          resolve(false);
+          return;
+        }
+      }
+      if(statusEl)statusEl.textContent="Touch your device's fingerprint sensor…";
+      var v=await _verifyFingerprint();
+      if(v.ok){
+        if(statusEl)statusEl.textContent='Verified!';
+        resolve(true);
+      }else{
+        if(pulse)pulse.style.borderColor='#f87171';
+        if(errEl){errEl.textContent='Fingerprint not recognised. Try again.';errEl.style.display='block';}
+        resolve(false);
+      }
     }
+    if(retryBtn)retryBtn.onclick=attempt;
+    attempt();
+  });
+};
 
-    window.currentUid=uid;
-    _status(statusId,'Welcome back, '+(data.name||name)+'!','#34C759');
-
-    if(app==='driver'){
-      window.dData=data;
-      window.saveSession&&window.saveSession();
-      setTimeout(function(){
-        if(data.status==='approved')window.goToDriverHome&&window.goToDriverHome();
-        else window.goTo&&window.goTo('s-pending');
-      },700);
-    } else {
-      window.cData=data;
-      window.saveSession&&window.saveSession();
-      setTimeout(function(){window.goToHome&&window.goToHome();},700);
-    }
-
-  }catch(e){
-    _btnBusy(btnId,false);
-    _status(statusId,'Error: '+e.message+'. Try email sign-in.','#FF3B30');
-    console.error('[TC Bio] Firestore lookup failed:',e);
+document.addEventListener('DOMContentLoaded',function(){
+  var signoutBtn=document.getElementById('bio-signout-btn');
+  if(signoutBtn){
+    signoutBtn.onclick=function(){
+      try{window._FB&&window._FB.signOut(window._FB.auth).catch(function(){});}catch(e){}
+      if(window.clearSession)window.clearSession();
+      if(window.goTo)window.goTo('s-landing');
+    };
   }
-};
-
-window._tcShowEmailSignIn=function(app){
-  if(app==='driver'){
-    var bv=document.getElementById('land-bio-login-view');
-    var sv=document.getElementById('land-signin-view');
-    var wv=document.getElementById('land-welcome-view');
-    if(bv)bv.style.display='none';
-    if(wv)wv.style.display='none';
-    if(sv)sv.style.display='flex';
-  } else {
-    window._tcBackToWelcome&&window._tcBackToWelcome('customer');
-    window.goTo&&window.goTo('s-auth');
-    window.switchAuthTab&&window.switchAuthTab('signin');
+  var quickBtn=document.getElementById('land-quickbio-btn');
+  if(quickBtn&&_hasFingerprintRegistered()){
+    quickBtn.style.display='block';
   }
-};
-
-window._tcBackToWelcome=function(app){
-  if(app==='driver'){
-    var bv=document.getElementById('land-bio-login-view');
-    var wv=document.getElementById('land-welcome-view');
-    if(bv)bv.style.display='none';
-    if(wv)wv.style.display='flex';
-  } else {
-    var cbv=document.getElementById('cust-bio-login-view');
-    var cwv=document.getElementById('cust-welcome-view');
-    if(cbv)cbv.style.display='none';
-    if(cwv)cwv.style.display='flex';
-  }
-};
-
-window._tcBioOfferEnroll=async function(app,uid,email,name){
-  if(localStorage.getItem(_credKey(app)))return;
-  var skip=parseInt(localStorage.getItem('tc_bio_skip_'+app)||'0');
-  if(Date.now()<skip)return;
-  if((await _checkPlatform())!=='webauthn')return;
-
-  var old=document.getElementById('tc-bio-enroll-sheet');
-  if(old)old.remove();
-
-  var sheet=document.createElement('div');
-  sheet.id='tc-bio-enroll-sheet';
-  sheet.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:99999;background:#1C1C1E;border-radius:22px 22px 0 0;padding:20px 20px 40px;box-shadow:0 -8px 40px rgba(0,0,0,0.5);font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;';
-  sheet.innerHTML=''
-    +'<div style="width:36px;height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin:0 auto 18px;"></div>'
-    +'<div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">'
-    +'<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#0A84FF,#34C759);display:flex;align-items:center;justify-content:center;flex-shrink:0;">'
-    +'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
-    +'<path d="M12 2C9.24 2 7 4.24 7 7v3"/><path d="M17 10V7c0-1.38-.56-2.63-1.46-3.54"/>'
-    +'<path d="M12 10a2 2 0 0 0-2 2v4a2 2 0 0 0 4 0v-4a2 2 0 0 0-2-2z"/>'
-    +'<path d="M8.46 16.93A6 6 0 0 0 18 12"/><path d="M6 10a6 6 0 0 0 1.06 3.37"/>'
-    +'</svg></div>'
-    +'<div>'
-    +'<div style="font-size:16px;font-weight:900;color:#fff;margin-bottom:4px;">Enable fingerprint login?</div>'
-    +'<div style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.45;">Next time, type your name and touch the sensor — no password needed.</div>'
-    +'</div></div>'
-    +'<div style="display:flex;flex-direction:column;gap:10px;">'
-    +'<button id="tc-enroll-yes" style="background:#0A84FF;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:800;color:#fff;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;width:100%;">Enable Fingerprint / Face Login</button>'
-    +'<button id="tc-enroll-no" style="background:transparent;border:1.5px solid rgba(255,255,255,.12);border-radius:14px;padding:13px;font-size:13px;font-weight:600;color:rgba(255,255,255,.45);cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;width:100%;">Not now</button>'
-    +'</div>';
-  document.body.appendChild(sheet);
-
-  document.getElementById('tc-enroll-yes').onclick=async function(){
-    sheet.remove();
-    if(window.toast)window.toast('Touch the fingerprint sensor when prompted…');
-    var ok=await _enroll(app,uid,email,name);
-    if(window.toast)window.toast(ok?'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 10.5 8 14.5 16 5.5"/></svg> Fingerprint login enabled!':'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3 18 16.5H2Z"/><line x1="10" y1="8" x2="10" y2="12"/><circle cx="10" cy="14.3" r="0.15" fill="currentColor"/></svg>️ Setup failed. Try again from Profile.');
-  };
-  document.getElementById('tc-enroll-no').onclick=function(){
-    sheet.remove();
-    try{localStorage.setItem('tc_bio_skip_'+app,String(Date.now()+30*86400*1000));}catch(ex){}
-  };
-};
-
-window._tcBioEnroll=_enroll;
+});
 
 })();
 </script>
