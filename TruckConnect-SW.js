@@ -1,175 +1,115 @@
 // ══════════════════════════════════════════════════════════════════════════
-// TruckConnect Combined Service Worker
-// Handles: OneSignal push notifications + offline PWA caching
-// Single SW eliminates scope conflicts between OneSignal and PWA caching
+// TruckConnect-SW.js
+// Shared service worker for the / scope — used by BOTH the
+// Customer and Driver apps (they register the same file/scope).
+//
+// Handles two jobs:
+//   1. Offline support — basic cache-first for the app shell.
+//   2. FCM background push — receives notifications when the app is closed
+//      or the phone is locked, and routes taps to the right screen.
+//
+// Deploy this at: /TruckConnect-SW.js
 // ══════════════════════════════════════════════════════════════════════════
 
-// OneSignal MUST be imported first — it intercepts push events
-importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
+// ── Firebase (compat build — required inside service workers) ──────────────
+importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
 
-var CACHE_NAME    = 'truckconnect-v3';
-var TILE_CACHE    = 'truckconnect-tiles-v3';
-var TILE_MAX      = 800;   // max tiles to cache
+firebase.initializeApp({
+  apiKey: "AIzaSyD0dRuRqbsJr0-Kv29xcpQGjW-1DiYPNLo",
+  authDomain: "truck-connect-c0c67.firebaseapp.com",
+  projectId: "truck-connect-c0c67",
+  storageBucket: "truck-connect-c0c67.firebasestorage.app",
+  messagingSenderId: "313065662016",
+  appId: "1:313065662016:web:a43aecfce5d7db205d61a5",
+});
 
-// App shell — cached on install
-var SHELL_URLS = [
-  '/trucconnect/TruckConnect_Driver_v12-3-1.html',
-  '/trucconnect/TruckConnect_Customer_v12-1.html',
-  'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js',
-  'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css',
-  'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js',
-  'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js',
-  'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js',
-  'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js'
+const messaging = firebase.messaging();
+
+// ── 1. OFFLINE CACHE (app shell) ────────────────────────────────────────────
+const CACHE_NAME = 'truckconnect-v1';
+const APP_SHELL = [
+  '/',
 ];
 
-// ── INSTALL: cache app shell ──────────────────────────────────────────────
 self.addEventListener('install', function(event) {
-  console.log('[TC SW] Installing — caching app shell');
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(function(cache) {
-      // Cache each resource individually so one failure doesn't break all
-      return Promise.allSettled(
-        SHELL_URLS.map(function(url) {
-          return cache.add(url).catch(function(e) {
-            console.warn('[TC SW] Failed to cache:', url, e.message);
-          });
-        })
-      );
-    }).then(function() {
-      console.log('[TC SW] Shell cached — skipping wait');
-      return self.skipWaiting();
+      return cache.addAll(APP_SHELL).catch(function() { /* ignore missing files */ });
     })
   );
 });
 
-// ── ACTIVATE: clean old caches ────────────────────────────────────────────
 self.addEventListener('activate', function(event) {
   event.waitUntil(
-    caches.keys().then(function(keys) {
+    caches.keys().then(function(names) {
       return Promise.all(
-        keys.filter(function(k) { return k !== CACHE_NAME && k !== TILE_CACHE; })
-            .map(function(k) { console.log('[TC SW] Removing old cache:', k); return caches.delete(k); })
+        names.filter(function(n) { return n !== CACHE_NAME; })
+             .map(function(n) { return caches.delete(n); })
       );
     }).then(function() { return self.clients.claim(); })
   );
-  console.log('[TC SW] Activated');
 });
 
-// ── FETCH: serve from cache with network fallback ─────────────────────────
 self.addEventListener('fetch', function(event) {
+  // Network-first for navigation requests, cache-first for everything else.
+  // Never intercept Firestore/Firebase/API calls — let those hit the network directly.
   var url = event.request.url;
-
-  // Map tiles — cache with tile-specific store (LRU limited)
-  if (isTileRequest(url)) {
-    event.respondWith(handleTile(event.request));
+  if (url.indexOf('firestore.googleapis.com') !== -1 ||
+      url.indexOf('firebaseio.com') !== -1 ||
+      url.indexOf('googleapis.com') !== -1) {
     return;
   }
-
-  // Navigation requests (HTML pages) — network first, cache fallback
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request).catch(function() {
-        return caches.match(event.request) ||
-               caches.match('/trucconnect/TruckConnect_Customer_v12-1.html');
-      })
-    );
-    return;
-  }
-
-  // Everything else — cache first, network fallback
   event.respondWith(
     caches.match(event.request).then(function(cached) {
-      if (cached) return cached;
-      return fetch(event.request).then(function(response) {
-        // Cache successful JS/CSS responses
-        if (response.ok && shouldCache(url)) {
-          var clone = response.clone();
-          caches.open(CACHE_NAME).then(function(c) { c.put(event.request, clone); });
-        }
-        return response;
-      }).catch(function() {
-        // Offline fallback for fonts/scripts
-        return new Response('', { status: 503, statusText: 'Offline' });
+      return cached || fetch(event.request).catch(function() {
+        return caches.match('/');
       });
     })
   );
 });
 
-// ── TILE HANDLER (LRU cap) ────────────────────────────────────────────────
-function handleTile(request) {
-  return caches.open(TILE_CACHE).then(function(cache) {
-    return cache.match(request).then(function(cached) {
-      if (cached) return cached;
-      return fetch(request).then(function(response) {
-        if (!response.ok) return response;
-        var clone = response.clone();
-        // Enforce tile cache limit
-        cache.keys().then(function(keys) {
-          if (keys.length > TILE_MAX) cache.delete(keys[0]);
-        });
-        cache.put(request, clone);
-        return response;
-      }).catch(function() {
-        // Return blank tile when offline
-        return new Response('', { status: 204, statusText: 'No tile cached' });
-      });
-    });
-  });
-}
-
-function isTileRequest(url) {
-  return url.includes('maptiler.com/tiles') ||
-         url.includes('maptiler.com/maps') ||
-         url.includes('openfreemap.org') ||
-         url.includes('/tiles/') ||
-         /\/{z}\/{x}\/{y}/.test(url) ||
-         /\/\d+\/\d+\/\d+\.(png|pbf|mvt|jpg)/.test(url);
-}
-
-function shouldCache(url) {
-  return url.includes('unpkg.com') ||
-         url.includes('cdn.onesignal') ||
-         url.includes('gstatic.com/firebasejs') ||
-         url.includes('.css') ||
-         (url.includes('.js') && !url.includes('analytics'));
-}
-
-// ── PUSH NOTIFICATIONS ───────────────────────────────────────────────────
-// Handled by OneSignal SDK imported above.
-// notificationclick is kept for route-update dispatch actions.
-
-// ── NOTIFICATION CLICK: re-fetch route if emergency update ────────────────
-self.addEventListener('notificationclick', function(event) {
-  event.notification.close();
-  var notifData = event.notification.data || {};
-  // Open correct app based on notification target
-  var targetUrl = notifData.url ||
-    (notifData.role === 'customer'
-      ? '/trucconnect/TruckConnect_Customer_v12-1.html'
-      : '/trucconnect/TruckConnect_Driver_v12-3-1.html');
-
-  // If dispatch sends emergency route change — signal app to re-fetch
-  if (notifData.action === 'ROUTE_UPDATE') {
-    event.waitUntil(
-      self.clients.matchAll({ type:'window' }).then(function(clients) {
-        clients.forEach(function(client) {
-          client.postMessage({ type:'ROUTE_UPDATE', data: notifData });
-        });
-        if (clients.length) return clients[0].focus();
-        return self.clients.openWindow(targetUrl);
-      })
-    );
-  } else {
-    event.waitUntil(
-      self.clients.matchAll({ type:'window' }).then(function(clients) {
-        for (var i=0; i<clients.length; i++) {
-          if (clients[i].url.indexOf('trucconnect') !== -1) return clients[i].focus();
-        }
-        return self.clients.openWindow(targetUrl);
-      })
-    );
-  }
+// ── 2. FCM BACKGROUND MESSAGES ──────────────────────────────────────────────
+// Fires when a push arrives while the app is closed, backgrounded, or the
+// phone is locked. `payload.data` carries routing info set by the sender
+// (Admin app / Cloudflare Worker) — e.g. { screen: "loadDetails", loadId: "..." }
+messaging.onBackgroundMessage(function(payload) {
+  var n = payload.notification || {};
+  var title = n.title || 'TruckConnect';
+  var options = {
+    body: n.body || '',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    data: payload.data || {},
+    tag: (payload.data && payload.data.tag) || undefined,
+  };
+  self.registration.showNotification(title, options);
 });
 
-console.log('[TC SW] Service worker loaded — TruckConnect PWA');
+// ── 3. TAP-TO-NAVIGATE ──────────────────────────────────────────────────────
+// When the user taps the notification, focus an open tab if there is one
+// (and tell it which screen to jump to), otherwise open a new one with the
+// routing info in the URL so the app can read it on load.
+self.addEventListener('notificationclick', function(event) {
+  event.notification.close();
+  var data = event.notification.data || {};
+  var screen = data.screen || '';
+  var targetUrl = '/' + (screen ? ('?screen=' + encodeURIComponent(screen) +
+                    (data.id ? '&id=' + encodeURIComponent(data.id) : '')) : '');
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+      for (var i = 0; i < clientList.length; i++) {
+        var client = clientList[i];
+        if ('focus' in client) {
+          client.postMessage({ type: 'TC_NOTIFICATION_CLICK', data: data });
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
+  );
+});
