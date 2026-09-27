@@ -183,6 +183,10 @@ body.light-mode .map-glass-btn svg{stroke:#1C1C1E;}
 @keyframes pulseRing{0%{transform:scale(.8);opacity:.6}100%{transform:scale(2.2);opacity:0}}
 @keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
 @keyframes pulseGreen{0%,100%{box-shadow:0 0 0 4px rgba(26,115,232,0.25),0 2px 10px rgba(0,0,0,0.5)}50%{box-shadow:0 0 0 8px rgba(26,115,232,0.12),0 2px 10px rgba(0,0,0,0.5)}}
+/* Professional, low-key sonar pulse for the user-location puck — two rings
+   staggered by half a cycle so the wave reads as continuous, not a single
+   jarring blip. Kept subtle (low opacity ceiling, slow ease-out) on purpose. */
+@keyframes tcPuckWave{0%{transform:scale(1);opacity:.45}70%{opacity:.12}100%{transform:scale(2.7);opacity:0}}
 .screen{display:none;min-height:100vh;flex-direction:column;background:var(--bg);}
 .screen.active{display:flex;animation:fadeIn .2s ease;}
 /* LANDING */
@@ -691,26 +695,93 @@ body.light-mode .dcard-truck-placeholder{background:linear-gradient(135deg,#e8e8
 /* ── LOCATE BUTTON PULSE (active) ── */
 #home-locate-btn.locating{animation:pulseRing .8s ease infinite;}
 
+/* ── SHARED DRIVER PHOTO / TRUCK PHOTO (used everywhere a customer sees a driver) ── */
+.tcd-av{position:relative;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;overflow:hidden;background:#16233f;color:#c9d6f2;font-weight:800;flex-shrink:0;vertical-align:middle;border:1.5px solid rgba(127,150,200,.28);box-sizing:border-box;}
+.tcd-av img,.tcd-truck img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.tcd-truck{position:relative;display:inline-flex;align-items:center;justify-content:center;border-radius:12px;overflow:hidden;background:#16233f;color:#8fa3c7;flex-shrink:0;vertical-align:middle;border:1.5px solid rgba(127,150,200,.22);box-sizing:border-box;}
+.tcd-truck-ph{width:46%;max-width:64px;display:block;}
+body.light-mode .tcd-av,body.light-mode .tcd-truck{background:#e3edfb;color:#5f7599;border-color:#cfe0f7;}
+
 /* ── LIVE TRACKING SCREEN ──────────────────────────────────────── */
-#s-live-track{position:fixed;inset:0;z-index:300;background:#000;display:none;flex-direction:column;}
+#s-live-track{
+  --lt-bg:#070d1a;--lt-panel:#0b1324;--lt-card:#0e1a33;--lt-line:#1c2c4d;
+  --lt-fg:#fff;--lt-sub:#8fa3c7;--lt-blue:#1f7bff;--lt-green:#22d3a0;
+  --lt-fab:#0b1324;--lt-fab-line:#2b3d63;--lt-dot:#16233f;--lt-dot-line:#2a3d63;
+  position:fixed;inset:0;z-index:300;background:var(--lt-bg);display:none;flex-direction:column;
+  font-family:var(--font-main);color:var(--lt-fg);
+}
+body.light-mode #s-live-track{
+  --lt-bg:#eef4fd;--lt-panel:#fff;--lt-card:#f3f8ff;--lt-line:#d6e5fa;
+  --lt-fg:#0c1a33;--lt-sub:#5f7599;--lt-fab:#fff;--lt-fab-line:#cfe0f7;--lt-dot:#e7effb;--lt-dot-line:#c5d8f3;
+}
+.lt-head{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:calc(12px + env(safe-area-inset-top,0px)) 14px 12px;background:var(--lt-bg);position:relative;z-index:6;}
+.lt-round{width:44px;height:44px;flex:0 0 auto;border-radius:50%;border:1.5px solid var(--lt-fab-line);background:var(--lt-fab);color:var(--lt-fg);display:grid;place-items:center;cursor:pointer;padding:0;}
+.lt-round:active{transform:scale(.94);}
+.lt-head-txt{flex:1;min-width:0;text-align:center;}
+.lt-title{font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lt-subtitle{font-size:12.5px;color:var(--lt-sub);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lt-call{flex:0 0 auto;display:flex;align-items:center;gap:7px;height:42px;padding:0 14px;border-radius:999px;border:1.5px solid var(--lt-fab-line);background:var(--lt-fab);color:var(--lt-fg);font-size:13px;font-weight:700;text-decoration:none;}
+.lt-call.off{visibility:hidden;pointer-events:none;}
+@media (max-width:370px){.lt-call span{display:none;}.lt-call{width:44px;height:44px;padding:0;justify-content:center;}}
+.lt-mapwrap{position:relative;flex:1 1 auto;min-height:150px;background:#0b1526;overflow:hidden;}
+body.light-mode .lt-mapwrap{background:#dfe9f7;}
 #live-track-map{position:absolute;inset:0;}
-.lt-topbar{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;padding:48px 16px 16px;background:linear-gradient(to bottom,rgba(0,0,0,.75),transparent);}
-.lt-back-btn{width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.lt-sheet{position:absolute;bottom:0;left:0;right:0;background:#0a0a0a;border-radius:24px 24px 0 0;padding:14px 20px 40px;z-index:10;}
-.lt-handle{width:36px;height:4px;background:#2a2a2a;border-radius:2px;margin:0 auto 16px;}
-.lt-eta{font-size:21px;font-weight:900;color:#fff;margin-bottom:3px;line-height:1.25;}
-.lt-eta-dist{font-size:11px;color:rgba(255,255,255,.35);margin-bottom:16px;}
-.lt-vehicle-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-top:1px solid #1c1c1c;border-bottom:1px solid #1c1c1c;}
-.lt-vehicle-icon{width:50px;height:50px;border-radius:13px;background:#111;border:1.5px solid #222;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
-.lt-vehicle-info{flex:1;min-width:0;}
-.lt-vehicle-name{font-size:13px;font-weight:800;color:#fff;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.lt-vehicle-color{font-size:10px;color:rgba(255,255,255,.35);}
-.lt-plate{background:#f0f0d8;border:2.5px solid #999;border-radius:7px;padding:5px 11px;font-size:13px;font-weight:900;color:#111;letter-spacing:2.5px;font-family:'Courier New',monospace;flex-shrink:0;}
-.lt-driver-row{display:flex;align-items:center;gap:10px;margin-top:14px;}
-.lt-avatar{width:36px;height:36px;border-radius:50%;background:#1a1a1a;border:1.5px solid #2a2a2a;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff;flex-shrink:0;overflow:hidden;}
-.lt-avatar img{width:100%;height:100%;object-fit:cover;}
-.lt-driver-name{font-size:13px;font-weight:800;color:#fff;}
-.lt-driver-role{font-size:10px;color:rgba(255,255,255,.3);margin-top:1px;}
+.lt-map-msg{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;padding:28px;color:var(--lt-sub);font-size:13px;line-height:1.5;z-index:3;pointer-events:none;}
+.lt-info{position:absolute;top:12px;left:12px;z-index:4;display:flex;flex-direction:column;gap:9px;padding:11px 16px 11px 11px;border-radius:16px;background:rgba(8,14,28,.9);border:1px solid var(--lt-line);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
+body.light-mode .lt-info{background:rgba(255,255,255,.94);}
+.lt-info-row{display:flex;align-items:center;gap:10px;}
+.lt-info-ico{width:30px;height:30px;flex:0 0 auto;display:grid;place-items:center;}
+.lt-info-val{font-size:16px;font-weight:800;line-height:1.1;letter-spacing:-.01em;}
+.lt-info-lbl{font-size:11.5px;color:var(--lt-sub);margin-top:1px;}
+.lt-fabs{position:absolute;right:12px;bottom:34px;z-index:4;display:flex;flex-direction:column;gap:10px;}
+.lt-sheet{flex:0 0 auto;max-height:66vh;overflow-y:auto;position:relative;z-index:5;margin-top:-22px;background:var(--lt-panel);border:1px solid var(--lt-line);border-bottom:0;border-radius:26px 26px 0 0;padding:10px 16px calc(16px + env(safe-area-inset-bottom,0px));}
+.lt-handle{width:40px;height:4px;background:var(--lt-dot-line);border-radius:2px;margin:0 auto 14px;}
+.lt-drv{display:flex;align-items:center;gap:14px;}
+.lt-drv-info{flex:1;min-width:0;}
+.lt-drv-name{font-size:19px;font-weight:800;letter-spacing:-.02em;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lt-drv-meta{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:13px;color:var(--lt-sub);}
+.lt-drv-meta b{color:var(--lt-fg);font-weight:800;}
+.lt-drv-meta i{width:3px;height:3px;border-radius:50%;background:var(--lt-sub);display:inline-block;}
+.lt-status{flex:0 0 auto;display:flex;align-items:center;gap:7px;height:34px;padding:0 13px;border-radius:999px;border:1px solid rgba(34,211,160,.45);background:rgba(34,211,160,.1);color:var(--lt-green);font-size:13px;font-weight:700;white-space:nowrap;}
+.lt-status i{width:8px;height:8px;border-radius:50%;background:var(--lt-green);}
+.lt-truck{display:flex;align-items:center;gap:12px;margin-top:14px;padding:10px 12px;border:1px solid var(--lt-line);border-radius:16px;background:var(--lt-card);}
+.lt-truck-info{flex:1;min-width:0;}
+.lt-truck-name{font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lt-truck-plate{font-size:14px;color:var(--lt-sub);margin-top:3px;letter-spacing:.06em;font-weight:600;}
+.lt-more{flex:0 0 auto;display:flex;align-items:center;gap:6px;height:40px;padding:0 12px;border-radius:999px;border:1.5px solid var(--lt-line);background:transparent;color:var(--lt-fg);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+.lt-steps{display:grid;grid-template-columns:repeat(4,1fr);margin-top:12px;padding:14px 2px 12px;border-radius:16px;background:var(--lt-card);}
+.lt-step{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;font-size:11px;line-height:1.25;color:var(--lt-sub);padding:0 2px;}
+.lt-step:not(:first-child)::before{content:'';position:absolute;top:19px;right:50%;width:100%;height:3px;background:var(--lt-dot-line);z-index:0;}
+.lt-step.done:not(:first-child)::before,.lt-step.active:not(:first-child)::before{background:var(--lt-green);}
+.lt-dot{position:relative;z-index:1;width:38px;height:38px;border-radius:50%;background:var(--lt-dot);border:2px solid var(--lt-dot-line);display:grid;place-items:center;color:var(--lt-sub);}
+.lt-dot .ic-chk{display:none;}
+.lt-step.done .lt-dot{background:#14b87f;border-color:#14b87f;color:#fff;}
+.lt-step.done .ic-def{display:none;}
+.lt-step.done .ic-chk{display:block;}
+.lt-step.active .lt-dot{border-color:var(--lt-green);color:var(--lt-green);box-shadow:0 0 0 3px rgba(34,211,160,.18);}
+.lt-step.active,.lt-step.done{color:var(--lt-fg);}
+.lt-step.active{font-weight:700;}
+.lt-chat{width:100%;margin-top:12px;height:54px;border:0;border-radius:16px;background:var(--lt-blue);color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;font-family:inherit;}
+.lt-chat:active{transform:scale(.985);}
+.lt-details{position:absolute;inset:0;z-index:20;display:none;align-items:flex-end;background:rgba(0,0,0,.6);}
+.lt-details-panel{width:100%;max-height:86%;overflow-y:auto;background:var(--lt-panel);border:1px solid var(--lt-line);border-bottom:0;border-radius:26px 26px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px));}
+.lt-det-photo{display:block;width:100%;height:200px;border-radius:16px;margin:6px 0 14px;}
+.lt-det-photo .tcd-truck{width:100%;height:100%;border-radius:16px;}
+.lt-det-name{font-size:20px;font-weight:800;letter-spacing:-.02em;}
+.lt-det-row{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid var(--lt-line);font-size:14px;}
+.lt-det-row:last-of-type{border-bottom:0;}
+.lt-det-row span{color:var(--lt-sub);}
+.lt-det-row b{font-weight:700;text-align:right;word-break:break-word;}
+.lt-det-close{width:100%;margin-top:10px;height:50px;border-radius:14px;border:1.5px solid var(--lt-line);background:transparent;color:var(--lt-fg);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+.lt-mk-driver{position:relative;width:64px;height:64px;display:grid;place-items:center;pointer-events:none;}
+.lt-mk-halo{position:absolute;inset:0;border-radius:50%;background:rgba(31,123,255,.24);animation:ltPulse 2.4s ease-out infinite;}
+.lt-mk-truck{position:relative;width:38px;height:38px;border-radius:50%;background:#fff;border:3px solid #1f7bff;display:grid;place-items:center;color:#0b1324;box-shadow:0 3px 12px rgba(0,0,0,.45);}
+.lt-mk-truck svg{width:20px;height:16px;display:block;}
+.lt-mk-label{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:4px;background:#1f7bff;color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.35);}
+.lt-mk-label.green{background:#16a34a;left:100%;top:14px;transform:none;margin-left:2px;}
+.lt-mk-dest{position:relative;width:44px;height:54px;pointer-events:none;filter:drop-shadow(0 4px 8px rgba(0,0,0,.45));}
+.lt-mk-dest svg{display:block;}
+@keyframes ltPulse{0%{transform:scale(.7);opacity:.9;}100%{transform:scale(1.25);opacity:0;}}
 @keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
 @keyframes pulseGreen{0%,100%{box-shadow:0 0 0 0 rgba(0,0,0,.15);}50%{box-shadow:0 0 0 8px rgba(26,115,232,0);}}
 
@@ -863,7 +934,7 @@ function hsGetPrices(){_dispatch('hsGetPrices',[]);}
 <!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithCustomToken, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithCustomToken, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, RecaptchaVerifier, signInWithPhoneNumber, EmailAuthProvider, linkWithCredential } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, orderBy, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
 const firebaseConfig = {
@@ -882,6 +953,16 @@ const functions = null;
 // OTP backend runs on Cloudflare Workers (no Blaze/card needed) — set this
 // to your deployed Worker URL, e.g. https://truckconnect-otp.YOURNAME.workers.dev
 const OTP_WORKER_URL = 'https://truckconnect-otp.madibasphiwe50.workers.dev';
+// Separate standalone Worker for SMS OTP via BulkSMS (kept apart from the
+// email OTP Worker above so neither can break the other) — update the
+// subdomain below once you know your exact deployed Worker URL.
+const SMS_OTP_WORKER_URL = 'https://truckconnect-sms-otp.madibasphiwe50.workers.dev';
+function _smsOtpCall(path, data){
+  return fetch(SMS_OTP_WORKER_URL+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+    .then(function(r){return r.json().then(function(j){ if(!r.ok||j.error) throw new Error(j.error||'Request failed'); return {data:j}; });});
+}
+const _sendSmsOtpFn=function(data){return _smsOtpCall('/send-sms-otp',data);};
+const _verifySmsOtpFn=function(data){return _smsOtpCall('/verify-sms-otp',data);};
 function _otpCall(path, data){
   return fetch(OTP_WORKER_URL+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
     .then(function(r){return r.json().then(function(j){ if(!r.ok){var e=new Error(j.error||'Request failed'); e.code=j.code||'error'; throw e;} return {data:j}; });});
@@ -895,7 +976,15 @@ setPersistence(auth, browserLocalPersistence).catch(function(){});
 const _swapPhoneTokenFn = function(data){return _otpCall('/verify-phone-token',data);};
 const _sendSignupOtpFn = function(data){return _otpCall('/send-signup-otp',data);};
 const _verifySignupOtpFn = function(data){return _otpCall('/verify-signup-otp',data);};
-window._FB = {auth,db,createUserWithEmailAndPassword,signInWithEmailAndPassword,signInWithCustomToken,signOut,onAuthStateChanged,doc,setDoc,getDoc,collection,addDoc,getDocs,query,where,orderBy,onSnapshot,updateDoc,messaging:_messaging,getToken,onMessage,sendOtp:_sendOtpFn,verifyOtp:_verifyOtpFn,RecaptchaVerifier,signInWithPhoneNumber,verifyPhoneToken:_swapPhoneTokenFn,sendSignupOtp:_sendSignupOtpFn,verifySignupOtp:_verifySignupOtpFn};
+// Phone-signup accounts don't have a real email, but Firebase's password auth
+// needs one — so we mint a stable synthetic "auth email" from the phone
+// number. This lets a phone-signup user set a password and later sign back
+// in with just their phone number + password, no OTP required.
+function _tcPhoneAuthEmail(e164){
+  return 'p'+String(e164||'').replace(/\D/g,'')+'@phone.truckconnect.internal';
+}
+window._tcPhoneAuthEmail = _tcPhoneAuthEmail;
+window._FB = {auth,db,createUserWithEmailAndPassword,signInWithEmailAndPassword,signInWithCustomToken,signOut,onAuthStateChanged,doc,setDoc,getDoc,collection,addDoc,getDocs,query,where,orderBy,onSnapshot,updateDoc,messaging:_messaging,getToken,onMessage,sendOtp:_sendOtpFn,verifyOtp:_verifyOtpFn,RecaptchaVerifier,signInWithPhoneNumber,verifyPhoneToken:_swapPhoneTokenFn,sendSignupOtp:_sendSignupOtpFn,verifySignupOtp:_verifySignupOtpFn,sendSmsOtp:_sendSmsOtpFn,verifySmsOtp:_verifySmsOtpFn,EmailAuthProvider,linkWithCredential,phoneAuthEmail:_tcPhoneAuthEmail};
 
 // ── Flush queued errors (and report future ones) to Firestore for the admin app ──
 window._tcFlushErrors=function(){
@@ -1005,21 +1094,25 @@ body.light-mode .chat-input-row input{background:#f0f0f0;color:#111;}
 <script>
   var fbResolved = false;
   var splashScreen = document.getElementById('splash-screen');
+  var _splashStart = Date.now();
+  var MIN_SPLASH_MS = 1200; // floor so the splash is actually visible, not just a flash
 
   // Function to dismiss the splash screen
   function dismissSplashScreen() {
-    if (!fbResolved) {
-      fbResolved = true;
+    if (fbResolved) return;
+    fbResolved = true;
+    var wait = Math.max(0, MIN_SPLASH_MS - (Date.now() - _splashStart));
+    setTimeout(function() {
       if (splashScreen) {
         splashScreen.style.opacity = '0';
         splashScreen.style.visibility = 'hidden';
         setTimeout(function() { splashScreen.remove(); }, 500);
       }
-    }
+    }, wait);
   }
 
   // Hard fallback — dismissed by goTo() normally; only fires if everything fails
-  setTimeout(dismissSplashScreen, 800);
+  setTimeout(dismissSplashScreen, 3000);
   // Dismiss splash as soon as Firebase SDK is ready (same pattern as Driver app)
   window._fbReady = false;
   var fbCheckInterval = setInterval(function() {
@@ -1045,9 +1138,9 @@ body.light-mode .chat-input-row input{background:#f0f0f0;color:#111;}
     <div class="tc-ob-sheet">
       <h1 class="tc-ob-title">Get started with<br/>TruckConnect</h1>
       <div style="flex:1;"></div>
-      <button class="tc-ob-btn-primary" id="btn-hero-continue">Continue →</button>
-      <button class="btn-land-s" id="btn-signin-land" style="margin-top:12px;background:transparent;border:none;color:#666;">Already have an account? Sign In</button>
-      <button class="tc-ob-btn-primary" id="cust-quickbio-btn" onclick="window._tcQuickFingerprintSignIn('customer')" style="display:none;margin-top:10px;background:#111;">🔓 Sign in with Fingerprint</button>
+      <button class="tc-ob-btn-primary" id="btn-hero-continue" style="background:#1A73E8;">Continue →</button>
+      <button class="tc-ob-btn-secondary" id="btn-signin-land" style="margin-top:12px;background:transparent;border:1.5px solid #1A73E8;color:#1A73E8;">Already have an account? Sign In</button>
+      <button class="tc-ob-btn-primary" id="cust-quickbio-btn" onclick="window._tcQuickFingerprintSignIn('customer')" style="display:none;margin-top:10px;background:#1A73E8;">🔓 Sign in with Fingerprint</button>
       <div id="cust-quickbio-status" style="font-size:12px;color:#888;min-height:16px;margin-top:6px;text-align:center;"></div>
     </div>
   </div>
@@ -1062,19 +1155,12 @@ body.light-mode .chat-input-row input{background:#f0f0f0;color:#111;}
         <input id="tc-phone-input" type="tel" inputmode="numeric" placeholder="Mobile number" autocomplete="tel"/>
       </div>
       <div class="tc-ob-err" id="tc-phone-err"></div>
-      <button class="tc-ob-btn-primary" id="tc-phone-continue" style="margin-top:18px;">Text me a code (SMS)</button>
-      <div style="height:10px;"></div>
-      <button class="tc-ob-btn-secondary" id="tc-phone-email-otp">Email me a code instead</button>
       <div id="tc-recaptcha-container"></div>
-      <div class="tc-ob-divider">or</div>
-      <button class="tc-ob-btn-secondary" id="tc-phone-google">Continue with Google</button>
+      <button class="tc-ob-btn-secondary" id="tc-phone-google" style="margin-top:18px;background:#1A73E8;color:#fff;">Continue with Google</button>
       <div style="height:10px;"></div>
-      <button class="tc-ob-btn-secondary" id="tc-phone-email">Continue with Email</button>
+      <button class="tc-ob-btn-secondary" id="tc-phone-email" style="background:#1A73E8;color:#fff;">Continue with Email</button>
       <div style="height:10px;"></div>
-      <button class="tc-ob-btn-secondary" id="tc-phone-signup-sms">Continue with Phone Number</button>
-      <div class="tc-ob-divider">or</div>
-      <button class="tc-ob-btn-secondary" id="tc-phone-find" style="background:transparent;"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="8.8" cy="8.8" r="5.8"/><line x1="13.2" y1="13.2" x2="17.5" y2="17.5"/></svg> Find my account</button>
-      <p class="tc-ob-consent">You consent to receive a verification code by email. Message and data rates may apply.</p>
+      <button class="tc-ob-btn-secondary" id="tc-phone-signup-sms" style="background:#1A73E8;color:#fff;">Continue with Phone Number</button>
     </div>
   </div>
 
@@ -1159,7 +1245,8 @@ body.light-mode .chat-input-row input{background:#f0f0f0;color:#111;}
       </div>
       <div class="fg" id="tc-final-password-group" style="margin-bottom:6px;">
         <span style="font-size:12px;font-weight:700;color:#888;letter-spacing:.5px;">PASSWORD</span>
-        <input id="tc-final-password" type="password" placeholder="Create a password (min 6 characters)" style="border:1.5px solid #111;border-radius:12px;padding:15px;font-size:16px;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;color:#111;background:#fff;width:100%;box-sizing:border-box;margin-top:6px;"/>
+        <input id="tc-final-password" type="password" autocomplete="new-password" placeholder="Create a password (min 6 characters)" style="border:1.5px solid #111;border-radius:12px;padding:15px;font-size:16px;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;color:#111;background:#fff;width:100%;box-sizing:border-box;margin-top:6px;"/>
+        <span style="font-size:11px;color:#888;display:block;margin-top:6px;">So you can sign in again with just your email or phone number + password.</span>
       </div>
       <div class="tc-ob-err" id="tc-final-err"></div>
       <div style="flex:1;"></div>
@@ -1238,7 +1325,7 @@ body.light-mode .chat-input-row input{background:#f0f0f0;color:#111;}
       </div>
 
       <div class="sec-badge"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="9" width="11" height="8" rx="1.3"/><path d="M6.5 9V6a3.5 3.5 0 0 1 7 0v3"/></svg> Secured with AES-256 encryption · POPIA compliant</div>
-      <div class="fg"><span class="fl">Email</span><input class="fi" id="si-email" type="email" placeholder="your@email.com"/><div class="err-msg" id="si-email-err" style="display:none;"></div></div>
+      <div class="fg"><span class="fl">Email or Phone Number</span><input class="fi" id="si-email" type="text" autocomplete="username" placeholder="your@email.com or 082 123 4567"/><div class="err-msg" id="si-email-err" style="display:none;"></div></div>
       <div class="fg"><span class="fl">Password</span><input class="fi" id="si-pass" type="password" placeholder="Your password"/><div class="err-msg" id="si-pass-err" style="display:none;"></div></div>
       <div class="err-msg" id="si-err" style="display:none;margin-bottom:8px;"></div>
       <button class="btn tc-btn-primary" id="signin-btn">Sign In →</button>
@@ -1253,13 +1340,18 @@ body.light-mode .chat-input-row input{background:#f0f0f0;color:#111;}
   <div id="home-map" style="position:absolute;inset:0;z-index:1;"></div>
 
   <!-- Top floating controls — frosted glass -->
-  <div style="position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;pointer-events:none;">
+  <div style="position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:flex-start;justify-content:space-between;padding:14px 16px;pointer-events:none;">
     <!-- Menu -->
     <button class="map-glass-btn" onclick="switchTab2('profile')" onmousedown="this.style.transform='scale(.88)'" onmouseup="this.style.transform=''" ontouchstart="this.style.transform='scale(.88)'" ontouchend="this.style.transform=''"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="3" y1="5.5" x2="17" y2="5.5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="14.5" x2="17" y2="14.5"/></svg></button>
-    <!-- Locate -->
-    <button id="home-locate-btn" class="map-glass-btn" title="My location" onmousedown="this.style.transform='scale(.88)'" onmouseup="this.style.transform=''" ontouchstart="this.style.transform='scale(.88)'" ontouchend="this.style.transform=''">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="2" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="22" y2="12"/></svg>
-    </button>
+    <!-- Locate + navigation, stacked -->
+    <div style="display:flex;flex-direction:column;gap:10px;pointer-events:none;">
+      <button id="home-locate-btn" class="map-glass-btn" title="My location" onmousedown="this.style.transform='scale(.88)'" onmouseup="this.style.transform=''" ontouchstart="this.style.transform='scale(.88)'" ontouchend="this.style.transform=''">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="2" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="22" y2="12"/></svg>
+      </button>
+      <button id="home-navigate-btn" class="map-glass-btn" title="Zoom in" onclick="zoomInMap()" onmousedown="this.style.transform='scale(.88)'" onmouseup="this.style.transform=''" ontouchstart="this.style.transform='scale(.88)'" ontouchend="this.style.transform=''">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.3" y1="15.3" x2="21" y2="21"/><line x1="10.5" y1="7.5" x2="10.5" y2="13.5"/><line x1="7.5" y1="10.5" x2="13.5" y2="10.5"/></svg>
+      </button>
+    </div>
   </div>
 
   <!-- Active booking floating card -->
@@ -1282,7 +1374,7 @@ body.light-mode .chat-input-row input{background:#f0f0f0;color:#111;}
         <div class="hcb-divider"></div>
         <div class="hcb-row hcb-whereto" id="home-where-to-btn" onclick="openBookingSheet()">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <span>Where to?</span>
+          <span>Where are the goods going?</span>
         </div>
       </div>
     </div>
@@ -1310,7 +1402,7 @@ body.light-mode .chat-input-row input{background:#f0f0f0;color:#111;}
       <div style="width:38px;height:4px;background:var(--border);border-radius:2px;"></div>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;">
-      <div style="font-size:20px;font-weight:900;color:var(--text);letter-spacing:-.5px;">Where to?</div>
+      <div style="font-size:20px;font-weight:900;color:var(--text);letter-spacing:-.5px;">Where are the goods going?</div>
       <button onclick="closeBookingSheet()" style="width:34px;height:34px;background:var(--bg);border:1px solid var(--border);border-radius:50%;color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg></button>
     </div>
   </div>
@@ -1957,7 +2049,7 @@ var ICON = {
   doc: '<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 2.5h6l3 3V17a.5.5 0 0 1-.5.5h-8.5a.5.5 0 0 1-.5-.5V3a.5.5 0 0 1 .5-.5Z"/><path d="M11.5 2.5V5.5H14.5"/></svg>'
 };
 
-var cData={},bookData={},currentUid=null,myBookings=[],customerMap=null,homeMap=null,mapObjects=[];
+var cData={},bookData={},currentUid=null,myBookings=[],customerMap=null,homeMap=null,mapObjects=[],_tcInSignupFlow=false;
 var selPayMethod='cash',bookStep=0;
 var fromCoords=null,toCoords=null,pendingFare=0,pendingDist='';
 var _bookingsUnsub=null; // real-time listener for bookings
@@ -2112,6 +2204,62 @@ function _applyGMStyle(map){
         ['interpolate',['linear'],['zoom'],14,0,15,dark?0.7:0.85,20,dark?0.7:0.85]);
     }catch(e){}
   }
+}
+
+// ══ SAFETY NET: icon markup can never show up as raw code ══════════════════
+// Several places assign icon markup with .textContent, which prints "<svg viewBox=…" on screen.
+// Any string that is a tiny, script-free <svg> icon is drawn as an icon instead. Everything else stays plain text.
+(function(){
+  try{
+    var d=Object.getOwnPropertyDescriptor(Node.prototype,'textContent');
+    if(!d||!d.set||!d.configurable)return;
+    var SAFE=/^<svg\b[^<>]*>(?:<(?:path|rect|circle|line|polyline|polygon|ellipse|g)\b[^<>]*\/>|<g\b[^<>]*>|<\/g>)+<\/svg>[^<>]*$/;
+    var BAD=/\bon[a-z]+\s*=|javascript:|<script|href\s*=|xlink/i;
+    Object.defineProperty(Node.prototype,'textContent',{
+      configurable:true,enumerable:d.enumerable,get:d.get,
+      set:function(v){
+        if(this.nodeType===1&&typeof v==='string'&&v.charCodeAt(0)===60&&v.length<4000&&SAFE.test(v)&&!BAD.test(v)){this.innerHTML=v;return;}
+        d.set.call(this,v);
+      }
+    });
+  }catch(e){}
+})();
+
+// ══ SHARED: how a customer sees a driver (photo, truck photo, safe text) ═══
+function tcEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+// Safe to drop into a JS string that lives inside an HTML attribute (onclick="fn('…')").
+function tcJsq(s){return String(s==null?'':s).replace(/[\\'"<>&`\r\n]/g,function(c){return '\\x'+('0'+c.charCodeAt(0).toString(16)).slice(-2);});}
+// Only real https images or inline base64 photos are ever used as a picture source.
+function tcSafeImg(u){
+  if(typeof u!=='string')return '';
+  u=u.trim();
+  if(!u||u.length>1000000)return '';
+  if(/^https:\/\/[^\s"'<>]+$/i.test(u))return u;
+  if(/^data:image\/(jpeg|jpg|png|webp|gif);base64,[A-Za-z0-9+\/=]+$/.test(u))return u;
+  return '';
+}
+// Same as tcSafeImg but refuses big inline photos (keeps Firestore documents under their 1 MB limit).
+function tcSmallImg(u,max){u=tcSafeImg(u);return (u&&u.length<=(max||120000))?u:'';}
+function tcCleanTruckType(t){
+  t=String(t==null?'':t).replace(/\s+/g,' ').trim();
+  if(!t)return '';
+  if(!/\d/.test(t))t=t.replace(/^[-,\s]*tons?[-,\s]*/i,'');
+  return t.replace(/^[-,\s]+|[-,\s]+$/g,'');
+}
+var TC_PERSON_SVG='<svg viewBox="0 0 24 24" width="55%" height="55%" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5"/></svg>';
+var TC_TRUCK_PH='<svg class="tcd-truck-ph" viewBox="0 0 64 44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><rect x="3" y="6" width="34" height="26" rx="3"/><path d="M39 15h11.5c1 0 1.9.5 2.4 1.3L60 26v6H39z"/><circle cx="15" cy="35" r="5" fill="currentColor"/><circle cx="49" cy="35" r="5" fill="currentColor"/></svg>';
+// Round driver picture. Initials sit underneath, so if a photo is missing or fails to load it still looks right.
+function tcAvatarHtml(url,name,size){
+  size=size||40;
+  var ini=String(name||'').trim().charAt(0).toUpperCase();
+  var u=tcSafeImg(url);
+  return '<span class="tcd-av" style="width:'+size+'px;height:'+size+'px;font-size:'+Math.round(size*.42)+'px;">'+(ini?tcEsc(ini):TC_PERSON_SVG)+(u?'<img src="'+u+'" alt="" decoding="async" onerror="this.remove()">':'')+'</span>';
+}
+// Truck picture. A truck outline sits underneath as the fallback.
+function tcTruckHtml(url,w,h){
+  var u=tcSafeImg(url);
+  var W=typeof w==='number'?w+'px':w,H=typeof h==='number'?h+'px':h;
+  return '<span class="tcd-truck" style="width:'+W+';height:'+H+';">'+TC_TRUCK_PH+(u?'<img src="'+u+'" alt="" decoding="async" onerror="this.remove()">':'')+'</span>';
 }
 
 function $(id){return document.getElementById(id);}
@@ -2346,10 +2494,24 @@ function createAccountFromCData(){
     }
 
     if(cData._authExists&&currentUid){
-      // Already authenticated (existing email account)
+      // Already authenticated (existing email account, or phone signup)
       saveCustDoc(currentUid)
-      .then(function(d){cData=Object.assign(cData,d);cData._authExists=false;saveSession();goToHome();})
+      .then(function(d){
+        _tcInSignupFlow=false;cData=Object.assign(cData,d);cData._authExists=false;
+        // Phone signups authenticate via OTP/custom-token and have no
+        // email+password credential yet. If they set a password on the
+        // final step, link one now (using a synthetic auth email derived
+        // from their phone) so they can sign back in with phone + password
+        // next time, without needing another SMS code.
+        if(cData.password && FB.EmailAuthProvider && FB.linkWithCredential && FB.auth.currentUser){
+          var authEmail=FB.phoneAuthEmail(cData.phone);
+          var cred=FB.EmailAuthProvider.credential(authEmail,cData.password);
+          return FB.linkWithCredential(FB.auth.currentUser,cred).catch(function(){/* non-fatal, e.g. already linked */});
+        }
+      })
+      .then(function(){saveSession();goToHome();})
       .catch(function(err){
+        _tcInSignupFlow=false;
         showErr('Could not save account: '+(err.message||err.code));
         btn.disabled=false;btn.textContent='Create Account →';
       });
@@ -2475,6 +2637,12 @@ function clearSession(){
 }
 
 var homeMarker=null,homeTruck='small',is3D=true;
+var homeAccCircle=null;              // google.maps.Circle — live GPS accuracy halo (real meters, scales with zoom)
+var _puckLat=null,_puckLng=null;     // currently DISPLAYED (already-animated) position
+var _puckHeadingDeg=0;               // continuous heading value (can exceed 0-360 so CSS always takes the short way round)
+var _puckMoving=false;
+var _puckAnimReq=null;
+var _puckWatchId=null;
 
 window.setMapView=function(mode){
   is3D=(mode==='3d');
@@ -2509,40 +2677,143 @@ function locateUser(){
   var btn=$('home-locate-btn');
   if(btn){btn.style.background='#e8f5e9';}
   navigator.geolocation.getCurrentPosition(function(pos){
-    var lat=pos.coords.latitude,lng=pos.coords.longitude;
-    homeMap.panTo({lat:lat,lng:lng});
+    homeMap.panTo({lat:pos.coords.latitude,lng:pos.coords.longitude});
     homeMap.setZoom(17);
     homeMap.setTilt(is3D?57:0);
-    if(homeMarker){
-      homeMarker.position={lat:lat,lng:lng};
-    } else {
-      homeMarker=new google.maps.marker.AdvancedMarkerElement({map:homeMap,position:{lat:lat,lng:lng},content:_makeUserDotEl()});
-    }
+    _updateUserPuck(pos);
     if(btn){btn.style.background='rgba(255,255,255,.96)';}
   },function(){
     if(btn){btn.style.background='rgba(255,255,255,.96)';}
   },{enableHighAccuracy:true,timeout:10000});
 }
 
-// ── Animated user location dot (blue ring, white center, pulse) ──────────
+// Magnifying-glass button under the locate button — zooms the map in one
+// step per tap (standard "zoom in" behavior).
+function zoomInMap(){
+  if(!homeMap)return;
+  var z=(typeof homeMap.getZoom==='function'?homeMap.getZoom():null);
+  homeMap.setZoom(Math.min(20,(typeof z==='number'?z:14)+1));
+}
+window.zoomInMap=zoomInMap; // exported — the button's inline onclick runs in global scope and couldn't otherwise see this closure-scoped function
+
+// ── Location puck — soft blue halo with a person glyph at the core, plus a
+// gentle two-ring sonar pulse (kept subtle/professional, not flashy) and a
+// heading chevron that only engages while actually moving.
 function _makeUserDotEl(){
   var wrap=document.createElement('div');
-  wrap.style.cssText='position:relative;width:22px;height:22px;';
+  wrap.className='tc-puck-wrap';
+  wrap.style.cssText='position:relative;width:44px;height:44px;transition:transform .35s cubic-bezier(.4,0,.2,1);will-change:transform;';
   wrap.innerHTML=''
-    +'<div style="position:absolute;inset:-8px;border-radius:50%;border:2px solid rgba(10,132,255,0.35);animation:tc-pulse 2s ease-out infinite;"></div>'
-    +'<div style="position:absolute;inset:-4px;border-radius:50%;border:1.5px solid rgba(10,132,255,0.5);animation:tc-pulse 2s ease-out infinite 0.4s;"></div>'
-    +'<div style="width:22px;height:22px;border-radius:50%;background:#0A84FF;border:3px solid #fff;box-shadow:0 2px 12px rgba(10,132,255,0.6);position:relative;z-index:1;"></div>';
+    // Directional chevron — sits above the core, points in the heading of travel
+    +'<div class="tc-puck-chevron" style="position:absolute;top:-9px;left:50%;width:0;height:0;'
+      +'border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:9px solid #1E88FF;'
+      +'transform:translateX(-50%);filter:drop-shadow(0 1px 2px rgba(0,0,0,.3));'
+      +'opacity:0;transition:opacity .3s ease;"></div>'
+    // Sonar wave rings — staggered so the pulse reads as one continuous wave
+    +'<div style="position:absolute;inset:10px;border-radius:50%;border:1.5px solid #1E88FF;'
+      +'animation:tcPuckWave 2.4s ease-out infinite;"></div>'
+    +'<div style="position:absolute;inset:10px;border-radius:50%;border:1.5px solid #1E88FF;'
+      +'animation:tcPuckWave 2.4s ease-out infinite;animation-delay:1.2s;"></div>'
+    // Soft static halo behind the core
+    +'<div style="position:absolute;inset:8px;border-radius:50%;background:rgba(30,136,255,.16);"></div>'
+    // Core: clean blue circle, white border, gentle elevation
+    +'<div style="position:absolute;inset:10px;border-radius:50%;background:#1E88FF;border:2.5px solid #fff;'
+      +'box-shadow:0 2px 8px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;">'
+        // Person glyph, centered
+        +'<svg width="13" height="13" viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="7.2" r="4"/>'
+        +'<path d="M12 13.2c-4.4 0-8 2.9-8 6.5V22h16v-2.3c0-3.6-3.6-6.5-8-6.5Z"/></svg>'
+    +'</div>';
   return wrap;
 }
 
-// Inject pulse keyframe once
-(function(){
-  if(document.getElementById('tc-map-pulse-style'))return;
-  var s=document.createElement('style');
-  s.id='tc-map-pulse-style';
-  s.textContent='@keyframes tc-pulse{0%{transform:scale(1);opacity:0.8;}100%{transform:scale(2.2);opacity:0;}}';
-  document.head.appendChild(s);
-})();
+function _setPuckChevron(deg,visible){
+  if(!homeMarker||!homeMarker.content)return;
+  var chev=homeMarker.content.querySelector('.tc-puck-chevron');
+  if(chev)chev.style.opacity=visible?'1':'0';
+  homeMarker.content.style.transform='rotate('+deg+'deg)';
+}
+
+// Smoothly glides the puck + accuracy halo from their last displayed spot to
+// the new GPS fix instead of snapping — this is what makes it read as a
+// live nav puck rather than a static marker teleporting around.
+function _animatePuckTo(toLat,toLng,accM){
+  var fromLat=_puckLat,fromLng=_puckLng;
+  if(fromLat===null){ // first fix ever — just place it, nothing to glide from
+    _puckLat=toLat;_puckLng=toLng;
+    if(homeMarker)homeMarker.position={lat:toLat,lng:toLng};
+    if(homeAccCircle)homeAccCircle.setCenter({lat:toLat,lng:toLng});
+    return;
+  }
+  if(_puckAnimReq)cancelAnimationFrame(_puckAnimReq);
+  var dur=350,start=null;
+  function step(ts){
+    if(!start)start=ts;
+    var t=Math.min(1,(ts-start)/dur);
+    var ease=1-Math.pow(1-t,3); // ease-out cubic
+    var lat=fromLat+(toLat-fromLat)*ease;
+    var lng=fromLng+(toLng-fromLng)*ease;
+    _puckLat=lat;_puckLng=lng;
+    if(homeMarker)homeMarker.position={lat:lat,lng:lng};
+    if(homeAccCircle)homeAccCircle.setCenter({lat:lat,lng:lng});
+    if(t<1){_puckAnimReq=requestAnimationFrame(step);}
+  }
+  _puckAnimReq=requestAnimationFrame(step);
+}
+
+// Creates the marker + accuracy circle on first fix, updates them on every
+// fix after that. Handles heading: prefers the device/GPS course
+// (pos.coords.heading) when the vehicle is actually moving; falls back to a
+// distance-based bearing if the browser doesn't supply heading; stays
+// perfectly still (no random spin) when stationary.
+var _lastFixLat=null,_lastFixLng=null;
+function _updateUserPuck(pos){
+  var lat=pos.coords.latitude,lng=pos.coords.longitude;
+  var accRaw=pos.coords.accuracy||20;
+  var accDisplay=Math.min(Math.max(accRaw,12),60); // clamp so a bad fix never balloons into a distracting blob
+
+  if(!homeMarker){
+    homeMarker=new google.maps.marker.AdvancedMarkerElement({map:homeMap,position:{lat:lat,lng:lng},content:_makeUserDotEl()});
+  }
+  if(!homeAccCircle){
+    homeAccCircle=new google.maps.Circle({
+      map:homeMap,center:{lat:lat,lng:lng},radius:accDisplay,
+      fillColor:'#0A84FF',fillOpacity:0.12,strokeColor:'#0A84FF',strokeOpacity:0.28,strokeWeight:1,
+      clickable:false,zIndex:1
+    });
+  } else {
+    homeAccCircle.setRadius(accDisplay);
+  }
+
+  // Decide moving vs stationary
+  var speed=pos.coords.speed; // m/s, may be null
+  var moving=false,bearing=null;
+  if(speed!==null&&speed!==undefined){
+    moving=speed>0.4;
+  }
+  if(pos.coords.heading!==null&&pos.coords.heading!==undefined&&!isNaN(pos.coords.heading)){
+    bearing=pos.coords.heading;
+    if(speed===null||speed===undefined)moving=true; // browser only reports heading once actually moving
+  } else if(_lastFixLat!==null){
+    var dlat=lat-_lastFixLat,dlng=lng-_lastFixLng;
+    var distM=Math.sqrt(dlat*dlat+dlng*dlng)*111320; // rough metres, fine at this scale
+    if(distM>3){ // ignore GPS jitter below ~3m so the puck doesn't twitch when parked
+      bearing=(Math.atan2(dlng,dlat)*180/Math.PI+360)%360;
+      moving=true;
+    }
+  }
+
+  if(moving&&bearing!==null){
+    var delta=((bearing-(_puckHeadingDeg%360)+540)%360)-180; // shortest-path rotation, no 359°→1° spin-the-long-way
+    _puckHeadingDeg+=delta;
+    _puckMoving=true;
+  } else if(speed!==null&&speed!==undefined&&speed<=0.4){
+    _puckMoving=false; // stopped — freeze heading, fade chevron out
+  }
+  _setPuckChevron(_puckHeadingDeg,_puckMoving);
+
+  _animatePuckTo(lat,lng,accDisplay);
+  _lastFixLat=lat;_lastFixLng=lng;
+}
 
 function initHomeMap(){
   var el=$('home-map');
@@ -2562,38 +2833,33 @@ function initHomeMap(){
     });
     console.log('[TC Customer] Home map loaded.');
 
-    // Auto-locate user on load
-    if(navigator.geolocation){
-      navigator.geolocation.getCurrentPosition(function(pos){
-        var lat=pos.coords.latitude,lng=pos.coords.longitude;
-        homeMap.panTo({lat:lat,lng:lng});
-        homeMap.setZoom(17);
-        if(!homeMarker){
-          homeMarker=new google.maps.marker.AdvancedMarkerElement({map:homeMap,position:{lat:lat,lng:lng},content:_makeUserDotEl()});
-        }
-      },function(){},{enableHighAccuracy:true,timeout:8000});
+    if(!navigator.geolocation){
+      console.warn('[TC Customer] Geolocation not supported by this browser/WebView.');
+      return;
     }
 
-    // Continuous GPS tracking for user dot with direction arrow
-    var _lastUserLat=null,_lastUserLng=null;
-    if(navigator.geolocation){
-      navigator.geolocation.watchPosition(function(pos){
-        var lat=pos.coords.latitude,lng=pos.coords.longitude;
-        if(homeMarker){
-          homeMarker.position={lat:lat,lng:lng};
-          // Show direction arrow when moving
-          if(_lastUserLat!==null){
-            var dlat=lat-_lastUserLat,dlng=lng-_lastUserLng;
-            if(Math.abs(dlat)>0.00003||Math.abs(dlng)>0.00003){
-              var bear=(Math.atan2(dlng,dlat)*180/Math.PI+360)%360;
-              var dotEl=homeMarker.content;
-              if(dotEl)dotEl.style.transform='rotate('+bear+'deg)';
-            }
-          }
-          _lastUserLat=lat;_lastUserLng=lng;
-        }
-      },function(){},{enableHighAccuracy:true,maximumAge:3000});
-    }
+    // Precise-location permission is requested implicitly by the browser the
+    // moment we call getCurrentPosition/watchPosition with enableHighAccuracy
+    // — there's no separate "request permission" call on the web platform;
+    // this is the equivalent of Android's ACCESS_FINE_LOCATION + fused
+    // provider prompt when running inside a WebView.
+
+    // Initial fix — places the puck and centers the map on it
+    navigator.geolocation.getCurrentPosition(function(pos){
+      homeMap.panTo({lat:pos.coords.latitude,lng:pos.coords.longitude});
+      homeMap.setZoom(17);
+      _updateUserPuck(pos);
+    },function(err){
+      console.warn('[TC Customer] Initial location fix failed:',err.message);
+    },{enableHighAccuracy:true,timeout:8000});
+
+    // Continuous live tracking — real device GPS only, no simulated movement
+    if(_puckWatchId!==null)navigator.geolocation.clearWatch(_puckWatchId);
+    _puckWatchId=navigator.geolocation.watchPosition(function(pos){
+      _updateUserPuck(pos);
+    },function(err){
+      console.warn('[TC Customer] watchPosition error:',err.message);
+    },{enableHighAccuracy:true,maximumAge:2000,timeout:15000});
   });
 }
 
@@ -2859,7 +3125,7 @@ function goToHome(){
   if(currentUid) listenNotifications(currentUid);
   if(currentUid) initFCM(currentUid);
   setTimeout(function(){_checkRecurringBookings(currentUid);},4000);
-  if(currentUid) listenAdminChat(currentUid);
+  if(currentUid && typeof listenAdminChat==='function') listenAdminChat(currentUid);
   // Request notification permission after login (user gesture already happened)
   // — this also saves/refreshes the FCM token on this customer's Firestore doc
   if(window.requestNotifPermission) window.requestNotifPermission();
@@ -2894,14 +3160,14 @@ function loadMyBookings(){
 }
 
 function statusLabel(ds){
-  var map={avail:'Finding Driver',accepted:'Driver Assigned',in_progress:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg> In Transit',completed:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 10.5 8 14.5 16 5.5"/></svg> Completed',cancelled:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg> Cancelled'};
+  var map={avail:'Finding Driver',requested:'Waiting for Driver',declined:'Finding Driver',accepted:'Driver Assigned',in_progress:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg> In Transit',completed:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 10.5 8 14.5 16 5.5"/></svg> Completed',cancelled:'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg> Cancelled'};
   return map[ds]||ds||'—';
 }
 
 function renderActiveBooking(){
   var wrap=$('active-bk-wrap');if(!wrap)return;
   // Find most recent non-completed active booking
-  var active=myBookings.find(function(b){return b.ds==='accepted'||b.ds==='in_progress'||b.ds==='avail';});
+  var active=myBookings.find(function(b){return b.ds==='accepted'||b.ds==='in_progress'||b.ds==='avail'||b.ds==='requested';});
   if(!active){wrap.style.display='none';wrap.innerHTML='';stopDriverTracking();return;}
   // Start live tracking if driver assigned
   if(active.ds==='accepted'||active.ds==='in_progress'){startDriverTracking(active);}
@@ -2928,13 +3194,12 @@ function renderActiveBooking(){
       '<div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:14px;">#'+(active.id||'—')+' · '+(active.truck||'—')+' · '+(active.price||'—')+'</div>'+
       (isAccepted?
         '<div style="display:flex;align-items:center;gap:12px;background:#111;border:1px solid #222;border-radius:12px;padding:12px;margin-bottom:14px;">'+
-          '<div style="width:38px;height:38px;border-radius:50%;background:#1a1a1a;border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0;">'+
-            (active.driverName?active.driverName[0].toUpperCase():'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>')+
+          tcAvatarHtml(active.driverPhotoUrl,active.driverName,42)+
+          '<div style="flex:1;min-width:0;">'+
+            '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:2px;">'+tcEsc(active.driverName||'Driver')+'</div>'+
+            '<div style="font-size:11px;color:rgba(255,255,255,.4);">'+tcEsc(tcCleanTruckType(active.driverTruck)||active.driverTruckName||active.truck||'Truck')+(active.driverNumPlate?' · '+tcEsc(String(active.driverNumPlate).toUpperCase()):'')+'</div>'+
           '</div>'+
-          '<div>'+
-            '<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:2px;">'+(active.driverName||'Driver')+'</div>'+
-            '<div style="font-size:11px;color:rgba(255,255,255,.4);">'+(active.driverTruck||active.truck||'Truck')+'</div>'+
-          '</div>'+
+          tcTruckHtml(active.driverTruckPhotoUrl,64,44)+
         '</div>':
         '<div style="display:flex;align-items:center;gap:10px;background:#111;border:1px solid #222;border-radius:12px;padding:12px;margin-bottom:14px;">'+
           '<div style="width:8px;height:8px;border-radius:50%;background:#fbbf24;animation:blink 1.2s ease infinite;flex-shrink:0;"></div>'+
@@ -3174,14 +3439,14 @@ function renderHomeBookings(){
   if(!myBookings.length){wrap.innerHTML='<div style="text-align:center;padding:32px 20px;color:var(--muted);"><div style="font-size:32px;margin-bottom:10px;opacity:.3;"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="10" height="13.5" rx="1.2"/><rect x="7.5" y="2" width="5" height="2.5" rx="0.6"/><line x1="7.5" y1="9" x2="12.5" y2="9"/><line x1="7.5" y1="12" x2="12.5" y2="12"/></svg></div><div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px;">No bookings yet</div><div style="font-size:12px;">Book your first truck above.</div></div>';return;}
   wrap.innerHTML=myBookings.slice(0,8).map(function(b){
     var statusColor=b.ds==='completed'?'#1A73E8':b.ds==='accepted'||b.ds==='in_progress'?'#60a5fa':'#fbbf24';
-    var driverRow=b.driverName?'<div class="bk-row"><span class="bk-key">Driver</span><span class="bk-val" style="color:#60a5fa;"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg> '+b.driverName+'</span></div>':'';
+    var driverRow=b.driverName?'<div class="bk-row"><span class="bk-key">Driver</span><span class="bk-val" style="color:#60a5fa;">'+tcAvatarHtml(b.driverPhotoUrl,b.driverName,24)+' '+tcEsc(b.driverName)+'</span></div>':'';
     // POD photo — shown when driver has uploaded proof of delivery
     var podRow=b.podUrl?'<div style="margin-top:10px;"><div style="font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Proof of Delivery</div><img src="'+b.podUrl+'" style="width:100%;border-radius:10px;object-fit:cover;max-height:160px;" onclick="window.open(\''+b.podUrl+'\',\'_blank\')"/></div>':'';
     // Chat button — only for accepted/in_progress bookings
-    var chatBtn=(b.ds==='accepted'||b.ds==='in_progress')&&b.driverName?'<button onclick="openChat(\''+b.id+'\',\''+b.driverName+'\')" style="width:100%;margin-top:10px;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.3);border-radius:11px;padding:10px;color:#60a5fa;font-size:12px;font-weight:700;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 5.5A2 2 0 0 1 4.5 3.5h11a2 2 0 0 1 2 2V12a2 2 0 0 1-2 2h-9L4 16.5V14h-.5a2 2 0 0 1-2-2Z"/></svg> Chat with Driver</button>':'';
+    var chatBtn=(b.ds==='accepted'||b.ds==='in_progress')&&b.driverName?'<button onclick="openChat(\''+b.id+'\',\''+tcJsq(b.driverName)+'\')" style="width:100%;margin-top:10px;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.3);border-radius:11px;padding:10px;color:#60a5fa;font-size:12px;font-weight:700;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 5.5A2 2 0 0 1 4.5 3.5h11a2 2 0 0 1 2 2V12a2 2 0 0 1-2 2h-9L4 16.5V14h-.5a2 2 0 0 1-2-2Z"/></svg> Chat with Driver</button>':'';
     // Report button — only for completed bookings not yet rated/reported
-    var reportBtn=b.ds==='completed'&&!b.customerReported?'<button onclick="openReportDriver(\''+b.id+'\',\''+( b.driverName||'Driver')+'\',\''+( b.driverUid||'')+'\')" style="width:100%;margin-top:6px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:11px;padding:9px;color:#f87171;font-size:11px;font-weight:700;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 18s6-5.6 6-10.4A6 6 0 0 0 4 7.6C4 12.4 10 18 10 18Z"/><circle cx="10" cy="7.5" r="2"/></svg> Report Driver</button>':'';
-    var rateBtn=b.ds==='completed'&&!b.customerRating?'<button onclick="openRating(\''+b.id+'\',\''+( b.driverName||'Driver')+'\')" style="width:100%;margin-top:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:11px;padding:11px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;">⭐ Rate this Driver</button>':'';
+    var reportBtn=b.ds==='completed'&&!b.customerReported?'<button onclick="openReportDriver(\''+b.id+'\',\''+tcJsq(b.driverName||'Driver')+'\',\''+( b.driverUid||'')+'\')" style="width:100%;margin-top:6px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:11px;padding:9px;color:#f87171;font-size:11px;font-weight:700;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 18s6-5.6 6-10.4A6 6 0 0 0 4 7.6C4 12.4 10 18 10 18Z"/><circle cx="10" cy="7.5" r="2"/></svg> Report Driver</button>':'';
+    var rateBtn=b.ds==='completed'&&!b.customerRating?'<button onclick="openRating(\''+b.id+'\',\''+tcJsq(b.driverName||'Driver')+'\')" style="width:100%;margin-top:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:11px;padding:11px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;">⭐ Rate this Driver</button>':'';
     return'<div class="bk-card">'+
       '<div class="bk-route">'+b.from+' → '+b.to+'</div>'+
       '<div class="bk-meta">#'+b.id+' · '+(b.date||'—')+'</div>'+
@@ -3621,7 +3886,7 @@ function confirmBooking(){
     return;
   }
   // Hard block: prevent creating a second active booking
-  var alreadyActive=myBookings.find(function(b){return b.ds==='avail'||b.ds==='accepted'||b.ds==='in_progress';});
+  var alreadyActive=myBookings.find(function(b){return b.ds==='avail'||b.ds==='requested'||b.ds==='accepted'||b.ds==='in_progress';});
   if(alreadyActive){
     toast('You already have an active booking (#'+alreadyActive.id+'). Cancel it before creating a new one.');
     return;
@@ -3697,25 +3962,6 @@ function confirmBooking(){
 var _driverSearchUnsub=null,_driverSearchTimer=null,_driverSearchSeconds=0,_driverSearchBkId=null,_searchAcceptUnsub=null;
 var _currentPickBk=null;
 
-// Search duration scales with how much lead time the booking has.
-// An urgent "now" booking needs a fast answer; a booking scheduled two days
-// ahead has no reason to rush — a longer search window means more drivers
-// get a chance to see and accept it before declaring "none available".
-function _getSearchDurationSeconds(bk){
-  var leadMinutes;
-  if(bk.pickupTimestamp){
-    leadMinutes=(bk.pickupTimestamp-Date.now())/60000;
-  }else if(bk.pickupMode==='1hr'){
-    leadMinutes=60;
-  }else{
-    leadMinutes=0; // 'now'
-  }
-  if(leadMinutes<=20)return 8;    // Now — quick search, driver needed ASAP
-  if(leadMinutes<=60)return 15;   // Within the hour
-  if(leadMinutes<=180)return 25;  // Within a few hours
-  return 35;                      // Scheduled well ahead (hours to days) — more thorough search
-}
-
 function startDriverSearch(bk){
   _driverSearchBkId=bk.id;
   _currentPickBk=bk;
@@ -3732,11 +3978,10 @@ function startDriverSearch(bk){
   $('srch-contact-btn').style.display='none';
   $('srch-driver-plate-wrap').style.display='none';
   $('srch-cancel-btn').style.display='block';
-  $('srch-timer-label').textContent='Searching...';
-  txt('search-status-title','Searching for drivers...');
-  var _searchSecs=_getSearchDurationSeconds(bk);
-  txt('search-status-sub',bk.pickupMode==='scheduled'?'Your booking is scheduled ahead of time, so we\'re giving drivers a bit longer to respond.':'Finding available drivers near you. This usually takes a few seconds.');
-  $('srch-timer').textContent='0s';
+  $('srch-timer-label').textContent='Finding drivers…';
+  txt('search-status-title','Finding drivers near you…');
+  txt('search-status-sub','Just a moment while we check who\'s online.');
+  $('srch-timer').textContent='';
   var timerBarEl=$('srch-timer-bar');
   timerBarEl.style.transition='none';
   timerBarEl.style.width='0%';
@@ -3745,17 +3990,11 @@ function startDriverSearch(bk){
   goTo('s-searching');
   _driverSearchSeconds=0;
   clearInterval(_driverSearchTimer);
-  void timerBarEl.offsetWidth;
-  timerBarEl.style.transition='width '+_searchSecs+'s linear';
-  timerBarEl.style.width='100%';
-  _driverSearchTimer=setInterval(function(){
-    _driverSearchSeconds++;
-    txt('srch-timer',_driverSearchSeconds+'s');
-    if(_driverSearchSeconds>=_searchSecs){
-      clearInterval(_driverSearchTimer);
-      _fetchAvailableDrivers(bk);
-    }
-  },1000);
+  // FIX (per updated flow): show the online-driver list right away instead
+  // of gating it behind an 8-35s countdown first. "s-searching" is now just
+  // a brief loading transition while the drivers query resolves, not a
+  // waiting room for a broadcast auto-accept race to finish first.
+  _fetchAvailableDrivers(bk);
 
   // ── Live listener: catches driver acceptance in real time, even if it
   // happens well after the initial search window (e.g. a scheduled booking
@@ -3777,7 +4016,8 @@ function startDriverSearch(bk){
         txt('search-status-sub','A driver has accepted your booking.');
         $('srch-timer-label').textContent='Driver found';
         txt('srch-driver-name',data.driverName||'Your driver');
-        txt('srch-driver-truck',data.driverTruck||bk.truckLabel||'—');
+        var _sav=$('srch-driver-av');if(_sav)_sav.innerHTML=tcAvatarHtml(data.driverPhotoUrl,data.driverName,50);
+        txt('srch-driver-truck',tcCleanTruckType(data.driverTruck)||data.driverTruckName||bk.truckLabel||'—');
         var phoneEl=$('srch-driver-phone-txt'),phoneLink=$('srch-driver-phone-link');
         if(data.driverPhone){
           if(phoneEl)phoneEl.textContent=data.driverPhone;
@@ -3863,14 +4103,14 @@ function _showDriverPicker(bk,drivers){
   txt('dpick-count',drivers.length+' Driver'+(drivers.length>1?'s':'')+' Found Nearby');
   txt('dpick-sub','Choose your preferred driver for this trip');
   list.innerHTML=drivers.map(function(d){
-    var initials=(d.name||'D')[0].toUpperCase();
+    var initials=tcEsc((d.name||'D')[0].toUpperCase());
     var stars='⭐'.repeat(Math.round(d.rating||5));
     var ratingNum=(d.rating||5).toFixed(1);
-    var truckPhoto=d.truckPhoto||d.truckPhotoUrl||'';
-    var selfie=d.selfiePhoto||d.photoUrl||'';
-    var plate=d.plate||d.numPlate||'—';
-    var color=d.truckColor||'—';
-    var truckType=d.truckType||d.truck||'—';
+    var truckPhoto=tcSafeImg(d.truckPhoto||d.truckPhotoUrl||'');
+    var selfie=tcSafeImg(d.selfiePhoto||d.photoUrl||'');
+    var plate=tcEsc(d.plate||d.numPlate||'—');
+    var color=tcEsc(d.truckColor||'—');
+    var truckType=tcEsc(tcCleanTruckType(d.truckType)||d.truck||'—');
     return '<div class="dcard">'+
       (truckPhoto
         ? '<img class="dcard-truck-photo" src="'+truckPhoto+'" alt="Truck" onerror="this.style.display=\'none\'">'
@@ -3879,7 +4119,7 @@ function _showDriverPicker(bk,drivers){
         '<div class="dcard-top">'+
           '<div class="dcard-avatar">'+(selfie?'<img src="'+selfie+'" alt="'+initials+'">':initials)+'</div>'+
           '<div>'+
-            '<div class="dcard-name">'+(d.name||'Driver')+'</div>'+
+            '<div class="dcard-name">'+tcEsc(d.name||'Driver')+'</div>'+
             '<div class="dcard-rating"><span class="dcard-stars">'+stars+'</span><span class="dcard-rating-num">'+ratingNum+'</span></div>'+
           '</div>'+
         '</div>'+
@@ -3901,47 +4141,115 @@ function chooseDriver(driver){
   var FB=window._FB;
   if(!FB){toast('Not connected. Please try again.');return;}
   var btn=event&&event.target;
-  if(btn){btn.disabled=true;btn.textContent='Confirming...';}
+  if(btn){btn.disabled=true;btn.textContent='Requesting...';}
+  // FIX (audit item #2/#3): selecting a driver is NOT the same as that driver
+  // accepting the job. We now write a pending "requested" state, targeted at
+  // this specific driver, and only flip to "accepted" once the driver taps
+  // Accept in their app. This mirrors the broadcast accept flow's status
+  // machine (avail → requested → accepted / declined) instead of skipping
+  // straight to "accepted" as before.
   var updates={
-    ds:'accepted',
+    ds:'requested',
     driverUid:driver.uid||driver.id||'',
     driverName:driver.name||'Driver',
     driverPhone:driver.phone||'',
     driverTruck:driver.truckType||driver.truck||'',
     driverNumPlate:driver.plate||driver.numPlate||'',
     driverColor:driver.truckColor||'',
-    driverPhotoUrl:driver.selfiePhoto||driver.photoUrl||'',
-    driverTruckPhotoUrl:driver.truckPhoto||driver.truckPhotoUrl||'',
-    acceptedAt:new Date().toISOString()
+    driverPhotoUrl:tcSmallImg(driver.selfiePhoto||driver.photoUrl||'',60000),
+    driverTruckPhotoUrl:tcSmallImg(driver.truckPhoto||driver.truckPhotoUrl||'',140000),
+    requestedAt:new Date().toISOString()
   };
   FB.updateDoc(FB.doc(FB.db,'bookings',bk.id),updates).then(function(){
-    // Write notification to customer
-    writeNotif(currentUid,'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>','#dcfce7','#1A73E8',
-      'Driver Confirmed! <svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><polyline points="6 10 9 13 14.5 7"/></svg>',
-      (driver.name||'Your driver')+' is on the way with a '+(driver.truckType||driver.truck||'truck')+'. Number plate: '+(driver.plate||''),
-      bk.id);
-    toast('Driver confirmed! '+(driver.name||'Driver')+' is on the way.');
-    (function(){
-      var phone=(cData&&cData.phone)||'';
-      phone=phone.replace(/[\s\-()]/g,'');
-      if(phone.startsWith('0'))phone='+27'+phone.slice(1);
-      if(!phone.startsWith('+'))phone='+27'+phone;
-      var msg='<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg> *TruckConnect — Driver Confirmed!*%0A%0A'+
-        '<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="10" height="13.5" rx="1.2"/><rect x="7.5" y="2" width="5" height="2.5" rx="0.6"/><line x1="7.5" y1="9" x2="12.5" y2="9"/><line x1="7.5" y1="12" x2="12.5" y2="12"/></svg> *Booking:* '+bk.id+'%0A'+
-        '<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 18s6-5.6 6-10.4A6 6 0 0 0 4 7.6C4 12.4 10 18 10 18Z"/><circle cx="10" cy="7.5" r="2"/></svg> *From:* '+(bk.from||'—')+'%0A'+
-        '<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 18s6-5.6 6-10.4A6 6 0 0 0 4 7.6C4 12.4 10 18 10 18Z"/><circle cx="10" cy="7.5" r="2"/></svg> *To:* '+(bk.to||'—')+'%0A'+
-        '<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg> *Truck:* '+(bk.truckLabel||bk.truck||'—')+'%0A'+
-        '<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="15" height="10.5" rx="1.5"/><path d="M2.5 8.5H17"/><circle cx="13.5" cy="11.8" r="1"/></svg> *Fare:* '+(bk.price||'—')+'%0A'+
-        '<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="6.5" r="3.2"/><path d="M3.5 17c0-3.3 3-5.5 6.5-5.5s6.5 2.2 6.5 5.5"/></svg> *Driver:* '+(driver.name||'—')+'%0A'+
-        '*Plate:* '+(driver.plate||driver.numPlate||'—')+'%0A'+
-        '<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="15" height="13.5" rx="1.3"/><line x1="2.5" y1="8" x2="17.5" y2="8"/><line x1="6.5" y1="2" x2="6.5" y2="5.5"/><line x1="13.5" y1="2" x2="13.5" y2="5.5"/></svg> '+(bk.date||'—')+' at '+(bk.time||'—')+'%0A%0A'+
-        '_Pay on delivery. Drive safe!_';
-      if(phone&&phone.length>=10)setTimeout(function(){window.open('https://wa.me/'+phone.replace('+','')+'?text='+msg,'_blank');},600);
-    })();
-    setTimeout(function(){goToHome();},1500);
+    toast('Request sent to '+(driver.name||'the driver')+'. Waiting for them to accept...');
+    if(btn){btn.textContent='Waiting for driver…';}
+    _listenForChosenDriverResponse(bk, driver, btn);
   }).catch(function(e){
     if(btn){btn.disabled=false;btn.textContent='Choose This Driver →';}
-    toast('Could not confirm driver. Please try again.');
+    toast('Could not send request. Please try again.');
+  });
+}
+
+// FIX (audit item #2/#6/#7): watches the booking doc after a targeted
+// request is sent, and only runs the "driver confirmed" success flow once
+// the selected driver actually accepts (ds:'accepted' with matching
+// driverUid). If the driver declines, the customer is told and can pick
+// another driver instead of the booking getting stuck on "requested".
+// Per spec: finding a truck takes longer than finding a car — the customer
+// waits up to 45 minutes for THIS driver to respond before it's treated as
+// a timeout (same outcome as a decline: customer can pick someone else).
+var _chooseDriverUnsub=null, _chooseDriverTimeoutId=null;
+var TC_DRIVER_RESPONSE_TIMEOUT_MS = 45*60*1000; // 45 minutes
+function _formatScheduledWhen(bk){
+  var when=bk.date?bk.date:'today';
+  if(bk.time)when+=' at '+bk.time;
+  return when;
+}
+function _listenForChosenDriverResponse(bk, driver, btn){
+  var FB=window._FB;
+  if(!FB)return;
+  if(_chooseDriverUnsub){_chooseDriverUnsub();_chooseDriverUnsub=null;}
+  if(_chooseDriverTimeoutId){clearTimeout(_chooseDriverTimeoutId);_chooseDriverTimeoutId=null;}
+  var wantUid=driver.uid||driver.id||'';
+  var settled=false;
+  function _stop(){
+    settled=true;
+    if(_chooseDriverUnsub){_chooseDriverUnsub();_chooseDriverUnsub=null;}
+    if(_chooseDriverTimeoutId){clearTimeout(_chooseDriverTimeoutId);_chooseDriverTimeoutId=null;}
+  }
+  // FIX: 45-minute timeout — if the selected driver hasn't responded by
+  // then, treat it the same as a decline so the customer isn't stuck
+  // waiting forever on a driver who never opened the app.
+  _chooseDriverTimeoutId=setTimeout(function(){
+    if(settled)return;
+    _stop();
+    toast((driver.name||'That driver')+' didn\'t respond in time. Please choose another driver.');
+    if(btn){btn.disabled=false;btn.textContent='Choose This Driver →';}
+    FB.updateDoc(FB.doc(FB.db,'bookings',bk.id),{ds:'avail',driverUid:null,driverName:null,declinedBy:null}).catch(function(){});
+  },TC_DRIVER_RESPONSE_TIMEOUT_MS);
+  _chooseDriverUnsub=FB.onSnapshot(FB.doc(FB.db,'bookings',bk.id),function(snap){
+    if(!snap.exists()||settled)return;
+    var data=snap.data();
+    if(data.ds==='accepted'&&data.driverUid===wantUid){
+      _stop();
+      var whenStr=_formatScheduledWhen(bk);
+      // Write notification to customer
+      writeNotif(currentUid,'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>','#dcfce7','#1A73E8',
+        'Driver Confirmed! <svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><polyline points="6 10 9 13 14.5 7"/></svg>',
+        // FIX: tell the customer WHEN the driver will actually arrive —
+        // this matters a lot more here than for an on-demand ride, since
+        // the booking might be for tomorrow or the day after.
+        'Your driver will come at '+whenStr+'.',
+        bk.id);
+      toast('Driver confirmed! Arriving '+whenStr+'.');
+      (function(){
+        var phone=(cData&&cData.phone)||'';
+        phone=phone.replace(/[\s\-()]/g,'');
+        if(phone.startsWith('0'))phone='+27'+phone.slice(1);
+        if(!phone.startsWith('+'))phone='+27'+phone;
+        var msg='<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg> *TruckConnect — Driver Confirmed!*%0A%0A'+
+          '<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="10" height="13.5" rx="1.2"/><rect x="7.5" y="2" width="5" height="2.5" rx="0.6"/><line x1="7.5" y1="9" x2="12.5" y2="9"/><line x1="7.5" y1="12" x2="12.5" y2="12"/></svg> *Booking:* '+bk.id+'%0A'+
+          '<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 18s6-5.6 6-10.4A6 6 0 0 0 4 7.6C4 12.4 10 18 10 18Z"/><circle cx="10" cy="7.5" r="2"/></svg> *From:* '+(bk.from||'—')+'%0A'+
+          '<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 18s6-5.6 6-10.4A6 6 0 0 0 4 7.6C4 12.4 10 18 10 18Z"/><circle cx="10" cy="7.5" r="2"/></svg> *To:* '+(bk.to||'—')+'%0A'+
+          '<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg> *Truck:* '+(bk.truckLabel||bk.truck||'—')+'%0A'+
+          '<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="15" height="10.5" rx="1.5"/><path d="M2.5 8.5H17"/><circle cx="13.5" cy="11.8" r="1"/></svg> *Fare:* '+(bk.price||'—')+'%0A'+
+          '<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="6.5" r="3.2"/><path d="M3.5 17c0-3.3 3-5.5 6.5-5.5s6.5 2.2 6.5 5.5"/></svg> *Driver:* '+(driver.name||'—')+'%0A'+
+          '*Plate:* '+(driver.plate||driver.numPlate||'—')+'%0A'+
+          '<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="15" height="13.5" rx="1.3"/><line x1="2.5" y1="8" x2="17.5" y2="8"/><line x1="6.5" y1="2" x2="6.5" y2="5.5"/><line x1="13.5" y1="2" x2="13.5" y2="5.5"/></svg> '+(bk.date||'—')+' at '+(bk.time||'—')+'%0A%0A'+
+          '_Pay on delivery. Drive safe!_';
+        if(phone&&phone.length>=10)setTimeout(function(){window.open('https://wa.me/'+phone.replace('+','')+'?text='+msg,'_blank');},600);
+      })();
+      setTimeout(function(){goToHome();},1500);
+    } else if(data.ds==='declined'&&data.declinedBy===wantUid){
+      _stop();
+      toast((driver.name||'That driver')+' declined the request. Please choose another driver.');
+      if(btn){btn.disabled=false;btn.textContent='Choose This Driver →';}
+      // Put the booking back into the open "avail" pool so the customer can
+      // pick a different driver (or the broadcast pool can pick it up).
+      FB.updateDoc(FB.doc(FB.db,'bookings',bk.id),{ds:'avail',driverUid:null,driverName:null,declinedBy:null}).catch(function(){});
+    } else if(data.ds==='cancelled'){
+      _stop();
+    }
   });
 }
 
@@ -4295,22 +4603,53 @@ window.cancelBooking=function(bookingId){
   // Custom confirm modal — native confirm() blocked in PWA/WebView
   var overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:flex;align-items:flex-end;';
-  var reasons=['Changed my mind','Driver is taking too long','Booked by mistake','Found another option','Emergency'];
-  var _selReason=reasons[0];
-  overlay.innerHTML='<div style="width:100%;background:#111;border-radius:22px 22px 0 0;padding:24px 20px 36px;">'+
-    '<div style="width:36px;height:4px;background:#333;border-radius:2px;margin:0 auto 18px;"></div>'+
-    '<div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:4px;">Cancel Booking?</div>'+
-    '<div style="font-size:12px;color:#888;margin-bottom:16px;">Select a reason</div>'+
-    reasons.map(function(r,i){
-      return '<div onclick="this.parentNode.querySelectorAll(\".cr\").forEach(function(x){x.style.borderColor=\"#333\";x.style.color=\"#888\";});this.style.borderColor=\"#f87171\";this.style.color=\"#fff\";window._selCancelReason=\"'+r+'\";" class="cr" style="padding:11px 14px;border:1.5px solid '+(i===0?'#f87171':'#333')+';border-radius:11px;font-size:13px;font-weight:600;color:'+(i===0?'#fff':'#888')+';cursor:pointer;margin-bottom:8px;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;">'+r+'</div>';
-    }).join('')+
-    '<button id="_tc_confirm_yes" style="width:100%;background:#f87171;color:#fff;border:none;border-radius:13px;padding:15px;font-size:14px;font-weight:800;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;margin-top:8px;margin-bottom:8px;">Confirm Cancellation</button>'+
-    '<button id="_tc_confirm_no" style="width:100%;background:transparent;border:1.5px solid #333;border-radius:13px;padding:14px;font-size:13px;font-weight:700;color:#888;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;">Keep Booking</button>'+
-  '</div>';
+  var reasons=['Changed my mind','Driver is taking too long','Booked by mistake','Found another option','Emergency','Other'];
   window._selCancelReason=reasons[0];
+
+  var sheet=document.createElement('div');
+  sheet.style.cssText='width:100%;background:#111;border-radius:22px 22px 0 0;padding:24px 20px 36px;';
+  sheet.innerHTML='<div style="width:36px;height:4px;background:#333;border-radius:2px;margin:0 auto 18px;"></div>'+
+    '<div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:4px;">Cancel Booking?</div>'+
+    '<div style="font-size:12px;color:#888;margin-bottom:16px;">Select a reason</div>';
+
+  var otherInp=document.createElement('input');
+  otherInp.placeholder='Type your reason…';
+  otherInp.style.cssText='width:100%;box-sizing:border-box;background:#1a1a1a;border:1.5px solid #333;border-radius:11px;padding:11px 14px;font-size:13px;color:#fff;margin-bottom:8px;display:none;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;';
+  otherInp.oninput=function(){ window._selCancelReason=otherInp.value.trim()||'Other'; };
+
+  reasons.forEach(function(r,i){
+    var d=document.createElement('div');
+    d.className='cr';
+    d.textContent=r;
+    d.style.cssText='padding:11px 14px;border:1.5px solid '+(i===0?'#f87171':'#333')+';border-radius:11px;font-size:13px;font-weight:600;color:'+(i===0?'#fff':'#888')+';cursor:pointer;margin-bottom:8px;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;';
+    d.addEventListener('click',function(){
+      sheet.querySelectorAll('.cr').forEach(function(x){x.style.borderColor='#333';x.style.color='#888';});
+      d.style.borderColor='#f87171';d.style.color='#fff';
+      var isOther=(r==='Other');
+      otherInp.style.display=isOther?'block':'none';
+      window._selCancelReason=isOther?(otherInp.value.trim()||'Other'):r;
+      if(isOther)otherInp.focus();
+    });
+    sheet.appendChild(d);
+  });
+  sheet.appendChild(otherInp);
+
+  var yesBtn=document.createElement('button');
+  yesBtn.id='_tc_confirm_yes';
+  yesBtn.textContent='Confirm Cancellation';
+  yesBtn.style.cssText='width:100%;background:#f87171;color:#fff;border:none;border-radius:13px;padding:15px;font-size:14px;font-weight:800;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;margin-top:8px;margin-bottom:8px;';
+  sheet.appendChild(yesBtn);
+
+  var noBtn=document.createElement('button');
+  noBtn.id='_tc_confirm_no';
+  noBtn.textContent='Keep Booking';
+  noBtn.style.cssText='width:100%;background:transparent;border:1.5px solid #333;border-radius:13px;padding:14px;font-size:13px;font-weight:700;color:#888;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;';
+  sheet.appendChild(noBtn);
+
+  overlay.appendChild(sheet);
   document.body.appendChild(overlay);
-  document.getElementById('_tc_confirm_no').onclick=function(){overlay.remove();};
-  document.getElementById('_tc_confirm_yes').onclick=function(){
+  noBtn.onclick=function(){overlay.remove();};
+  yesBtn.onclick=function(){
     overlay.remove();
     var FB=window._FB;
     if(FB){
@@ -4326,6 +4665,8 @@ window.cancelBooking=function(bookingId){
         toast('Booking cancelled.');
         stopDriverTracking();
         clearInterval(_driverSearchTimer);
+        if(_chooseDriverUnsub){_chooseDriverUnsub();_chooseDriverUnsub=null;} // FIX #15: stop the driver-response listener too
+        if(_chooseDriverTimeoutId){clearTimeout(_chooseDriverTimeoutId);_chooseDriverTimeoutId=null;}
         goToHome();
       }).catch(function(e){toast('Could not cancel: '+e.message);});
     }
@@ -4344,14 +4685,14 @@ function renderHistory(){
     var statusColor=b.ds==='completed'?'#1A73E8':b.ds==='cancelled'?'#f87171':b.ds==='in_progress'?'#60a5fa':'#fbbf24';
     var statusTxt=statusLabel(b.ds);
     var ratingRow=b.customerRating?'<div class="bk-row"><span class="bk-key">Your Rating</span><span class="bk-val">'+'⭐'.repeat(b.customerRating)+'</span></div>':'';
-    var rateBtn=b.ds==='completed'&&!b.customerRating?'<button onclick="openRating(\''+b.id+'\',\''+( b.driverName||'Driver')+'\')" style="width:100%;margin-top:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:11px;padding:11px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;">⭐ Rate this Driver</button>':'';
+    var rateBtn=b.ds==='completed'&&!b.customerRating?'<button onclick="openRating(\''+b.id+'\',\''+tcJsq(b.driverName||'Driver')+'\')" style="width:100%;margin-top:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:11px;padding:11px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;">⭐ Rate this Driver</button>':'';
     return'<div class="bk-card">'+
       '<div class="bk-route">'+(b.from||'—')+' → '+(b.to||'—')+'</div>'+
       '<div class="bk-meta">#'+(b.id||'—')+' · '+(b.date||b.created?new Date(b.created).toLocaleDateString('en-ZA'):'—')+'</div>'+
       '<div class="bk-row"><span class="bk-key">Truck</span><span class="bk-val">'+(b.truck||'—')+'</span></div>'+
       '<div class="bk-row"><span class="bk-key">Amount</span><span class="bk-val" style="color:#1A73E8;">'+(b.price||'—')+'</span></div>'+
       '<div class="bk-row"><span class="bk-key">Status</span><span class="bk-val" style="color:'+statusColor+';">'+statusTxt+'</span></div>'+
-      (b.driverName?'<div class="bk-row"><span class="bk-key">Driver</span><span class="bk-val"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg> '+b.driverName+'</span></div>':'')+
+      (b.driverName?'<div class="bk-row"><span class="bk-key">Driver</span><span class="bk-val">'+tcAvatarHtml(b.driverPhotoUrl,b.driverName,24)+' '+tcEsc(b.driverName)+'</span></div>':'')+
       ratingRow+rateBtn+
     '</div>';
   }).join('');
@@ -4502,7 +4843,9 @@ document.addEventListener('DOMContentLoaded',function(){
     if(!fn){if(errEl)errEl.textContent='First name required.';return;}
     if(!ln){if(errEl)errEl.textContent='Surname required.';return;}
     if(_tcSignupMethod==='phone'){
-      cData={name:(fn+' '+ln).trim(),phone:_tcObPhone,email:null,_authExists:true};
+      var pwPhone=(val('tc-final-password')||'');
+      if(pwPhone.length<6){if(errEl)errEl.textContent='Password must be at least 6 characters.';return;}
+      cData={name:(fn+' '+ln).trim(),phone:_tcObPhone,email:null,password:pwPhone,_authExists:true};
     } else {
       var p=(val('tc-final-phone')||'').trim();
       if(p.replace(/\D/g,'').length<10){if(errEl)errEl.textContent='Enter a valid phone number.';return;}
@@ -4527,16 +4870,14 @@ document.addEventListener('DOMContentLoaded',function(){
     }
     return raw;
   }
-  // Primary button: send code by SMS (Firebase Phone Auth — free, no card)
+  // Primary button: send code by SMS (BulkSMS via truckconnect-sms-otp Worker — no Firebase Phone Auth, no reCAPTCHA needed)
   on('tc-phone-continue','click',function(){
     var raw=_tcValidatePhone();if(!raw)return;
     var e164=_tcNormalizeE164(raw);
     var errEl=$('tc-phone-err');
     var btn=$('tc-phone-continue');var origTxt=btn.textContent;btn.disabled=true;btn.textContent='Sending…';
-    var verifier=_tcGetRecaptcha();
-    window._FB.signInWithPhoneNumber(window._FB.auth,e164,verifier).then(function(confirmationResult){
+    window._FB.sendSmsOtp({phone:e164,role:'customer'}).then(function(){
       btn.disabled=false;btn.textContent=origTxt;
-      _tcObConfirmResult=confirmationResult;
       _tcObMethod='sms';
       _tcObPhone=e164;
       var title=$('tc-otp-title');if(title)title.textContent='Welcome back.';
@@ -4546,7 +4887,6 @@ document.addEventListener('DOMContentLoaded',function(){
     }).catch(function(err){
       btn.disabled=false;btn.textContent=origTxt;
       if(errEl)errEl.textContent=(err&&err.message)?('SMS error: '+err.message):'Could not send SMS — check the number and try again, or use email instead.';
-      if(_tcRecaptchaVerifier){try{_tcRecaptchaVerifier.clear();}catch(e){}_tcRecaptchaVerifier=null;}
     });
   });
   // "Continue with Phone Number" — sign up using just the phone (no email needed)
@@ -4555,10 +4895,8 @@ document.addEventListener('DOMContentLoaded',function(){
     var e164=_tcNormalizeE164(raw);
     var errEl=$('tc-phone-err');
     var btn=$('tc-phone-signup-sms');var origTxt=btn.textContent;btn.disabled=true;btn.textContent='Sending…';
-    var verifier=_tcGetRecaptcha();
-    window._FB.signInWithPhoneNumber(window._FB.auth,e164,verifier).then(function(confirmationResult){
+    window._FB.sendSmsOtp({phone:e164,role:'customer'}).then(function(){
       btn.disabled=false;btn.textContent=origTxt;
-      _tcObConfirmResult=confirmationResult;
       _tcObMethod='sms-signup';
       _tcObPhone=e164;
       var title=$('tc-otp-title');if(title)title.textContent='Verify your number.';
@@ -4568,7 +4906,6 @@ document.addEventListener('DOMContentLoaded',function(){
     }).catch(function(err){
       btn.disabled=false;btn.textContent=origTxt;
       if(errEl)errEl.textContent=(err&&err.message)?('SMS error: '+err.message):'Could not send SMS — check the number and try again, or use email instead.';
-      if(_tcRecaptchaVerifier){try{_tcRecaptchaVerifier.clear();}catch(e){}_tcRecaptchaVerifier=null;}
     });
   });
   // Secondary button: send code by email (via Cloudflare Worker + Resend)
@@ -4621,7 +4958,7 @@ document.addEventListener('DOMContentLoaded',function(){
     if(_tcResendCooldown)return;
     var btn=$('tc-otp-resend');btn.disabled=true;_tcResendCooldown=true;
     var resendPromise = (_tcObMethod==='sms'||_tcObMethod==='sms-signup')
-      ? window._FB.signInWithPhoneNumber(window._FB.auth,_tcObPhone,_tcGetRecaptcha()).then(function(cr){_tcObConfirmResult=cr;})
+      ? window._FB.sendSmsOtp({phone:_tcObPhone,role:'customer'})
       : window._FB.sendOtp({phone:_tcObPhone});
     resendPromise.then(function(){
       var e=$('tc-otp-err');if(e){e.style.color='#1A73E8';e.textContent='Code resent.';}
@@ -4640,36 +4977,55 @@ document.addEventListener('DOMContentLoaded',function(){
 
     var flow;
     if(_tcObMethod==='sms-signup'){
-      // New phone-based signup: Firebase's phone-auth user IS the account —
-      // no swap needed. Check if a customer profile already exists for it
-      // (returning phone-signup user) or if we need to collect name/surname.
-      flow=_tcObConfirmResult.confirm(code).then(function(userCred){
-        currentUid=userCred.user.uid;
-        return window._FB.getDoc(window._FB.doc(window._FB.db,'customers',currentUid)).then(function(snap){
-          btn.disabled=false;btn.textContent=origTxt;
-          if(snap.exists()){
-            cData=snap.data();saveSession();goToHome();
+      // New phone-based signup via BulkSMS: the Worker verifies the code and
+      // mints a custom token for either the existing account's uid, or a
+      // brand-new uid if none was found (signing in with it creates the
+      // Firebase Auth user, same as Firebase Phone Auth used to do for us).
+      flow=window._FB.verifySmsOtp({phone:_tcObPhone,code:code,role:'customer'}).then(function(res){
+        var d=res.data||{};
+        var token=d.customToken;
+        if(!token)throw new Error('no-token');
+        return window._FB.signOut(window._FB.auth).then(function(){return window._FB.signInWithCustomToken(window._FB.auth,token);}).then(function(userCred){
+          currentUid=userCred.user.uid;
+          if(d.existingAccount){
+            return window._FB.getDoc(window._FB.doc(window._FB.db,'customers',currentUid)).then(function(snap){
+              btn.disabled=false;btn.textContent=origTxt;
+              if(snap.exists()){
+                cData=snap.data();saveSession();goToHome();
+              } else {
+                _tcInSignupFlow=true;
+                _tcSignupMethod='phone';
+                cData={phone:_tcObPhone,_authExists:true};
+                var pg=$('tc-final-phone-group');if(pg)pg.style.display='none';
+                var pwg=$('tc-final-password-group');if(pwg)pwg.style.display='';
+                _tcObShow('cust-final-view');
+                setTimeout(function(){var i=$('tc-final-fname');if(i)i.focus();},50);
+              }
+            });
           } else {
+            btn.disabled=false;btn.textContent=origTxt;
+            _tcInSignupFlow=true;
             _tcSignupMethod='phone';
             cData={phone:_tcObPhone,_authExists:true};
             var pg=$('tc-final-phone-group');if(pg)pg.style.display='none';
-            var pwg=$('tc-final-password-group');if(pwg)pwg.style.display='none';
+            var pwg=$('tc-final-password-group');if(pwg)pwg.style.display='';
             _tcObShow('cust-final-view');
             setTimeout(function(){var i=$('tc-final-fname');if(i)i.focus();},50);
           }
         });
       });
     } else if(_tcObMethod==='sms'){
-      // Firebase verifies the SMS code itself, then we swap the resulting
-      // temporary phone-auth session for the customer's real account.
-      flow=_tcObConfirmResult.confirm(code)
-        .then(function(userCred){return userCred.user.getIdToken();})
-        .then(function(idToken){return window._FB.verifyPhoneToken({idToken:idToken,phone:_tcObPhone});})
-        .then(function(res){
-          var token=res.data&&res.data.token;
-          if(!token)throw new Error('no-token');
-          return window._FB.signOut(window._FB.auth).then(function(){return window._FB.signInWithCustomToken(window._FB.auth,token);});
-        });
+      // Returning-user SMS login via BulkSMS: Worker verifies the code and,
+      // if an account exists for this number, mints a token for it directly.
+      flow=window._FB.verifySmsOtp({phone:_tcObPhone,code:code,role:'customer'}).then(function(res){
+        var d=res.data||{};
+        if(!d.existingAccount){
+          throw new Error('No account found with this number — use "Continue with Phone Number" to sign up.');
+        }
+        var token=d.customToken;
+        if(!token)throw new Error('no-token');
+        return window._FB.signOut(window._FB.auth).then(function(){return window._FB.signInWithCustomToken(window._FB.auth,token);});
+      });
     } else {
       flow=window._FB.verifyOtp({phone:_tcObPhone,code:code}).then(function(res){
         var token=res.data&&res.data.token;
@@ -4681,7 +5037,11 @@ document.addEventListener('DOMContentLoaded',function(){
     flow.catch(function(err){
       btn.disabled=false;btn.textContent=origTxt;
       var c=(err&&err.code)||'';
-      if(errEl)errEl.textContent = /permission-denied|invalid-verification-code/.test(c) ? 'Incorrect code — try again.'
+      var m=(err&&err.message)||'';
+      if(errEl)errEl.textContent = /No account found/.test(m) ? m
+        : /Invalid code|Incorrect code/.test(m) ? 'Incorrect code — try again.'
+        : /Code expired/.test(m) ? 'That code expired — tap Resend.'
+        : /permission-denied|invalid-verification-code/.test(c) ? 'Incorrect code — try again.'
         : /deadline-exceeded|expired/.test(c) ? 'That code expired — tap Resend.'
         : /not-found/.test(c) ? 'No TruckConnect account is linked to this number yet.'
         : 'Could not verify — please try again.';
@@ -4768,6 +5128,7 @@ document.addEventListener('DOMContentLoaded',function(){
         center:_hc,zoom:_hz,tilt:_hp||57,mapId:newStyle,disableDefaultUI:true,gestureHandling:'greedy'
       });
       if(homeMarker)homeMarker.map=homeMap;
+      if(homeAccCircle)homeAccCircle.setMap(homeMap);
       if(_driverMapMarker)_driverMapMarker.map=homeMap;
     }
     if(customerMap){
@@ -4838,9 +5199,19 @@ document.addEventListener('DOMContentLoaded',function(){
         var errEl=$('si-err');errEl.textContent='Too many failed attempts. Please wait '+wait+' seconds.';errEl.style.display='block';return;
       }
     }catch(e){}
-    var e=val('si-email').trim(),p=val('si-pass');
+    var rawInput=val('si-email').trim(),p=val('si-pass');
     ['si-email-err','si-pass-err','si-err'].forEach(function(id){if($(id))$(id).style.display='none';});
-    if(!e||!e.includes('@')){$('si-email-err').textContent='Valid email required.';$('si-email-err').style.display='block';return;}
+    if(!rawInput){$('si-email-err').textContent='Email or phone number required.';$('si-email-err').style.display='block';return;}
+    var e; // resolved auth email actually sent to Firebase
+    if(rawInput.indexOf('@')>-1){
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawInput)){$('si-email-err').textContent='Enter a valid email address.';$('si-email-err').style.display='block';return;}
+      e=rawInput;
+    } else {
+      var _siDigits=rawInput.replace(/\s/g,'');
+      if(!/^0?\d{9}$/.test(_siDigits)){$('si-email-err').textContent='Enter a valid email or phone number.';$('si-email-err').style.display='block';return;}
+      var _siE164=_siDigits.indexOf('0')===0?('+27'+_siDigits.slice(1)):('+27'+_siDigits);
+      e=window._tcPhoneAuthEmail?window._tcPhoneAuthEmail(_siE164):_siE164;
+    }
     if(!p){$('si-pass-err').textContent='Password required.';$('si-pass-err').style.display='block';return;}
     var btn=$('signin-btn');btn.disabled=true;btn.textContent='Signing In...';
     var FB=window._FB;
@@ -4899,7 +5270,7 @@ document.addEventListener('DOMContentLoaded',function(){
         cData=snap.data();saveSession();
         // Save remembered account for next login
         try{
-          localStorage.setItem('tc_cust_remembered',JSON.stringify({email:e,name:cData.name||''}));
+          localStorage.setItem('tc_cust_remembered',JSON.stringify({email:rawInput,name:cData.name||''}));
         }catch(ex){}
         // ── Set up fingerprint quick-login on this device (silent — never blocks login) ──
         setTimeout(function(){
@@ -4950,7 +5321,8 @@ function _loadChat(bookingId){
   if(!FB||!bookingId)return;
   _chatUnsub=FB.onSnapshot(
     FB.query(
-      FB.collection(FB.db,'chats',bookingId,'messages')
+      FB.collection(FB.db,'chats',bookingId,'messages'),
+      FB.orderBy('ts','asc')
     ),
     function(snap){
       if(!wrap)return;
@@ -5005,7 +5377,7 @@ function listenAdminChat(uid) {
   if (_adminChatUnsub) { _adminChatUnsub(); _adminChatUnsub = null; }
   var chatId = 'admin_' + uid;
   _adminChatUnsub = FB.onSnapshot(
-    FB.query(FB.collection(FB.db, 'chats', chatId, 'messages')),
+    FB.query(FB.collection(FB.db, 'chats', chatId, 'messages'), FB.orderBy('ts','asc')),
     function(snap) {
       var count = snap.docs.length;
       if (_lastAdminMsgCount > 0 && count > _lastAdminMsgCount) {
@@ -5461,8 +5833,14 @@ window.submitReport=function(reason){
             window._FB.getDoc(window._FB.doc(window._FB.db,'customers',user.uid))
               .then(function(snap){
                 if(snap.exists()){cData=snap.data();saveSession();_enterHome();}
+                else if(_tcInSignupFlow){
+                  // Expected: user just signed in via custom token and is still
+                  // filling in the "last details" screen — the customer doc
+                  // hasn't been written yet. Do NOT sign out mid-signup.
+                  console.warn('[TC] No customer document yet for uid:',user.uid,'(signup in progress, ignoring)');
+                }
                 else{
-                  // Auth exists but no customer doc — sign out and go to landing
+                  // Auth exists but no customer doc, and we're not mid-signup — sign out and go to landing
                   console.warn('[TC] No customer document found for uid:',user.uid);
                   window._FB.signOut(window._FB.auth).catch(function(){});
                   currentUid=null;cData={};
@@ -5490,181 +5868,389 @@ window.submitReport=function(reason){
 })();
 
 
-// ══ LIVE TRACKING MAP (Bolt-style) ══════════════════════════════════════════
-var _ltMap=null, _ltDriverMarker=null, _ltPickupMarker=null;
-var _ltUnsub=null, _ltBkId=null;
+// ══ LIVE TRACKING (driver → pickup → drop-off) ══════════════════════════
+// Everything the customer sees comes from the booking (written by the driver app when the job is
+// accepted). Anything missing is filled from the driver's profile, and every picture/label has a
+// safe fallback, so this screen can never come up blank or show raw code.
+var _ltMap=null,_ltMapAdv=false,_ltDrvMk=null,_ltDestMk=null,_ltPoly=null,_ltGlow=null;
+var _ltUnsub=null,_ltBkId=null,_ltData=null,_ltDrvDoc=null,_ltDrvDocFor='',_ltCurCard=null;
+var _ltRoutePath=[],_ltRouteInfo=null,_ltLastRoute={t:0,lat:0,lng:0,key:''},_ltReqId=0,_ltPhase='';
+var _ltFitted=false,_ltRouteFit=false,_ltActive=false,_ltWired=false,_ltMapTimer=null,_ltTilesTimer=null,_ltRetried=false;
+
+var LT_TRUCK_SVG='<svg viewBox="0 0 32 24" width="22" height="17" fill="none"><rect x="1" y="3" width="18.5" height="14.5" rx="2.4" fill="#16a34a"/><path d="M21.2 8h5.1c.6 0 1.1.3 1.5.8l2.6 3.5c.3.4.4.8.4 1.3v3.9H21.2V8Z" fill="#0b1324"/><path d="M23 9.9h3.1l2.1 2.9H23V9.9Z" fill="#fff"/><circle cx="8" cy="19" r="3.2" fill="#0b1324"/><circle cx="25" cy="19" r="3.2" fill="#0b1324"/><circle cx="8" cy="19" r="1.2" fill="#fff"/><circle cx="25" cy="19" r="1.2" fill="#fff"/></svg>';
+var LT_PIN_SVG='<svg viewBox="0 0 44 54" width="44" height="54"><path d="M22 2C12 2 4 9.6 4 19c0 12.6 18 31 18 31s18-18.4 18-31C40 9.6 32 2 22 2z" fill="#16c47f" stroke="#fff" stroke-width="2.5"/><circle cx="22" cy="19" r="11" fill="#fff"/><circle cx="22" cy="16.2" r="3.6" fill="#16c47f"/><path d="M14.8 26c.7-3.6 3.6-5.2 7.2-5.2s6.5 1.6 7.2 5.2c-2 1.9-4.5 2.8-7.2 2.8s-5.2-.9-7.2-2.8z" fill="#16c47f"/></svg>';
+var LT_STAR_SVG='<svg viewBox="0 0 24 24" width="16" height="16" fill="#f5b301"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z"/></svg>';
+var LT_DARK_STYLE=[{elementType:'geometry',stylers:[{color:'#0f1b33'}]},{elementType:'labels.text.fill',stylers:[{color:'#7f93b8'}]},{elementType:'labels.text.stroke',stylers:[{color:'#0b1324'}]},{featureType:'road',elementType:'geometry',stylers:[{color:'#1d2f52'}]},{featureType:'road.highway',elementType:'geometry',stylers:[{color:'#27427a'}]},{featureType:'water',elementType:'geometry',stylers:[{color:'#08234d'}]},{featureType:'poi',stylers:[{visibility:'off'}]},{featureType:'transit',stylers:[{visibility:'off'}]}];
+
+function _ltCoord(c){
+  if(!c)return null;
+  var lat,lng;
+  if(Array.isArray(c)){lng=parseFloat(c[0]);lat=parseFloat(c[1]);}
+  else{lat=parseFloat(c.lat!=null?c.lat:c.latitude);lng=parseFloat(c.lng!=null?c.lng:(c.lon!=null?c.lon:c.longitude));}
+  if(!isFinite(lat)||!isFinite(lng)||Math.abs(lat)>90||Math.abs(lng)>180||(lat===0&&lng===0))return null;
+  return {lat:lat,lng:lng};
+}
+function _ltDriverPos(d){
+  if(!d)return null;
+  return _ltCoord(d.driverLocation)||(d.driverLat!=null?_ltCoord({lat:d.driverLat,lng:d.driverLng}):null);
+}
+function _ltTarget(){
+  var d=_ltData||{};
+  return _ltCoord(d.ds==='in_progress'?d.toCoords:d.fromCoords);
+}
+function _ltFmtEta(min){
+  min=Math.max(1,Math.round(min));
+  if(min<60)return min+' min';
+  var h=Math.floor(min/60),m=min%60;
+  return h+' h'+(m?' '+m+' min':'');
+}
+function _ltFmtDist(km){return km<1?(Math.max(1,Math.round(km*100))*10)+' m':km.toFixed(1)+' km';}
+function _ltStr(){for(var i=0;i<arguments.length;i++){var v=arguments[i];if(typeof v==='string'&&v.trim())return v.trim();}return '';}
+function _ltNum(v){v=parseFloat(v);return isFinite(v)&&v>0?v:null;}
+
+// One place that decides what the customer sees about the driver and truck.
+function _ltCard(d){
+  d=d||{};
+  var x=_ltDrvDoc||{};
+  var trips=null;
+  if(d.driverTrips!=null&&isFinite(+d.driverTrips))trips=+d.driverTrips;
+  else if(x.completedTrips!=null&&isFinite(+x.completedTrips))trips=+x.completedTrips;
+  return {
+    name:_ltStr(d.driverName,x.name)||'Your driver',
+    phone:_ltStr(d.driverPhone,x.phone),
+    photo:tcSafeImg(_ltStr(d.driverPhotoUrl,x.selfiePhoto,x.photoUrl)),
+    truckPhoto:tcSafeImg(_ltStr(d.driverTruckPhotoUrl,x.truckPhoto,x.truckPhotoUrl)),
+    make:_ltStr(d.driverTruckName,x.truck),
+    size:tcCleanTruckType(_ltStr(d.driverTruck,x.truckType)),
+    plate:_ltStr(d.driverNumPlate,d.driverPlate,x.plate),
+    color:_ltStr(d.driverColor,x.truckColor),
+    rating:_ltNum(d.driverRating!=null?d.driverRating:x.rating),
+    trips:trips
+  };
+}
+
+function _ltRenderCard(d){
+  var c=_ltCard(d);
+  _ltCurCard=c;
+  var av=document.getElementById('lt-avatar');
+  if(av)av.innerHTML=tcAvatarHtml(c.photo,c.name,64);
+  txt('lt-driver-name',c.name);
+  var meta='';
+  if(c.rating)meta+=LT_STAR_SVG+'<b>'+c.rating.toFixed(1)+'</b>';
+  if(c.trips!=null)meta+=(meta?'<i></i>':'')+'<span>'+c.trips+' deliver'+(c.trips===1?'y':'ies')+'</span>';
+  var me=document.getElementById('lt-driver-meta');
+  if(me)me.innerHTML=meta||'<span>Your driver</span>';
+  var th=document.getElementById('lt-truck-thumb');
+  if(th)th.innerHTML=tcTruckHtml(c.truckPhoto,96,64);
+  txt('lt-truck-type',c.make||c.size||'Truck');
+  txt('lt-plate',c.plate?c.plate.toUpperCase():'Plate pending');
+  var call=document.getElementById('lt-call');
+  if(call){
+    var digits=c.phone.replace(/[^\d+]/g,'');
+    if(digits.replace(/\D/g,'').length>=7){call.setAttribute('href','tel:'+digits);call.classList.remove('off');}
+    else{call.removeAttribute('href');call.classList.add('off');}
+  }
+}
+
+// If the booking is missing a photo/plate, look at the driver's own profile once.
+function _ltMaybeLoadDriver(d){
+  if(!d||!d.driverUid||_ltDrvDocFor===d.driverUid)return;
+  var c=_ltCard(d);
+  if(c.photo&&c.truckPhoto&&c.plate&&c.make)return;
+  _ltDrvDocFor=d.driverUid;
+  var FB=window._FB;
+  if(!FB||!FB.getDoc)return;
+  try{
+    FB.getDoc(FB.doc(FB.db,'drivers',d.driverUid)).then(function(s){
+      if(!s||!s.exists()||!_ltActive)return;
+      _ltDrvDoc=s.data()||{};
+      if(_ltData)_ltRenderCard(_ltData);
+    }).catch(function(){});
+  }catch(e){}
+}
+
+function _ltStatus(inTransit,km){
+  if(inTransit)return {step:3,all:true,title:'On the way to drop-off',sub:'Your load is on the move',pill:'In transit'};
+  if(km==null)return {step:1,title:'Driver is on the way',sub:"Waiting for your driver's location",pill:'On the way'};
+  var eta=(_ltRouteInfo&&_ltRouteInfo.key==='pickup')?_ltRouteInfo.min:null;
+  if(km<0.12)return {step:2,title:'Driver has arrived',sub:'Your driver is at the pickup location',pill:'Arrived'};
+  if(km<0.8||(eta!=null&&eta<=3))return {step:2,title:'Driver is arriving',sub:'Your driver will be with you in a moment',pill:'Arriving soon'};
+  return {step:1,title:'Driver is on the way',sub:'Your driver will arrive soon',pill:'On the way'};
+}
+function _ltSetSteps(step,all){
+  var nodes=document.querySelectorAll('#lt-steps .lt-step');
+  for(var i=0;i<nodes.length;i++){
+    var n=nodes[i],idx=parseInt(n.getAttribute('data-i'),10);
+    n.classList.remove('done','active');
+    if(all||idx<step)n.classList.add('done');
+    else if(idx===step)n.classList.add('active');
+  }
+}
+function _ltRenderEta(haver){
+  var d=_ltData||{},key=d.ds==='in_progress'?'dropoff':'pickup';
+  var eta='—',dist='—';
+  if(_ltRouteInfo&&_ltRouteInfo.key===key){eta=_ltFmtEta(_ltRouteInfo.min);dist=_ltFmtDist(_ltRouteInfo.km);}
+  else if(haver!=null){var km=haver*1.25;eta=_ltFmtEta(km/0.45);dist=_ltFmtDist(km);}
+  else if(d.driverEtaMins!=null&&isFinite(+d.driverEtaMins)&&key==='pickup'){eta=_ltFmtEta(+d.driverEtaMins);}
+  txt('lt-eta-val',eta);txt('lt-dist-val',dist);
+}
+
+// ── markers ───────────────────────────────────────────────────
+function _ltAddMarker(kind,pos,label){
+  if(!_ltMap)return null;
+  try{
+    if(_ltMapAdv){
+      var el=document.createElement('div');
+      if(kind==='driver'){
+        el.innerHTML='<div class="lt-mk-driver"><div class="lt-mk-halo"></div><div class="lt-mk-truck">'+LT_TRUCK_SVG+'</div><span class="lt-mk-label">Driver</span></div>';
+        el.style.transform='translateY(50%)';
+      }else{
+        el.innerHTML='<div class="lt-mk-dest">'+LT_PIN_SVG+'<span class="lt-mk-label green">'+tcEsc(label)+'</span></div>';
+      }
+      var mk=new google.maps.marker.AdvancedMarkerElement({map:_ltMap,position:pos,content:el,zIndex:kind==='driver'?20:10});
+      mk._adv=true;
+      return mk;
+    }
+  }catch(e){}
+  try{
+    var svg=kind==='driver'
+      ?'<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><circle cx="20" cy="20" r="18" fill="#1f7bff" fill-opacity=".28"/><circle cx="20" cy="20" r="10" fill="#fff" stroke="#1f7bff" stroke-width="4"/></svg>'
+      :'<svg xmlns="http://www.w3.org/2000/svg" width="34" height="42" viewBox="0 0 44 54"><path d="M22 2C12 2 4 9.6 4 19c0 12.6 18 31 18 31s18-18.4 18-31C40 9.6 32 2 22 2z" fill="#16c47f" stroke="#fff" stroke-width="2.5"/><circle cx="22" cy="19" r="8" fill="#fff"/></svg>';
+    var m=new google.maps.Marker({map:_ltMap,position:pos,title:label||'Driver',icon:{url:'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg),scaledSize:kind==='driver'?new google.maps.Size(40,40):new google.maps.Size(34,42),anchor:kind==='driver'?new google.maps.Point(20,20):new google.maps.Point(17,42)}});
+    m._adv=false;
+    return m;
+  }catch(e2){return null;}
+}
+function _ltMovePin(mk,pos){if(!mk)return;try{if(mk._adv)mk.position=pos;else mk.setPosition(pos);}catch(e){}}
+function _ltDropPin(mk){if(!mk)return;try{if(mk._adv)mk.map=null;else mk.setMap(null);}catch(e){}}
+
+function _ltDrawRoute(){
+  if(!_ltMap||!_ltRoutePath.length)return;
+  try{
+    if(!_ltPoly){
+      _ltGlow=new google.maps.Polyline({map:_ltMap,strokeColor:'#1f7bff',strokeOpacity:.28,strokeWeight:14,zIndex:1,clickable:false});
+      _ltPoly=new google.maps.Polyline({map:_ltMap,strokeColor:'#2f80ff',strokeOpacity:1,strokeWeight:6,zIndex:2,clickable:false});
+    }
+    _ltGlow.setPath(_ltRoutePath);_ltPoly.setPath(_ltRoutePath);
+  }catch(e){}
+}
+
+// Padding is capped by the real map size, so a big value can never make the map zoom out to a whole continent.
+function _ltFit(){
+  if(!_ltMap)return;
+  var pos=_ltDriverPos(_ltData),tg=_ltTarget();
+  if(!pos&&!tg)return;
+  try{
+    if(!(pos&&tg)){_ltMap.setCenter(pos||tg);_ltMap.setZoom(15);_ltFitted=true;return;}
+    var b=new google.maps.LatLngBounds();
+    b.extend(pos);b.extend(tg);
+    var step=Math.max(1,Math.floor(_ltRoutePath.length/60));
+    for(var i=0;i<_ltRoutePath.length;i+=step)b.extend(_ltRoutePath[i]);
+    var el=document.getElementById('live-track-map');
+    var W=(el&&el.clientWidth)||360,H=(el&&el.clientHeight)||360;
+    var pad={top:Math.round(Math.min(130,H*.34)),bottom:Math.round(Math.min(70,H*.16)),left:Math.round(Math.min(46,W*.12)),right:Math.round(Math.min(78,W*.2))};
+    _ltMap.fitBounds(b,pad);
+    google.maps.event.addListenerOnce(_ltMap,'idle',function(){try{if(_ltMap&&_ltMap.getZoom()>17)_ltMap.setZoom(17);}catch(e){}});
+    _ltFitted=true;
+  }catch(e){}
+}
+
+function _ltRouteMaybe(pos,target,key){
+  var now=Date.now();
+  var moved=_ltLastRoute.lat?_haversineKm(pos.lat,pos.lng,_ltLastRoute.lat,_ltLastRoute.lng):9;
+  if(_ltLastRoute.key===key){
+    if(now-_ltLastRoute.t<12000)return;
+    if(moved<0.04&&now-_ltLastRoute.t<60000)return;
+  }
+  _ltLastRoute={t:now,lat:pos.lat,lng:pos.lng,key:key};
+  var req=++_ltReqId;
+  var ctl=window.AbortController?new AbortController():null;
+  var to=setTimeout(function(){try{if(ctl)ctl.abort();}catch(e){}},9000);
+  fetch('https://router.project-osrm.org/route/v1/driving/'+pos.lng+','+pos.lat+';'+target.lng+','+target.lat+'?overview=full&geometries=geojson',ctl?{signal:ctl.signal}:undefined)
+    .then(function(r){return r.json();})
+    .then(function(j){
+      clearTimeout(to);
+      if(req!==_ltReqId||!_ltActive||!j||!j.routes||!j.routes.length)return;
+      var r0=j.routes[0];
+      _ltRoutePath=(r0.geometry&&r0.geometry.coordinates||[]).map(function(c){return {lat:c[1],lng:c[0]};});
+      _ltRouteInfo={km:r0.distance/1000,min:r0.duration/60,key:key};
+      _ltDrawRoute();
+      if(_ltData)_ltApply(_ltData);
+      if(!_ltRouteFit){_ltRouteFit=true;_ltFit();}
+    })
+    .catch(function(){clearTimeout(to);});
+}
+
+// ── one function that redraws the whole screen from the latest booking ──
+function _ltApply(d){
+  if(!d||!_ltActive)return;
+  _ltData=d;
+  _ltRenderCard(d);
+  var inTransit=d.ds==='in_progress';
+  var key=inTransit?'dropoff':'pickup';
+  if(_ltPhase!==key){ // pickup → drop-off: start a fresh route
+    _ltPhase=key;_ltRoutePath=[];_ltRouteInfo=null;_ltFitted=false;_ltRouteFit=false;_ltLastRoute={t:0,lat:0,lng:0,key:''};
+    try{if(_ltPoly){_ltPoly.setPath([]);_ltGlow.setPath([]);}}catch(e){}
+    _ltDropPin(_ltDestMk);_ltDestMk=null;
+  }
+  var pos=_ltDriverPos(d),target=_ltCoord(inTransit?d.toCoords:d.fromCoords);
+  var haver=(pos&&target)?_haversineKm(pos.lat,pos.lng,target.lat,target.lng):null;
+  var st=_ltStatus(inTransit,haver);
+  txt('lt-title',st.title);txt('lt-subtitle',st.sub);txt('lt-status-txt',st.pill);
+  _ltSetSteps(st.step,!!st.all);
+  _ltRenderEta(haver);
+  if(_ltMap){
+    if(target){
+      if(!_ltDestMk)_ltDestMk=_ltAddMarker('dest',target,inTransit?'Drop-off':'Pickup');
+      else _ltMovePin(_ltDestMk,target);
+    }
+    if(pos){
+      if(!_ltDrvMk)_ltDrvMk=_ltAddMarker('driver',pos);
+      else _ltMovePin(_ltDrvMk,pos);
+    }
+    if(pos&&target)_ltRouteMaybe(pos,target,key);
+    if(!_ltFitted&&(pos||target))_ltFit();
+  }
+}
+
+// ── map creation, with two safety nets (exception fallback + "tiles never appeared" fallback) ──
+function _ltCenterGuess(){
+  return _ltDriverPos(_ltData)||_ltTarget()||{lat:-26.2041,lng:28.0473};
+}
+function _ltBuildMap(useMapId){
+  var el=document.getElementById('live-track-map');
+  if(!el)return null;
+  var dark=!document.body.classList.contains('light-mode');
+  var opts={center:_ltCenterGuess(),zoom:14,disableDefaultUI:true,gestureHandling:'greedy',clickableIcons:false,backgroundColor:dark?'#0b1526':'#dfe9f7'};
+  el.innerHTML='';
+  try{
+    if(useMapId){
+      opts.mapId=_mapStyle();
+      opts.colorScheme=dark?'DARK':'LIGHT';
+      _ltMapAdv=!!(google.maps.marker&&google.maps.marker.AdvancedMarkerElement);
+    }else{
+      _ltMapAdv=false;
+      if(dark)opts.styles=LT_DARK_STYLE;
+    }
+    return new google.maps.Map(el,opts);
+  }catch(e){return null;}
+}
+function _ltClearMapObjects(){
+  _ltDropPin(_ltDrvMk);_ltDropPin(_ltDestMk);_ltDrvMk=null;_ltDestMk=null;
+  try{if(_ltPoly)_ltPoly.setMap(null);if(_ltGlow)_ltGlow.setMap(null);}catch(e){}
+  _ltPoly=null;_ltGlow=null;
+}
+function _ltShowMapMsg(t){var m=document.getElementById('lt-map-msg');if(m){m.textContent=t;m.style.display=t?'flex':'none';}}
+function _ltInitMap(){
+  if(_ltMap||!_ltActive)return;
+  clearTimeout(_ltMapTimer);
+  _ltMapTimer=setTimeout(function(){
+    if(!_ltMap)_ltShowMapMsg("The map couldn't load right now. Your driver's details and live progress are still shown below.");
+  },9000);
+  _loadGoogleMaps(function(){
+    if(_ltMap||!_ltActive)return;
+    var m=_ltBuildMap(true)||_ltBuildMap(false);
+    if(!m){_ltShowMapMsg("The map couldn't load right now. Your driver's details and live progress are still shown below.");return;}
+    _ltMap=m;_ltShowMapMsg('');clearTimeout(_ltMapTimer);
+    var ok=false;
+    google.maps.event.addListenerOnce(m,'tilesloaded',function(){ok=true;});
+    clearTimeout(_ltTilesTimer);
+    _ltTilesTimer=setTimeout(function(){
+      // Map object exists but nothing was drawn (blank/black): rebuild once as a plain map.
+      if(ok||!_ltActive||_ltRetried)return;
+      _ltRetried=true;
+      _ltClearMapObjects();
+      var m2=_ltBuildMap(false);
+      if(m2){_ltMap=m2;_ltFitted=false;if(_ltData)_ltApply(_ltData);}
+    },7000);
+    if(_ltData)_ltApply(_ltData);
+  });
+}
+
+function _ltReset(){
+  clearTimeout(_ltMapTimer);clearTimeout(_ltTilesTimer);
+  _ltClearMapObjects();
+  _ltMap=null;_ltRoutePath=[];_ltRouteInfo=null;_ltLastRoute={t:0,lat:0,lng:0,key:''};_ltReqId++;
+  _ltFitted=false;_ltRouteFit=false;_ltRetried=false;_ltPhase='';_ltDrvDoc=null;_ltDrvDocFor='';_ltCurCard=null;_ltData=null;
+  var el=document.getElementById('live-track-map');if(el)el.innerHTML='';
+  _ltShowMapMsg('');
+}
+
+function _ltOpenDetails(){
+  var c=_ltCurCard||_ltCard(_ltData||{});
+  var ph=document.getElementById('lt-det-photo');
+  if(ph)ph.innerHTML=tcTruckHtml(c.truckPhoto,'100%','100%');
+  txt('lt-det-name',c.make||c.size||'Truck');
+  var rows=[['Driver',c.name],['Make & model',c.make],['Truck size',c.size],['Colour',c.color],['Number plate',c.plate?c.plate.toUpperCase():'']];
+  if(c.rating)rows.push(['Rating',c.rating.toFixed(1)+' / 5']);
+  if(c.trips!=null)rows.push(['Deliveries',String(c.trips)]);
+  var html='';
+  rows.forEach(function(r){if(r[1])html+='<div class="lt-det-row"><span>'+tcEsc(r[0])+'</span><b>'+tcEsc(r[1])+'</b></div>';});
+  var box=document.getElementById('lt-det-rows');if(box)box.innerHTML=html;
+  var dt=document.getElementById('lt-details');if(dt)dt.style.display='flex';
+}
+
+function _ltWire(){
+  if(_ltWired)return;
+  _ltWired=true;
+  on('lt-more','click',_ltOpenDetails);
+  on('lt-det-close','click',function(){var dt=$('lt-details');if(dt)dt.style.display='none';});
+  on('lt-details','click',function(e){if(e.target===$('lt-details'))$('lt-details').style.display='none';});
+  on('lt-locate','click',function(){
+    var pos=_ltDriverPos(_ltData);
+    if(!pos){toast("Waiting for your driver's location.");return;}
+    if(_ltMap){_ltMap.panTo(pos);_ltMap.setZoom(16);}
+  });
+  on('lt-fit','click',function(){if(!_ltDriverPos(_ltData)&&!_ltTarget()){toast('Route not ready yet.');return;}_ltFit();});
+  on('lt-chat','click',function(){
+    if(!_ltData||!_ltData.id)return;
+    var c=_ltCurCard||_ltCard(_ltData);
+    window.openChat(_ltData.id,c.name);
+    var ch=$('s-chat');
+    if(ch){ch.style.position='fixed';ch.style.top='0';ch.style.left='0';ch.style.right='0';ch.style.bottom='0';ch.style.zIndex='400';ch.style.overflowY='auto';}
+  });
+  window.addEventListener('resize',function(){if(_ltActive&&_ltMap){try{google.maps.event.trigger(_ltMap,'resize');}catch(e){}}});
+}
 
 function openLiveTracking(bk){
   if(!bk||!bk.id)return;
   var scr=document.getElementById('s-live-track');
   if(!scr)return;
+  _ltWire();
+  var same=(_ltBkId===bk.id&&_ltActive&&_ltUnsub);
   scr.style.display='flex';
-  scr.style.flexDirection='column';
-
-  // Populate static vehicle info immediately
-  document.getElementById('lt-truck-type').textContent=bk.driverTruck||bk.truck||'Truck';
-  document.getElementById('lt-truck-color').textContent=bk.driverColor?bk.driverColor+' truck':'Truck';
-  document.getElementById('lt-plate').textContent=bk.driverNumPlate||'— —';
-  document.getElementById('lt-driver-name').textContent=bk.driverName||'Driver';
-  var av=document.getElementById('lt-avatar');
-  if(av){
-    if(bk.driverPhotoUrl){av.innerHTML='<img src="'+bk.driverPhotoUrl+'" alt="Driver"/>';}
-    else{av.textContent=(bk.driverName?bk.driverName[0].toUpperCase():'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>');}
+  if(same){if(_ltMap){try{google.maps.event.trigger(_ltMap,'resize');}catch(e){}}return;}
+  if(_ltUnsub){try{_ltUnsub();}catch(e){}_ltUnsub=null;}
+  _ltReset();
+  _ltActive=true;_ltBkId=bk.id;
+  var base=Object.assign({},bk);
+  _ltApply(base);
+  _ltMaybeLoadDriver(base);
+  var FB=window._FB;
+  if(FB){
+    try{
+      _ltUnsub=FB.onSnapshot(FB.doc(FB.db,'bookings',bk.id),function(snap){
+        if(!snap||!snap.exists()||!_ltActive)return;
+        var data=snap.data()||{};
+        if(data.ds==='completed'||data.ds==='cancelled'){closeLiveTracking();return;}
+        base=Object.assign({},base,data,{id:bk.id});
+        _ltApply(base);
+        _ltMaybeLoadDriver(base);
+      },function(){});
+    }catch(e){}
   }
-  // Truck emoji by tonnage
-  var truckLbl=(bk.driverTruck||bk.truck||'');
-  var tons=parseInt(truckLbl)||1;
-  var em=tons<=2?'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>':tons<=10?'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>':tons<=24?'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>':'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>';
-  document.getElementById('lt-truck-icon').textContent=em;
-
-  // Init map
-  setTimeout(function(){_ltInitMap(bk);},100);
-}
-
-function _ltInitMap(bk){
-  var mapEl=document.getElementById('live-track-map');
-  if(!mapEl)return;
-  if(_ltMap){_ltMap=null;} // Google's Map has no .remove() — just drop the reference; the div gets reused
-
-  // Default center: pickup location or Gauteng — kept as [lng,lat] to match
-  // how fromCoords is stored everywhere else in this app
-  var initCenter=[28.0473,-26.2041];
-  if(bk.fromCoords){
-    var fc=bk.fromCoords;
-    initCenter=Array.isArray(fc)?[fc[0],fc[1]]:[fc.lng||28.04,fc.lat||-26.20];
-  }
-
-  _loadGoogleMaps(function(){
-    _ltMap=new google.maps.Map(mapEl,{
-      center:{lat:initCenter[1],lng:initCenter[0]},
-      zoom:14,
-      tilt:45,
-      mapId:_mapStyle(),
-      disableDefaultUI:true,
-      gestureHandling:'greedy'
-    });
-
-    // Add pickup marker (green dot)
-    if(bk.fromCoords){
-      var fc=bk.fromCoords;
-      var fc2=Array.isArray(fc)?[fc[0],fc[1]]:[fc.lng,fc.lat];
-      var pickupEl=document.createElement('div');
-      pickupEl.style.cssText='width:14px;height:14px;border-radius:50%;background:#1A73E8;border:3px solid #fff;box-shadow:0 0 0 4px rgba(26,115,232,0.35);';
-      _ltPickupMarker=new google.maps.marker.AdvancedMarkerElement({map:_ltMap,position:{lat:fc2[1],lng:fc2[0]},content:pickupEl});
-    }
-    // Start real-time tracking
-    _ltStartTracking(bk);
-  });
-}
-
-function _ltGetEmoji(truckLabel){
-  var t=parseInt(truckLabel)||1;
-  return t<=2?'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>':t<=10?'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>':t<=24?'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>':'<svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg>';
-}
-
-function _ltStartTracking(bk){
-  if(!bk||!bk.id)return;
-  if(_ltBkId===bk.id&&_ltUnsub)return;
-  if(_ltUnsub){_ltUnsub();_ltUnsub=null;}
-  _ltBkId=bk.id;
-  var FB=window._FB;if(!FB)return;
-
-  _ltUnsub=FB.onSnapshot(FB.doc(FB.db,'bookings',bk.id),function(snap){
-    if(!snap.exists())return;
-    var data=snap.data();
-
-    // Auto-close when done
-    if(data.ds==='completed'||data.ds==='cancelled'){
-      closeLiveTracking();
-      return;
-    }
-
-    // Update status text based on booking state
-    var etaEl=document.getElementById('lt-eta-text');
-    var distEl=document.getElementById('lt-eta-dist');
-
-    var loc=data.driverLocation;
-    if(!loc||!loc.lat||!loc.lng){
-      if(etaEl)etaEl.textContent='Driver is on the way...';
-      if(distEl)distEl.textContent='Waiting for driver location';
-      return;
-    }
-
-    var dLat=parseFloat(loc.lat),dLng=parseFloat(loc.lng);
-
-    // Update / create driver marker
-    if(_ltMap){
-      if(_ltDriverMarker){
-        _ltDriverMarker.position={lat:dLat,lng:dLng};
-      } else {
-        var dEl=document.createElement('div');
-        dEl.style.cssText='width:42px;height:42px;background:#111;border:2.5px solid #1A73E8;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 0 6px rgba(26,115,232,0.2),0 3px 12px rgba(0,0,0,0.6);animation:pulseGreen 2s ease infinite;';
-        dEl.textContent=_ltGetEmoji(data.driverTruck||bk.driverTruck||bk.truck||'');
-        _ltDriverMarker=new google.maps.marker.AdvancedMarkerElement({map:_ltMap,position:{lat:dLat,lng:dLng},content:dEl});
-      }
-      // Camera follows driver (panTo animates; tilt/zoom apply immediately alongside it)
-      _ltMap.panTo({lat:dLat,lng:dLng});
-      _ltMap.setZoom(15);
-      _ltMap.setTilt(50);
-    }
-
-    // ETA from driver to pickup
-    var pickupCoords=bk.fromCoords;
-    var distKm=null;
-    if(pickupCoords){
-      var pLng2=Array.isArray(pickupCoords)?pickupCoords[0]:pickupCoords.lng;
-      var pLat2=Array.isArray(pickupCoords)?pickupCoords[1]:pickupCoords.lat;
-      distKm=_haversineKm(dLat,dLng,pLat2,pLng2);
-    }
-
-    if(data.ds==='in_progress'){
-      if(etaEl)etaEl.textContent='In Transit to Delivery';
-      if(distEl)distEl.textContent='Your load is on the move';
-      if(window._ltEtaTick){clearInterval(window._ltEtaTick);window._ltEtaEndMs=null;}
-    } else if(distKm!==null){
-      var etaMin=Math.max(1,Math.round(distKm/0.5));
-      if(distKm<0.15){
-        if(etaEl)etaEl.textContent='Driver has arrived!';
-        if(distEl)distEl.textContent='Your driver is at the pickup location';
-        if(window._ltEtaTick){clearInterval(window._ltEtaTick);window._ltEtaEndMs=null;}
-      } else {
-        if(!window._ltEtaEndMs){
-          window._ltEtaEndMs=Date.now()+(etaMin*60*1000);
-          if(window._ltEtaTick)clearInterval(window._ltEtaTick);
-          window._ltEtaTick=setInterval(function(){
-            var left=Math.max(0,Math.round((window._ltEtaEndMs-Date.now())/1000));
-            var mm=Math.floor(left/60),ss=left%60;
-            var el2=document.getElementById('lt-eta-text');
-            if(el2)el2.textContent='Driver arriving in '+(mm>0?mm+'m '+ss+'s':ss+'s');
-            if(left===0){clearInterval(window._ltEtaTick);window._ltEtaEndMs=null;}
-          },1000);
-        }
-        if(distEl)distEl.textContent=distKm.toFixed(1)+' km away';
-        if(etaEl){
-          var left0=Math.max(0,Math.round(((window._ltEtaEndMs||Date.now())-Date.now())/1000));
-          var mm0=Math.floor(left0/60),ss0=left0%60;
-          etaEl.textContent='Driver arriving in '+(mm0>0?mm0+'m '+ss0+'s':ss0+'s');
-        }
-      }
-    } else {
-      if(etaEl)etaEl.textContent='Driver is on the way...';
-      if(distEl)distEl.textContent='';
-    }
-  });
+  window.requestAnimationFrame(function(){window.requestAnimationFrame(_ltInitMap);});
 }
 
 function closeLiveTracking(){
-  if(_ltUnsub){_ltUnsub();_ltUnsub=null;}
-  if(window._ltEtaTick){clearInterval(window._ltEtaTick);window._ltEtaEndMs=null;}
-  // Google's Map has no .remove() — detach markers, then drop the reference
-  // so _ltInitMap() builds a fresh google.maps.Map next time this screen opens.
-  if(_ltDriverMarker)_ltDriverMarker.map=null;
-  if(_ltPickupMarker)_ltPickupMarker.map=null;
-  _ltMap=null;_ltDriverMarker=null;_ltPickupMarker=null;_ltBkId=null;
-  var scr=document.getElementById('s-live-track');
-  if(scr)scr.style.display='none';
+  _ltActive=false;
+  if(_ltUnsub){try{_ltUnsub();}catch(e){}_ltUnsub=null;}
+  _ltReset();
+  _ltBkId=null;
+  var s=document.getElementById('s-live-track');if(s)s.style.display='none';
+  var dt=document.getElementById('lt-details');if(dt)dt.style.display='none';
 }
-// ══ END LIVE TRACKING ════════════════════════════════════════════════════════
+// ══ END LIVE TRACKING ══════════════════════════════════════════
 
 </script>
 
@@ -5777,41 +6363,71 @@ function closeLiveTracking(){
 </div>
 
 
-<!-- ══ LIVE TRACKING SCREEN (Bolt-style) ══════════════════════════════════ -->
+<!-- ══ LIVE TRACKING SCREEN ══════════════════════════════════════════════ -->
 <div id="s-live-track" style="display:none;">
-  <!-- Full-screen map -->
-  <div id="live-track-map"></div>
-  <!-- Top bar -->
-  <div class="lt-topbar">
-    <button class="lt-back-btn" onclick="closeLiveTracking()"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 4 6 10 12 16"/></svg></button>
+  <div class="lt-head">
+    <button class="lt-round" id="lt-back" onclick="closeLiveTracking()" aria-label="Back"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 4 6 10 12 16"/></svg></button>
+    <div class="lt-head-txt">
+      <div class="lt-title" id="lt-title">Driver assigned</div>
+      <div class="lt-subtitle" id="lt-subtitle">Waiting for your driver's location</div>
+    </div>
+    <a class="lt-call off" id="lt-call"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1Z"/></svg><span>Call Driver</span></a>
   </div>
-  <!-- Bottom sheet -->
+  <div class="lt-mapwrap">
+    <div id="live-track-map"></div>
+    <div class="lt-map-msg" id="lt-map-msg"></div>
+    <div class="lt-info">
+      <div class="lt-info-row">
+        <div class="lt-info-ico"><svg viewBox="0 0 30 30" width="30" height="30"><circle cx="15" cy="15" r="15" fill="#22d3a0"/><circle cx="15" cy="15" r="7.4" fill="none" stroke="#062b22" stroke-width="2"/><path d="M15 10.8V15l3 1.8" fill="none" stroke="#062b22" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div><div class="lt-info-val" id="lt-eta-val">—</div><div class="lt-info-lbl">ETA</div></div>
+      </div>
+      <div class="lt-info-row">
+        <div class="lt-info-ico"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6.4 21c-2.7-2.8-3.9-4.7-3.9-6.5a3.9 3.9 0 0 1 7.8 0c0 1.8-1.2 3.7-3.9 6.5Z"/><circle cx="6.4" cy="14.6" r="1.2" fill="currentColor" stroke="none"/><path d="M17.6 13.6c-2.4-2.5-3.5-4.2-3.5-5.9a3.5 3.5 0 0 1 7 0c0 1.7-1.1 3.4-3.5 5.9Z" fill="currentColor" stroke="none"/><path d="M11 18.4c2.8.3 5.2-.6 4.6-2.7" stroke-dasharray=".1 3"/></svg></div>
+        <div><div class="lt-info-val" id="lt-dist-val">—</div><div class="lt-info-lbl">Distance</div></div>
+      </div>
+    </div>
+    <div class="lt-fabs">
+      <button class="lt-round" id="lt-locate" aria-label="Centre on driver"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M12 1.5v3.6M12 18.9v3.6M1.5 12h3.6M18.9 12h3.6"/><circle cx="12" cy="12" r="6.4"/><circle cx="12" cy="12" r="2.3" fill="currentColor" stroke="none"/></svg></button>
+      <button class="lt-round" id="lt-fit" aria-label="Show whole route"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3.4 11.1 20.6 3.4l-7.7 17.2-1.8-7.7-7.7-1.8Z"/></svg></button>
+    </div>
+  </div>
   <div class="lt-sheet">
     <div class="lt-handle"></div>
-    <!-- ETA -->
-    <div class="lt-eta" id="lt-eta-text">Driver is on the way...</div>
-    <div class="lt-eta-dist" id="lt-eta-dist">Calculating route...</div>
-    <!-- Vehicle row -->
-    <div class="lt-vehicle-row">
-      <div class="lt-vehicle-icon" id="lt-truck-icon"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg></div>
-      <div class="lt-vehicle-info">
-        <div class="lt-vehicle-name" id="lt-truck-type">—</div>
-        <div class="lt-vehicle-color" id="lt-truck-color">—</div>
+    <div class="lt-drv">
+      <span id="lt-avatar"></span>
+      <div class="lt-drv-info">
+        <div class="lt-drv-name" id="lt-driver-name">Your driver</div>
+        <div class="lt-drv-meta" id="lt-driver-meta"></div>
       </div>
-      <div class="lt-plate" id="lt-plate">— — —</div>
+      <div class="lt-status"><i></i><span id="lt-status-txt">Assigned</span></div>
     </div>
-    <!-- Driver row -->
-    <div class="lt-driver-row">
-      <div class="lt-avatar" id="lt-avatar"><svg viewBox="0 0 20 20" width="1em" height="1em" style="vertical-align:-.125em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="6" width="9" height="7"/><path d="M10.5 8.5H15l3 3V13h-2"/><circle cx="5" cy="14.7" r="1.4"/><circle cx="14" cy="14.7" r="1.4"/></svg></div>
-      <div>
-        <div class="lt-driver-name" id="lt-driver-name">Driver</div>
-        <div class="lt-driver-role">Your driver</div>
+    <div class="lt-truck">
+      <span id="lt-truck-thumb"></span>
+      <div class="lt-truck-info">
+        <div class="lt-truck-name" id="lt-truck-type">Truck</div>
+        <div class="lt-truck-plate" id="lt-plate">—</div>
       </div>
+      <button class="lt-more" id="lt-more">View details <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="7.5 4 13.5 10 7.5 16"/></svg></button>
+    </div>
+    <div class="lt-steps" id="lt-steps">
+      <div class="lt-step" data-i="0"><span class="lt-dot"><svg class="ic-def" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3.5" width="12" height="17" rx="2"/><path d="M9 3.5h6v2.5H9zM9.5 11h5M9.5 14.5h5"/></svg><svg class="ic-chk" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12.5 10 17.5 19 7.5"/></svg></span>Driver assigned</div>
+      <div class="lt-step" data-i="1"><span class="lt-dot"><svg class="ic-def" viewBox="0 0 32 24" width="22" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="1.5" y="3.5" width="17" height="14" rx="2"/><path d="M20.5 8.5h5.6c.5 0 1 .3 1.3.7l2.4 3.4c.2.3.3.6.3 1v3.9h-9.6z"/><circle cx="8" cy="19" r="2.6" fill="var(--lt-dot)"/><circle cx="25" cy="19" r="2.6" fill="var(--lt-dot)"/></svg><svg class="ic-chk" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12.5 10 17.5 19 7.5"/></svg></span>On the way</div>
+      <div class="lt-step" data-i="2"><span class="lt-dot"><svg class="ic-def" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8 20 7v10l-8 4.2L4 17V7z"/><path d="M4 7l8 4.2L20 7M12 11.2v10"/></svg><svg class="ic-chk" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12.5 10 17.5 19 7.5"/></svg></span>Arriving soon</div>
+      <div class="lt-step" data-i="3"><span class="lt-dot"><svg class="ic-def" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5"/></svg><svg class="ic-chk" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12.5 10 17.5 19 7.5"/></svg></span>Pickup completed</div>
+    </div>
+    <button class="lt-chat" id="lt-chat"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5z"/><path d="M8.5 9.5h.01M12 9.5h.01M15.5 9.5h.01" stroke-width="2.6"/></svg>Chat with driver</button>
+  </div>
+  <div class="lt-details" id="lt-details">
+    <div class="lt-details-panel">
+      <div class="lt-handle"></div>
+      <div class="lt-det-photo" id="lt-det-photo"></div>
+      <div class="lt-det-name" id="lt-det-name">Truck</div>
+      <div id="lt-det-rows"></div>
+      <button class="lt-det-close" id="lt-det-close">Close</button>
     </div>
   </div>
 </div>
-<!-- ══ END LIVE TRACKING ════════════════════════════════════════════════════ -->
-<!-- ══ END LIVE TRACKING ════════════════════════════════════════════════════ -->
+<!-- ══ END LIVE TRACKING ════════════════════════════════════════════════ -->
 
 <!-- ══ TRUCKCONNECT FINGERPRINT GATE (Customer) — simple device confirm, same pattern as Admin app ══
      Real login always happens via email+password against Firebase Auth first.
