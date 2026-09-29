@@ -1,17 +1,13 @@
-// ══════════════════════════════════════════════════════════════════════════
-// TruckConnect-SW.js
-// Shared service worker for the / scope — used by BOTH the
-// Customer and Driver apps (they register the same file/scope).
+// TruckConnect-SW.js  (v2)
+// Shared service worker used by the Customer AND Driver apps.
+// Put this file in the SAME folder as the app's HTML file.
 //
-// Handles two jobs:
-//   1. Offline support — basic cache-first for the app shell.
-//   2. FCM background push — receives notifications when the app is closed
-//      or the phone is locked, and routes taps to the right screen.
-//
-// Deploy this at: /TruckConnect-SW.js
-// ══════════════════════════════════════════════════════════════════════════
+//  1. Offline shell (network first).
+//  2. FCM background push. The Worker sends DATA-ONLY messages
+//     ({title, body, screen, id, kind, tag}) and this file shows them,
+//     so every push appears exactly once.
+//  3. Tapping a notification opens/focuses the app and routes to the right screen.
 
-// ── Firebase (compat build — required inside service workers) ──────────────
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
 
@@ -25,91 +21,87 @@ firebase.initializeApp({
 });
 
 const messaging = firebase.messaging();
+const SCOPE = self.registration.scope;               // e.g. https://user.github.io/repo/
+const CACHE_NAME = 'truckconnect-v2';
 
-// ── 1. OFFLINE CACHE (app shell) ────────────────────────────────────────────
-const CACHE_NAME = 'truckconnect-v1';
-const APP_SHELL = [
-  '/',
-];
-
-self.addEventListener('install', function(event) {
+// ── 1. OFFLINE SHELL ────────────────────────────────────────────────────
+self.addEventListener('install', function (event) {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(APP_SHELL).catch(function() { /* ignore missing files */ });
+    caches.open(CACHE_NAME).then(function (cache) {
+      return cache.add(SCOPE).catch(function () {});
     })
   );
 });
 
-self.addEventListener('activate', function(event) {
+self.addEventListener('activate', function (event) {
   event.waitUntil(
-    caches.keys().then(function(names) {
-      return Promise.all(
-        names.filter(function(n) { return n !== CACHE_NAME; })
-             .map(function(n) { return caches.delete(n); })
-      );
-    }).then(function() { return self.clients.claim(); })
+    caches.keys().then(function (names) {
+      return Promise.all(names.filter(function (n) { return n !== CACHE_NAME; })
+                              .map(function (n) { return caches.delete(n); }));
+    }).then(function () { return self.clients.claim(); })
   );
 });
 
-self.addEventListener('fetch', function(event) {
-  // Network-first for navigation requests, cache-first for everything else.
-  // Never intercept Firestore/Firebase/API calls — let those hit the network directly.
-  var url = event.request.url;
-  if (url.indexOf('firestore.googleapis.com') !== -1 ||
-      url.indexOf('firebaseio.com') !== -1 ||
-      url.indexOf('googleapis.com') !== -1) {
-    return;
-  }
+self.addEventListener('fetch', function (event) {
+  var req = event.request;
+  if (req.method !== 'GET') return;
+  var url = req.url;
+  // Never touch Firebase / Google / Worker / map traffic.
+  if (url.indexOf('googleapis.com') !== -1 || url.indexOf('gstatic.com') !== -1 ||
+      url.indexOf('firebaseio.com') !== -1 || url.indexOf('workers.dev') !== -1 ||
+      url.indexOf(self.location.origin) !== 0) return;
   event.respondWith(
-    caches.match(event.request).then(function(cached) {
-      return cached || fetch(event.request).catch(function() {
-        return caches.match('/');
-      });
+    fetch(req).then(function (res) {
+      if (req.mode === 'navigate' && res && res.ok) {
+        var copy = res.clone();
+        caches.open(CACHE_NAME).then(function (c) { c.put(SCOPE, copy); }).catch(function () {});
+      }
+      return res;
+    }).catch(function () {
+      return caches.match(req).then(function (hit) { return hit || caches.match(SCOPE); });
     })
   );
 });
 
-// ── 2. FCM BACKGROUND MESSAGES ──────────────────────────────────────────────
-// Fires when a push arrives while the app is closed, backgrounded, or the
-// phone is locked. `payload.data` carries routing info set by the sender
-// (Admin app / Cloudflare Worker) — e.g. { screen: "loadDetails", loadId: "..." }
-messaging.onBackgroundMessage(function(payload) {
-  var n = payload.notification || {};
-  var title = n.title || 'TruckConnect';
+// ── 2. BACKGROUND PUSH ──────────────────────────────────────────────────
+messaging.onBackgroundMessage(function (payload) {
+  // If a message ever arrives WITH a "notification" block, Firebase already shows it — don't show twice.
+  if (payload.notification) return;
+  var d = payload.data || {};
+  var isJob = d.kind === 'new_job';
   var options = {
-    body: n.body || '',
-    icon: '/icon-192.png',
-    badge: '/icon-192.png',
-    data: payload.data || {},
-    tag: (payload.data && payload.data.tag) || undefined,
+    body: d.body || '',
+    icon: SCOPE + 'icon-192.png',
+    badge: SCOPE + 'icon-192.png',
+    data: d,
+    tag: d.tag || undefined,
+    renotify: !!d.tag,
+    requireInteraction: isJob,               // job requests stay on screen until the driver reacts
+    vibrate: isJob ? [300, 150, 300, 150, 300] : [200, 100, 200],
+    actions: isJob ? [{ action: 'open', title: 'View job' }] : []
   };
-  self.registration.showNotification(title, options);
+  return self.registration.showNotification(d.title || 'TruckConnect', options);
 });
 
-// ── 3. TAP-TO-NAVIGATE ──────────────────────────────────────────────────────
-// When the user taps the notification, focus an open tab if there is one
-// (and tell it which screen to jump to), otherwise open a new one with the
-// routing info in the URL so the app can read it on load.
-self.addEventListener('notificationclick', function(event) {
+// ── 3. TAP → OPEN THE RIGHT SCREEN ──────────────────────────────────────
+self.addEventListener('notificationclick', function (event) {
   event.notification.close();
   var data = event.notification.data || {};
   var screen = data.screen || '';
-  var targetUrl = '/' + (screen ? ('?screen=' + encodeURIComponent(screen) +
-                    (data.id ? '&id=' + encodeURIComponent(data.id) : '')) : '');
+  var targetUrl = SCOPE + (screen ? ('?screen=' + encodeURIComponent(screen) +
+                  (data.id ? '&id=' + encodeURIComponent(data.id) : '')) : '');
 
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
-      for (var i = 0; i < clientList.length; i++) {
-        var client = clientList[i];
-        if ('focus' in client) {
-          client.postMessage({ type: 'TC_NOTIFICATION_CLICK', data: data });
-          return client.focus();
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
+      for (var i = 0; i < list.length; i++) {
+        var c = list[i];
+        if (c.url.indexOf(SCOPE) === 0 && 'focus' in c) {
+          c.postMessage({ type: 'TC_NOTIFICATION_CLICK', data: data });
+          return c.focus();
         }
       }
-      if (clients.openWindow) {
-        return clients.openWindow(targetUrl);
-      }
+      if (clients.openWindow) return clients.openWindow(targetUrl);
     })
   );
 });
