@@ -1,107 +1,376 @@
-// TruckConnect-SW.js  (v2)
-// Shared service worker used by the Customer AND Driver apps.
-// Put this file in the SAME folder as the app's HTML file.
-//
-//  1. Offline shell (network first).
-//  2. FCM background push. The Worker sends DATA-ONLY messages
-//     ({title, body, screen, id, kind, tag}) and this file shows them,
-//     so every push appears exactly once.
-//  3. Tapping a notification opens/focuses the app and routes to the right screen.
+/* ============================================================
+   TRUCK CONNECT — SERVICE WORKER (FCM push, web)
+   File name must stay: TruckConnect-SW.js
+   (both apps register './TruckConnect-SW.js')
 
-importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
+   Push + in-app together:
+   - App closed / in background -> onBackgroundMessage shows the push
+   - App open (foreground)      -> the page receives the message and
+     asks this worker (TC_SHOW_NOTIFICATION) to show the SAME push,
+     while the in-app popup / toast / banner shows at the same time
+   ============================================================ */
+
+importScripts(
+  "https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js",
+  "https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"
+);
+
+/* ============================================================
+   FIREBASE CONFIG
+   ============================================================ */
 
 firebase.initializeApp({
-  apiKey: "AIzaSyD0dRuRqbsJr0-Kv29xcpQGjW-1DiYPNLo",
+  apiKey: "AIzaSyD0RuRqbsJ0-Rv29xcpQGjW-1DiYPNLo",
   authDomain: "truck-connect-c0c67.firebaseapp.com",
   projectId: "truck-connect-c0c67",
   storageBucket: "truck-connect-c0c67.firebasestorage.app",
   messagingSenderId: "313065662016",
-  appId: "1:313065662016:web:a43aecfce5d7db205d61a5",
+  appId: "1:313065662016:web:a43aecfce5d7db205d61a5"
 });
 
 const messaging = firebase.messaging();
-const SCOPE = self.registration.scope;               // e.g. https://user.github.io/repo/
-const CACHE_NAME = 'truckconnect-v2';
 
-// ── 1. OFFLINE SHELL ────────────────────────────────────────────────────
-self.addEventListener('install', function (event) {
-  self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(function (cache) {
-      return cache.add(SCOPE).catch(function () {});
-    })
-  );
-});
+/* ============================================================
+   SETTINGS
+   ============================================================ */
 
-self.addEventListener('activate', function (event) {
-  event.waitUntil(
-    caches.keys().then(function (names) {
-      return Promise.all(names.filter(function (n) { return n !== CACHE_NAME; })
-                              .map(function (n) { return caches.delete(n); }));
-    }).then(function () { return self.clients.claim(); })
-  );
-});
+const WORKER_URL =
+  "https://truckconnect-fcm.madibasphiwe50.workers.dev";
 
-self.addEventListener('fetch', function (event) {
-  var req = event.request;
-  if (req.method !== 'GET') return;
-  var url = req.url;
-  // Never touch Firebase / Google / Worker / map traffic.
-  if (url.indexOf('googleapis.com') !== -1 || url.indexOf('gstatic.com') !== -1 ||
-      url.indexOf('firebaseio.com') !== -1 || url.indexOf('workers.dev') !== -1 ||
-      url.indexOf(self.location.origin) !== 0) return;
-  event.respondWith(
-    fetch(req).then(function (res) {
-      if (req.mode === 'navigate' && res && res.ok) {
-        var copy = res.clone();
-        caches.open(CACHE_NAME).then(function (c) { c.put(SCOPE, copy); }).catch(function () {});
-      }
-      return res;
-    }).catch(function () {
-      return caches.match(req).then(function (hit) { return hit || caches.match(SCOPE); });
-    })
-  );
-});
+/* Folder this service worker controls (always ends with "/"). */
+const SCOPE = self.registration.scope;
 
-// ── 2. BACKGROUND PUSH ──────────────────────────────────────────────────
-messaging.onBackgroundMessage(function (payload) {
-  // If a message ever arrives WITH a "notification" block, Firebase already shows it — don't show twice.
-  if (payload.notification) return;
-  var d = payload.data || {};
-  var isJob = d.kind === 'new_job';
-  var options = {
-    body: d.body || '',
-    icon: SCOPE + 'icon-192.png',
-    badge: SCOPE + 'icon-192.png',
-    data: d,
-    tag: d.tag || undefined,
-    renotify: !!d.tag,
-    requireInteraction: isJob,               // job requests stay on screen until the driver reacts
-    vibrate: isJob ? [300, 150, 300, 150, 300] : [200, 100, 200],
-    actions: isJob ? [{ action: 'open', title: 'View job' }] : []
+/* The HTML file of each app, used when the app is closed and a
+   notification is tapped. Leave "" for index.html.
+   Example: "TruckConnect_Driver.html" */
+const DRIVER_PAGE = "";
+const CUSTOMER_PAGE = "";
+
+/* Notification icon. Use a 192x192 PNG when you have one. */
+const ICON = SCOPE + "favicon.ico";
+
+/* new_job pushes belong to the Driver app, driver_accepted pushes
+   belong to the Customer app. */
+function pageFor(kind) {
+  if (kind === "new_job") return DRIVER_PAGE;
+  if (kind === "driver_accepted") return CUSTOMER_PAGE;
+  return "";
+}
+
+function screenFor(kind, data) {
+  if (kind === "new_job") return "job";
+  if (kind === "driver_accepted") return "tracking";
+  return (data && data.screen) || "home";
+}
+
+/* ============================================================
+   BUILD A NOTIFICATION FROM FCM DATA
+   (used by both background pushes and foreground pushes)
+   ============================================================ */
+
+function buildNotification(data) {
+  data = data || {};
+
+  const kind = data.kind || "";
+
+  const title = data.title || "Truck Connect";
+
+  const body = data.body || "You have a new notification.";
+
+  const bookingId = data.bookingId || data.id || "";
+
+  const options = {
+    body: body,
+    icon: ICON,
+    badge: ICON,
+    timestamp: Date.now()
   };
-  return self.registration.showNotification(d.title || 'TruckConnect', options);
+
+  /* ---------------- NEW TRUCK JOB ---------------- */
+
+  if (kind === "new_job") {
+    options.tag = data.tag || "truckconnect-job-" + bookingId;
+    options.renotify = true;
+    options.requireInteraction = true;
+    options.vibrate = [200, 100, 200];
+    options.data = {
+      kind: "new_job",
+      bookingId: bookingId,
+      id: bookingId,
+      actionToken: data.actionToken || "",
+      screen: "job"
+    };
+    /* LEFT = DECLINE, RIGHT = ACCEPT */
+    options.actions = [
+      { action: "decline", title: "DECLINE" },
+      { action: "accept", title: "ACCEPT" }
+    ];
+
+    return { title: title, options: options };
+  }
+
+  /* ---------------- DRIVER ACCEPTED ---------------- */
+
+  if (kind === "driver_accepted") {
+    options.tag = data.tag || "truckconnect-accepted-" + bookingId;
+    options.data = {
+      kind: "driver_accepted",
+      bookingId: bookingId,
+      id: bookingId,
+      screen: "tracking"
+    };
+
+    return { title: title, options: options };
+  }
+
+  /* ---------------- OTHER NOTIFICATIONS ---------------- */
+
+  options.tag = data.tag || "truckconnect-" + Date.now();
+  options.data = {
+    kind: kind,
+    bookingId: bookingId,
+    id: bookingId,
+    screen: data.screen || "home"
+  };
+
+  return { title: title, options: options };
+}
+
+/* ============================================================
+   BACKGROUND FCM MESSAGE (app closed or not in front)
+   ============================================================ */
+
+messaging.onBackgroundMessage((payload) => {
+  console.log("[TruckConnect SW] Background message:", payload);
+
+  const data = Object.assign(
+    {},
+    payload.notification || {},
+    payload.data || {}
+  );
+
+  const n = buildNotification(data);
+
+  return self.registration.showNotification(n.title, n.options);
 });
 
-// ── 3. TAP → OPEN THE RIGHT SCREEN ──────────────────────────────────────
-self.addEventListener('notificationclick', function (event) {
-  event.notification.close();
-  var data = event.notification.data || {};
-  var screen = data.screen || '';
-  var targetUrl = SCOPE + (screen ? ('?screen=' + encodeURIComponent(screen) +
-                  (data.id ? '&id=' + encodeURIComponent(data.id) : '')) : '');
+/* ============================================================
+   MESSAGES FROM THE PAGE (app open)
+   ============================================================ */
 
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
-      for (var i = 0; i < list.length; i++) {
-        var c = list[i];
-        if (c.url.indexOf(SCOPE) === 0 && 'focus' in c) {
-          c.postMessage({ type: 'TC_NOTIFICATION_CLICK', data: data });
-          return c.focus();
-        }
+self.addEventListener("message", (event) => {
+  const msg = event.data || {};
+
+  /* App is open: show the same push as when the app is closed */
+  if (msg.type === "TC_SHOW_NOTIFICATION") {
+    const n = buildNotification(msg.data);
+
+    event.waitUntil(self.registration.showNotification(n.title, n.options));
+
+    return;
+  }
+
+  /* Driver accepted / declined inside the app: remove the push */
+  if (msg.type === "TC_CLOSE_NOTIFICATIONS" && msg.bookingId) {
+    event.waitUntil(closeJobNotifications(String(msg.bookingId)));
+  }
+});
+
+async function closeJobNotifications(bookingId) {
+  try {
+    const list = await self.registration.getNotifications();
+
+    list.forEach((n) => {
+      const d = n.data || {};
+
+      if ((d.bookingId || d.id) === bookingId && d.kind === "new_job") {
+        n.close();
       }
-      if (clients.openWindow) return clients.openWindow(targetUrl);
-    })
-  );
+    });
+  } catch (e) {
+    console.log("[TruckConnect SW] Close notifications failed:", e);
+  }
+}
+
+/* ============================================================
+   NOTIFICATION CLICK
+   ============================================================ */
+
+self.addEventListener("notificationclick", (event) => {
+  const notification = event.notification;
+
+  const data = notification.data || {};
+
+  const action = event.action || "";
+
+  const kind = data.kind || "";
+
+  const bookingId = data.bookingId || data.id || "";
+
+  console.log("[TruckConnect SW] Notification clicked:", action, data);
+
+  notification.close();
+
+  /* ---------- ACCEPT / DECLINE BUTTONS ---------- */
+
+  if (kind === "new_job" && (action === "accept" || action === "decline")) {
+    event.waitUntil(handleJobAction(action, data, bookingId));
+    return;
+  }
+
+  /* ---------- NORMAL TAP ---------- */
+
+  event.waitUntil(openApp(kind, screenFor(kind, data), bookingId));
+});
+
+/* ============================================================
+   ACCEPT / DECLINE REQUEST
+   ============================================================ */
+
+async function handleJobAction(action, data, bookingId) {
+  let response = null;
+
+  let result = null;
+
+  try {
+    response = await fetch(WORKER_URL + "/notification-action", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token: data.actionToken || "",
+        action: action
+      })
+    });
+
+    try {
+      result = await response.json();
+    } catch (e) {
+      result = null;
+    }
+
+    console.log(
+      "[TruckConnect SW] Action response:",
+      response.status,
+      result
+    );
+  } catch (error) {
+    console.error("[TruckConnect SW] Action request failed:", error);
+
+    /* No network. For accept, open the app so the driver can
+       accept manually. */
+    if (action === "accept") {
+      return openApp("new_job", "job", bookingId);
+    }
+
+    return;
+  }
+
+  /* DECLINE: do not open the app */
+  if (action === "decline") return;
+
+  /* ACCEPT SUCCESS: open the accepted job */
+  if (response.ok && result && result.ok) {
+    return openApp("new_job", "job", bookingId);
+  }
+
+  /* ACCEPT FAILED: tell the driver why */
+  console.error("[TruckConnect SW] Accept failed:", response.status, result);
+
+  const reason = result && result.reason;
+
+  let title = "Could not accept the job";
+  let body = "Tap to open the app and try again.";
+  let screen = "job";
+
+  if (
+    reason === "job-already-taken" ||
+    reason === "job-no-longer-available"
+  ) {
+    title = "Job no longer available";
+    body = "Another driver got this job.";
+    screen = "home";
+  } else if (response.status === 401) {
+    title = "Request expired";
+    body = "Tap to open the app and check if the job is still available.";
+  }
+
+  return self.registration.showNotification(title, {
+    body: body,
+    icon: ICON,
+    badge: ICON,
+    tag: "truckconnect-result-" + bookingId,
+    data: {
+      kind: "info",
+      bookingId: bookingId,
+      id: bookingId,
+      screen: screen
+    }
+  });
+}
+
+/* ============================================================
+   OPEN / FOCUS THE APP
+   - app already open: tell the page where to go (no reload)
+   - app closed: open it with ?screen=&id= so it can route itself
+   ============================================================ */
+
+async function openApp(kind, screen, id) {
+  const page = pageFor(kind);
+
+  let url = SCOPE + page;
+
+  if (screen && screen !== "home") {
+    url +=
+      "?screen=" +
+      encodeURIComponent(screen) +
+      (id ? "&id=" + encodeURIComponent(id) : "");
+  }
+
+  try {
+    const windowClients = await clients.matchAll({
+      type: "window",
+      includeUncontrolled: true
+    });
+
+    for (const client of windowClients) {
+      if (!client.url.startsWith(SCOPE)) continue;
+
+      if (page && client.url.indexOf(page) === -1) continue;
+
+      if (screen && screen !== "home") {
+        client.postMessage({
+          type: "TC_NOTIFICATION_CLICK",
+          data: { screen: screen, id: id, kind: kind }
+        });
+      }
+
+      try {
+        if ("focus" in client) return await client.focus();
+      } catch (e) {
+        console.log("[TruckConnect SW] Focus failed:", e);
+      }
+
+      return client;
+    }
+  } catch (error) {
+    console.error("[TruckConnect SW] Client lookup failed:", error);
+  }
+
+  return clients.openWindow(url);
+}
+
+/* ============================================================
+   INSTALL / ACTIVATE
+   ============================================================ */
+
+self.addEventListener("install", () => {
+  console.log("[TruckConnect SW] Installed");
+
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", (event) => {
+  console.log("[TruckConnect SW] Activated");
+
+  event.waitUntil(self.clients.claim());
 });
