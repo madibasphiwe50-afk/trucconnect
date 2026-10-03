@@ -11,8 +11,8 @@
    ============================================================ */
 
 importScripts(
-  "https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js",
-  "https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"
+  "https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js",
+  "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"
 );
 
 /* ============================================================
@@ -20,7 +20,7 @@ importScripts(
    ============================================================ */
 
 firebase.initializeApp({
-  apiKey: "AIzaSyD0RuRqbsJ0-Rv29xcpQGjW-1DiYPNLo",
+  apiKey: "AIzaSyD0dRuRqbsJr0-Kv29xcpQGjW-1DiYPNLo",
   authDomain: "truck-connect-c0c67.firebaseapp.com",
   projectId: "truck-connect-c0c67",
   storageBucket: "truck-connect-c0c67.firebasestorage.app",
@@ -42,18 +42,30 @@ const SCOPE = self.registration.scope;
 
 /* The HTML file of each app, used when the app is closed and a
    notification is tapped. Leave "" for index.html.
-   Example: "TruckConnect_Driver.html" */
-const DRIVER_PAGE = "";
-const CUSTOMER_PAGE = "";
+   These MUST match the deployed file names in the same GitHub Pages folder
+   (your GitHub Pages folder). If you rename or
+   re-version an HTML file, change it here too. */
+const DRIVER_PAGE = "driver.html";
+const CUSTOMER_PAGE = "customer.html";
 
 /* Notification icon. Use a 192x192 PNG when you have one. */
 const ICON = SCOPE + "favicon.ico";
 
 /* new_job pushes belong to the Driver app, driver_accepted pushes
    belong to the Customer app. */
-function pageFor(kind) {
-  if (kind === "new_job") return DRIVER_PAGE;
-  if (kind === "driver_accepted") return CUSTOMER_PAGE;
+const DRIVER_KINDS = ["new_job", "job_cancelled", "job_taken"];
+const CUSTOMER_KINDS = [
+  "driver_accepted", "driver_arrived", "driver_declined",
+  "trip_started", "trip_completed", "cancellation", "status"
+];
+
+/* The Worker puts app: "driver" | "customer" in every push, so that wins.
+   Falls back to the kind for older pushes. "" = unknown (any app tab). */
+function pageFor(kind, app) {
+  if (app === "driver") return DRIVER_PAGE;
+  if (app === "customer") return CUSTOMER_PAGE;
+  if (DRIVER_KINDS.indexOf(kind) !== -1) return DRIVER_PAGE;
+  if (CUSTOMER_KINDS.indexOf(kind) !== -1) return CUSTOMER_PAGE;
   return "";
 }
 
@@ -79,6 +91,8 @@ function buildNotification(data) {
 
   const bookingId = data.bookingId || data.id || "";
 
+  const app = data.app || "";
+
   const options = {
     body: body,
     icon: ICON,
@@ -98,7 +112,8 @@ function buildNotification(data) {
       bookingId: bookingId,
       id: bookingId,
       actionToken: data.actionToken || "",
-      screen: "job"
+      screen: "job",
+      app: "driver"
     };
     /* LEFT = DECLINE, RIGHT = ACCEPT */
     options.actions = [
@@ -117,7 +132,8 @@ function buildNotification(data) {
       kind: "driver_accepted",
       bookingId: bookingId,
       id: bookingId,
-      screen: "tracking"
+      screen: "tracking",
+      app: "customer"
     };
 
     return { title: title, options: options };
@@ -130,8 +146,12 @@ function buildNotification(data) {
     kind: kind,
     bookingId: bookingId,
     id: bookingId,
-    screen: data.screen || "home"
+    screen: data.screen || "home",
+    app: app
   };
+  /* status pushes (picked up / delivered / declined) should wake the screen */
+  options.renotify = true;
+  options.vibrate = [150, 80, 150];
 
   return { title: title, options: options };
 }
@@ -143,6 +163,10 @@ function buildNotification(data) {
 messaging.onBackgroundMessage((payload) => {
   console.log("[TruckConnect SW] Background message:", payload);
 
+  /* The Worker sends DATA-ONLY messages, so this is the single place the
+     system notification is created (no automatic FCM display -> no
+     duplicates). If a "notification" block ever arrives, its title/body are
+     used as a fallback and the shared tag makes a repeat replace, not stack. */
   const data = Object.assign(
     {},
     payload.notification || {},
@@ -207,6 +231,8 @@ self.addEventListener("notificationclick", (event) => {
 
   const bookingId = data.bookingId || data.id || "";
 
+  const app = data.app || "";
+
   console.log("[TruckConnect SW] Notification clicked:", action, data);
 
   notification.close();
@@ -220,7 +246,7 @@ self.addEventListener("notificationclick", (event) => {
 
   /* ---------- NORMAL TAP ---------- */
 
-  event.waitUntil(openApp(kind, screenFor(kind, data), bookingId));
+  event.waitUntil(openApp(kind, screenFor(kind, data), bookingId, app));
 });
 
 /* ============================================================
@@ -259,7 +285,7 @@ async function handleJobAction(action, data, bookingId) {
     /* No network. For accept, open the app so the driver can
        accept manually. */
     if (action === "accept") {
-      return openApp("new_job", "job", bookingId);
+      return openApp("new_job", "job", bookingId, "driver");
     }
 
     return;
@@ -270,7 +296,7 @@ async function handleJobAction(action, data, bookingId) {
 
   /* ACCEPT SUCCESS: open the accepted job */
   if (response.ok && result && result.ok) {
-    return openApp("new_job", "job", bookingId);
+    return openApp("new_job", "job", bookingId, "driver");
   }
 
   /* ACCEPT FAILED: tell the driver why */
@@ -314,8 +340,8 @@ async function handleJobAction(action, data, bookingId) {
    - app closed: open it with ?screen=&id= so it can route itself
    ============================================================ */
 
-async function openApp(kind, screen, id) {
-  const page = pageFor(kind);
+async function openApp(kind, screen, id, app) {
+  const page = pageFor(kind, app);
 
   let url = SCOPE + page;
 
