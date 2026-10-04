@@ -142,7 +142,7 @@ function buildNotification(data) {
 
   /* ---------------- OTHER NOTIFICATIONS ---------------- */
 
-  options.tag = data.tag || "truckconnect-" + Date.now();
+  options.tag = data.tag || "truckconnect-" + kind + "-" + bookingId;
   options.data = {
     kind: kind,
     bookingId: bookingId,
@@ -162,21 +162,36 @@ function buildNotification(data) {
    ============================================================ */
 
 messaging.onBackgroundMessage((payload) => {
+  /* Display is handled by the raw "push" listener below, which shows the
+     notification every time. Showing here too would double it. */
   console.log("[TruckConnect SW] Background message:", payload);
+});
 
-  /* The Worker sends DATA-ONLY messages, so this is the single place the
-     system notification is created (no automatic FCM display -> no
-     duplicates). If a "notification" block ever arrives, its title/body are
-     used as a fallback and the shared tag makes a repeat replace, not stack. */
-  const data = Object.assign(
-    {},
-    payload.notification || {},
-    payload.data || {}
-  );
+/* ============================================================
+   RAW PUSH LISTENER - ALWAYS SHOW THE NOTIFICATION
+   Firebase only calls onBackgroundMessage when it thinks no app tab is
+   visible. On a locked phone Chrome can still report the tab as visible, so
+   Firebase hands the push to the (frozen) page and nothing shows until the
+   app is opened. This listener shows it straight away, locked or not.
+   The tag is the same everywhere, so a repeat replaces instead of stacking.
+   ============================================================ */
+
+self.addEventListener("push", (event) => {
+  let payload = null;
+
+  try {
+    payload = event.data ? event.data.json() : null;
+  } catch (e) {
+    payload = null;
+  }
+
+  const data = payload && payload.data ? payload.data : null;
+
+  if (!data || !data.kind) return;
 
   const n = buildNotification(data);
 
-  return self.registration.showNotification(n.title, n.options);
+  event.waitUntil(self.registration.showNotification(n.title, n.options));
 });
 
 /* ============================================================
