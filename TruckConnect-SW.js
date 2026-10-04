@@ -97,6 +97,7 @@ function buildNotification(data) {
     body: body,
     icon: ICON,
     badge: ICON,
+    silent: false, /* let the phone play its notification sound */
     timestamp: Date.now()
   };
 
