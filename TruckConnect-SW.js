@@ -336,6 +336,11 @@ async function handleJobAction(action, data, bookingId) {
     body = "Tap to open the app and check if the job is still available.";
   }
 
+  /* Short error code so a failed Accept can be diagnosed from the phone. */
+  if (screen === "job") {
+    body = body + " (error " + (response ? response.status : "?") + ")";
+  }
+
   return self.registration.showNotification(title, {
     body: body,
     icon: ICON,
